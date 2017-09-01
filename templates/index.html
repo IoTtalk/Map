@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-tw" lang="zh-tw">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<html>
+  <head>
+    <title>This is a map.</title>
+    <script type=text/javascript src="{{ url_for('static', filename='jquery.js') }}"></script>
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet"> 
+    <script type=text/javascript src="{{ url_for('static', filename='jquery.datetimepicker.full.min.js') }}"></script>
+    <script 
+    src="https://maps.googleapis.com/maps/api/js?libraries=geometry&key=AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8" type="text/javascript"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css">
+    <script src="{{ url_for('static', filename='csmapi.js') }}"></script>
+    <script src="{{ url_for('static', filename='dan.js') }}"></script>
+    <script src="{{ url_for('static', filename='dai.js') }}"></script>
+    <script src="{{ url_for('static', filename='img/history_start_icon.png') }}"></script>
+    <script src="{{ url_for('static', filename='img/history_end_icon.png') }}"></script>
+    <script src="{{ url_for('static', filename='dai-app.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='map-icons.js') }}"></script>
+
+    <script type=text/javascript>
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+  </head>
+  <body>
+    
+   
+    <div id="Location-map"></div>
+    <div id="videoBox">
+      <button  id="fuck_off">close</button>
+      <iframe id = "Video-Display" width="420" height="236" src="" frameborder="0" allowfullscreen></iframe>       
+      <!--width="560" height="315"-->
+    </div>
+    
+    <div id="static">
+      <button class="button_s" id="button_s1">取消</button>
+      <button class="button_s" id="button_s2">路障</button>
+      <button class="button_s" id="button_s3">攝影機</button>
+      <button class="button_s" id="button_s4">歷史紀錄</button>
+      <button class="button_s" id="button_s5">路徑規劃</button>
+    </div>
+    
+    <div id="dynamic">
+      <button class="button_d" id="button_d1">狗</button>
+      <!--button class="button_d" id="button_d2">貓</button-->
+    </div>
+    
+    <ul>
+      <li class="function" id="function_but">Function</li>
+        <ul>
+          <li class="button_sm" id="button_sm2"><a>路障</a>
+            <ul>
+              <li class="button" id="ob_add"><a>Add</a></li>
+              <li class="button" id="ob_upd"><a>Update</a></li>
+              <li class="button" id="ob_rm"><a>Remove</a></li>
+              </ul>
+            </li>
+            <li class="button_sm" id="button_sm3"><a>攝影機</a>
+              <ul>
+                <li class="button" id="cam_add"><a>Add</a></li>
+                <li class="button" id="cam_upd"><a>Update</a></li>
+                <li class="button" id="cam_rm" ><a>Remove</a></li>
+              </ul>
+          </li>
+        </ul>
+    </ul>
+    
+  </body>
+<html>
