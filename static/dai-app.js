@@ -57,7 +57,7 @@
                           "color": "#ffffff"
                       },
                       {
-                          "weight": 1.8
+                          "weight": 10
                       }
                   ]
               },
@@ -384,7 +384,7 @@
 
                       if(marker.title == 'obstacle'){
                           var infowindow = new google.maps.InfoWindow({
-                            content: marker.content +'</br><button type="submit" id="obstacle_info" value='+marker.id+'>修改</button>'
+                            content: marker.content +'</br><button type="submit" id="obstacle_info" value='+marker.id+'>修改</button><button type="submit" id="obstacle_del" value='+marker.id+'>刪除</button>'
                           });
 
                           //infowindow.setContent('<button onclick="myFunction()">修改</button>');
@@ -403,6 +403,33 @@
 
             $(document).on('click', '#obstacle_info', function(){            
                       alert($(this).val());
+            });
+
+            $(document).on('click', '#obstacle_del', function(){            
+                      //alert($(this).val());
+                      var pwd = prompt("Please input password");
+
+                      if(pwd == "pcs54784")
+                      {
+                          var marker_id = $(this).val();
+                          $.getJSON($SCRIPT_ROOT + '/_del_markers',{
+                              id: marker_id
+                            }, function(data) {
+                            //console.log(data.result);
+                            //Find and remove the marker from the Array
+                            for (var i = 0; i < markers.length; i++) {
+                                if (markers[i].id == marker_id) {
+                                    //Remove the marker from Map                  
+                                    markers[i].setMap(null);
+                                    //Remove the marker from array.
+                                    markers.splice(i, 1);
+                                }
+                            }
+
+                          });
+                      }
+
+                      
             });
 
 
@@ -696,7 +723,7 @@
                   //marker.setMap(map);
                   var directionsDisplay;
                   var directionsService = new google.maps.DirectionsService();
-                  var haight = new google.maps.LatLng(lat, lng);
+                  var haight = new google.maps.LatLng(lat,lng);//origin: (24.7882499,121.01580720000001)(24.7872622,120.9979454)
                   var oceanBeach = new google.maps.LatLng(24.7852481, 120.9979445);
 
                   function initialize() {
@@ -721,8 +748,9 @@
                     directionsService.route(
                         DirectionsRequest,
                         function (response, status) {
-                            var line_color = ['#FF0000', '#db8555', '#806b63'];
+                            var line_color = ['#0044BB','#FF0000', '#db8555', '#806b63'];
                             var ob_flag = 0;
+                            var ob_array = [];
                             if (status == google.maps.DirectionsStatus.OK) {
                                 $.getJSON($SCRIPT_ROOT + '/_take_obstacles', function(data) {
                                         //console.log(data.result);
@@ -735,42 +763,38 @@
                                               directions: response,
                                               routeIndex: i
                                           });*/
-                                          console.log(JSON.stringify(response.routes[i]));
-                                          /*
+                                          //console.log(JSON.stringify(response.routes[i]));
+                                          
                                           console.log("response.routes" + i);
-                                          var paths = response.routes[i].overview_path;
-
-                                          for (var j = 0; j < paths.length; j++){
+                                          var path = response.routes[i].overview_path;
+                                          path = JSON.stringify(path);
+                                          path = JSON.parse(path);
+                                          console.log(path);
+                                          for (var j = 0; j < path.length; j++){
                                               console.log("comein");
                                               for(var k = 0; k < ob_array.length; k++){
-                                                var path_obj = JSON.stringify(paths[j]);
-                                                var path_obj = JSON.parse(path_obj);
-                                                //console.log(path_obj.lat);
-                                                  if(path_obj.lat < (ob_array[k].lat+0.000034) && path_obj.lat > (ob_array[k].lat-0.000034))
+                                                //console.log("in" + Math.abs(path[j].lat - ob_array[k].lat));
+                                                  if(Math.abs(path[j].lat - ob_array[k].lat) < 0.00028 && Math.abs(path[j].lng - ob_array[k].lng) < 0.00028)
                                                   {
-                                                    console.log("lat in" + ob_array[k].lat);
-                                                    console.log(path_obj.lat);
-                                                    ob_flag = 1;
-                                                    break;
-                                                  }
-
-                                                  if(path_obj.lng < (ob_array[k].lng+0.000034) && path_obj.lng > (ob_array[k].lng-0.000034))
-                                                  {
-                                                    console.log("lng in");
+                                                    console.log("in" + ob_array[k].lat);
+                                                    //console.log(path_obj.lat);
                                                     ob_flag = 1;
                                                     break;
                                                   }
                                               }
                                               if(ob_flag == 1)
                                               {
+                                                console.log("break");
                                                 break;
                                               }
                                           }
-                                          */
+                                          
                                           if(ob_flag == 0)
                                           {
+
+                                            //var path = response.routes[i].overview_path;
                                             var flightPath = new google.maps.Polyline({
-                                            path: response.routes[i].overview_path,
+                                            path: path,
                                             geodesic: true,
                                             strokeColor: line_color[i],
                                             strokeOpacity: 1.0,
@@ -779,15 +803,62 @@
                                             });
 
                                             flightPath.setMap(map);
+                                            break;
+                                            // console.log(path);
+                                            // path = JSON.stringify(path);
+                                            // path = JSON.parse(path);
+                                            // console.log(path);
+                                            // // Snap a user-created polyline to roads and draw the snapped path
+                                            // var pathValues = [];
+                                            // for (var i = 0; i < path.length; i++) {
+                                            //   pathValues.push(path[i].lat+","+path[i].lng);
+                                            //   //console.log("snaptoroad:"+pathValues);
+                                            // }
+
+                                            // pathValues = pathValues.join('|');
+                                            // //console.log("snaptoroad:"+pathValues);
+                                            // $.get('https://roads.googleapis.com/v1/snapToRoads', {
+                                            //   interpolate: true,
+                                            //   key: "AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8",
+                                            //   path: pathValues
+                                            // }, function(data) {
+                                            //   console.log(data.snappedPoints.length);
+                                            //   snappedCoordinates = [];
+                                            //   placeIdArray = [];
+                                            //   for (var i = 0; i < data.snappedPoints.length; i++) {
+                                            //     var latlng = new google.maps.LatLng(
+                                            //         data.snappedPoints[i].location.latitude,
+                                            //         data.snappedPoints[i].location.longitude);
+                                            //     snappedCoordinates.push(latlng);
+                                            //     placeIdArray.push(data.snappedPoints[i].placeId);
+                                            //   }
+
+                                            //   var snappedPolyline = new google.maps.Polyline({
+                                            //     path: snappedCoordinates,
+                                            //     strokeColor: 'black',
+                                            //     strokeWeight: 3
+                                            //   });
+
+                                            //   snappedPolyline.setMap(map);
+
+                                              
+                                            // });
+
+
+                                            
+
                                             /*new google.maps.DirectionsRenderer({
                                               map: map,
                                               directions: response,
                                               routeIndex: i
                                           });*/
                                             //break;
+                                          
                                           }
                                           else
                                           {
+                                            if(i == (response.routes.length-1))
+                                              alert("There is no road to destination.");
                                             ob_flag = 0;
                                           }                                      
                                       }
@@ -1087,23 +1158,54 @@
 
         var balala = function(icon , title){        
             var listenergg = google.maps.event.addListener(map, 'click', function(event) {
-                var LatLng = event.latLng;
-                lat = LatLng.lat().toPrecision(10);
-                lng = LatLng.lng().toPrecision(10);
-                // yoo
-                var URL = 1;
-                // yoo
-                if(URL)
-                {
-                    
-                    addIcon(parseFloat(lat), parseFloat(lng), icon , title, URL);
-                }
+                
+                // var sv = new google.maps.StreetViewService();
+                // sv.getPanorama({location: event.latLng, radius: 30}, processSVData);
+
+                // function processSVData(data, status) {
+                //   if (status === 'OK') {
+                //     // yoo
+                //     var URL = 1;
+                //     // yoo
+                //     if(URL)
+                //     {
+                        
+                //         addIcon(data.location.latLng, icon , title, URL);
+                //     }
+                //   } else {
+                //     console.error('Street View data not found for this location.');
+                //   }
+                // }
+                
+                  var LatLng = event.latLng;
+                  console.log(LatLng.lat()+","+LatLng.lng());
+                  var RoadAPI = "https://roads.googleapis.com/v1/nearestRoads?points="+LatLng.lat()+","+LatLng.lng()+"&key=AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8";
+                  $.getJSON( RoadAPI, {
+                  })
+                    .done(function( data ) {
+                      var lat = data.snappedPoints[0].location.latitude;
+                      var lng = data.snappedPoints[0].location.longitude;
+                      if(lat-LatLng.lat() > 0.00001 || lng-LatLng.lng() > 0.00001)
+                      {
+                        alert("Please click on the road");
+                      }
+                      else
+                      {
+                        addIcon(lat,lng, icon , title, URL);
+                      }
+                      
+                      console.log(lat+","+lng);
+                    });
+
+
                 return function(){};
             });
       };
         
 
-        function addIcon(lat, lng,icon_ ,title, URL)
+        
+
+        function addIcon(lat,lng,icon_ ,title, URL)
         {          
         //deleteMarkers();
             // yoo
@@ -1118,7 +1220,7 @@
             if(!infofo) return 0;
             var marker = new google.maps.Marker({
                 icon: icon_,
-                position:{ lat: lat, lng: lng },
+                position:{lat: lat, lng: lng},
                 map: map, 
                 fillOpacity: 0.4,
                 title: title,
@@ -1129,6 +1231,8 @@
             //icon: pinImage
                 });
 
+
+
             $.getJSON($SCRIPT_ROOT + '/_add_markers',{
                 lat: lat,
                 lon: lng,
@@ -1136,8 +1240,8 @@
                 content: infofo
               }, function(data) {
               console.log(data.result);
-              //courseStr = data.result.map(function(dog) {return  dog.lat; })
-              //$("#result").text(courseStr);
+              
+
             });
 
             if(marker.title == 'camera'){
@@ -1168,7 +1272,7 @@
             }
             if(marker.title == 'obstacle'){
             var infowindow = new google.maps.InfoWindow({
-                          content: marker.content
+                          content: marker.content +'</br><button type="submit" id="obstacle_info" value='+marker.id+'>修改</button><button type="submit" id="obstacle_del" value='+marker.id+'>刪除</button>'
             });
             marker.addListener('click', function() {
                 infowindow.open(map, marker);

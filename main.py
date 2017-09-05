@@ -128,6 +128,21 @@ def add_markers():
     db.session.commit()
     # 关闭session:
     #session.close()
+    c = db.session.query(fixed_Marker).order_by(fixed_Marker.id.desc()).first()
+    marker_id = c.id
+    return jsonify(result = marker_id)
+
+@app.route('/_del_markers')
+def del_markers():
+    id = request.args.get('id', 0, type=int)
+    # 创建session对象:
+    #session = DBSession()
+    # 创建新User对象:
+    db.session.query(fixed_Marker).filter(fixed_Marker.id == id).delete()
+    # 提交即保存到数据库:
+    db.session.commit()
+    # 关闭session:
+    #session.close()
     
     return jsonify(result = True)
 
