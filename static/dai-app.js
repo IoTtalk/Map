@@ -1,5 +1,5 @@
  $(function(){
-        
+       
         var map;        
         function initialize() {
           // Create an array of styles.
@@ -206,7 +206,8 @@
               mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'map_style']
             }
           };
-          map = new google.maps.Map(document.getElementById('Location-map'), mapOptions);
+          map = new google.maps.Map(document.getElementById('Location-map'),
+            mapOptions);
 
           //Associate the styled map with the MapTypeId and set it to display.
           map.mapTypes.set('map_style', styledMap);
@@ -274,7 +275,7 @@
                 icon: 'http://maps.google.com/mapfiles/kml/paddle/purple-stars.png'
             }
         };
-        /*var features = [
+        var features = [
             {
                 position: new google.maps.LatLng(24.789655, 120.997031),
                 type: 'camera',
@@ -319,148 +320,133 @@
             },{
                 position: new google.maps.LatLng(24.7876111, 120.9913021),
                 type: 'cat2'
-            },
-        ];*/
+            },*/
+        ];
         
-        var features;
+        
+        // Create markers.
+        features.forEach(function(feature) {
+            var marker = new google.maps.Marker({
+                position: feature.position,
+                icon: icons[feature.type].icon,
+                map: map,
+                title: feature.type,
+                content:feature.content,
+                visible: false
+            });
+            markers.push(marker);
+             marker.addListener('click', function() {
+                 if(marker.title == 'camera'){
+                      if(marker.content == 'open') //if the camera is already open , close it
+                      {
+                            $('#function_but').show(); 
+                            marker.content ='close';
+                            $('#Video-Display').attr('src', '');
+                            flag_camera = 0;
+                            $('#Video-Display').css({"z-index": -10});
 
-        $.getJSON($SCRIPT_ROOT + '/_take_markers', function(data) {
-              features = data.result.map(function(object) {return  {
-                id: object.id,
-                position: new google.maps.LatLng(object.lat, object.lon),
-                type: object.type,
-                content: object.content
-                }
-              })
-            // Create markers.
-            features.forEach(function(feature) {
-                var marker = new google.maps.Marker({
-                    position: feature.position,
-                    icon: icons[feature.type].icon,
-                    map: map,
-                    title: feature.type,
-                    content:feature.content,
-                    id: feature.id,
-                    visible: false
-                });
-                markers.push(marker);
-                 marker.addListener('click', function() {
-                     if(marker.title == 'camera'){
-                          if(marker.content == 'open') //if the camera is already open , close it
-                          {
-                                $('#function_but').show(); 
-                                marker.content ='close';
-                                $('#Video-Display').attr('src', '');
-                                flag_camera = 0;
-                          }
-                          else
-                          {
+                      }
+                      else
+                      {
+                            
+                            $('#function_but').hide();
+                            $('.button_sm').hide(); 
+                            if(marker.position == features[0].position)
+                            {
+                                $('#Video-Display').attr('src', 'http://admin:5131339@140.113.124.220/GetData.cgi?CH=1');
+                                //marker.content ='close';
+                                $('#Video-Display').css({"z-index": 10});
+
+                                markers.forEach(function(M) {
+                                    if(M.position != features[0].position && M.title == 'camera')
+                                    M.content = 'close';
+                                });
+                            }
+                            else if(marker.position == features[1].position)
+                            {
+                                   //alert(marker.position[1] + new google.maps.LatLng(24.789655, 120.997031));
+                                $('#Video-Display').attr('src', "https://www.youtube.com/embed/35FSJVS77Fw" );
+                                $('#Video-Display').css({"z-index": 10});
+
                                 
-                                $('#function_but').hide();
-                                $('.button_sm').hide(); 
-                                if(marker.position == features[0].position)
-                                {
-                                    $('#Video-Display').attr('src', 'http://admin:5131339@140.113.124.220/GetData.cgi?CH=1');
-                                    //marker.content ='close';
-                                    markers.forEach(function(M) {
-                                        if(M.position != features[0].position && M.title == 'camera')
-                                        M.content = 'close';
-                                    });
-                                }
-                                else if(marker.position == features[1].position)
-                                {
-                                       //alert(marker.position[1] + new google.maps.LatLng(24.789655, 120.997031));
-                                    $('#Video-Display').attr('src', 'http://admin:5131339@140.113.124.221/video1.mjpg');
-                                    //marker.content ='close';
-                                    markers.forEach(function(M) {
-                                        if(M.position != features[1].position && M.title == 'camera')
-                                        M.content = 'close';
-                                    });
-                                }
-                                marker.content ='open';
-                                flag_camera = 1;
-                          }
-                      } 
+                                markers.forEach(function(M) {
+                                    if(M.position != features[1].position && M.title == 'camera')
+                                    M.content = 'close';
+                                });
+                            }
+                            marker.content ='open';
+                            flag_camera = 1;
+                      }
+                  }  
 
-                      if(marker.title == 'obstacle'){
-                          var infowindow = new google.maps.InfoWindow({
-                            content: marker.content +'</br><button type="submit" id="obstacle_info" value='+marker.id+'>修改</button>'
-                          });
-
-                          //infowindow.setContent('<button onclick="myFunction()">修改</button>');
-                          infowindow.open(map, marker);
-
-                          
-                          
-
-                      } 
-
-                 });
-                  
-            });
-            markers.forEach(function(marker) { marker.setVisible(true); });
-            });
-
-            $(document).on('click', '#obstacle_info', function(){            
-                      alert($(this).val());
-            });
+             });
+              
+        });
 
 
-        
-
-
-        
+       
        
         $('#button_d1').hide();  // we dont show this button initially        
-        //$('#fuck_off').hide();
+        $('#fuck_off').hide();
         
-        status[0]=1;
-        status[1]=1; // i should set obstacle to this flag but i mess up haha (目前無用)
+        status[0]=0;
+        status[1]=1; // i should set obstacle to this flag but i mess up haha
         status[2]=0;
         status[3]=0;
         status[4]=0;
         
-        /*
+        
         $(document).on('click', '#fuck_off', function(){
            $('#Video-Display').attr('src', '');
            $('#fuck_off').hide();
-        });*/
+
+        });
         
         $(document).on('click', '#button_s1', function(){            
             if(status[0] == 1)
             {                
                 change.innerHTML = "全選";
-                //$(this).css({"opacity": 1});
+                $(this).css({"opacity": 0.5});
                 status[0]=0;
                 status[2]=0;
                 status[3]=0;
-                //$('#button_s2').css({"opacity": 0.5});
-                //$('#button_s3').css({"opacity": 0.5});
+                $('#button_s2').css({"opacity": 0.5});
+                $('#button_s3').css({"opacity": 0.5});
                 markers.forEach(function(marker) {
+                   if(marker.title == 'obstacle')
                        marker.setVisible(false);
                });
-
-                /*for(i = 0; i < infowindowArr.length; i++)
-                        infowindowArr[i].close();*/
+                markers.forEach(function(marker) {
+                   if(marker.title == 'camera')
+                       marker.setVisible(false);
+               });
+                for(i = 0; i < infowindowArr.length; i++)
+                        infowindowArr[i].close();
 
                 
             }
             else
             {
                 change.innerHTML = "取消";
-                //$(this).css({"opacity": 0.5});
+                $(this).css({"opacity": 1});
                 status[0] = 1;
-                //$('#button_s2').css({"opacity": 1});
-                //$('#button_s3').css({"opacity": 1});
+                $('#button_s2').css({"opacity": 1});
+                $('#button_s3').css({"opacity": 1});
                 //$('#button_d1').css({"opacity": 1});
-                status[2]=0;
-                status[3]=0;
+                status[2]=1;
+                status[3]=1;
                 //status[4]=1;
            
                 markers.forEach(function(marker) {
+                    if(marker.title == 'camera')
                         marker.setVisible(true);
                 });
            
+                markers.forEach(function(marker) {
+                    if(marker.title == 'obstacle'){
+                        marker.setVisible(true);
+                    }
+                });
                 /*markers_sensor.forEach(function(arr) {
                      HideAllMarkers(arr);
                });*/
@@ -473,10 +459,10 @@
            {
               //alert("123");
                $(this).css({"opacity": 0.5});
-               //$('#button_s1').css({"opacity": 0.5});
-               //change.innerHTML = "全選";
+               $('#button_s1').css({"opacity": 0.5});
+               change.innerHTML = "全選";
                status[2]=0;
-               status[0]=0;
+               status[0] = 0;
                markers.forEach(function(marker) {
                    if(marker.title == 'obstacle')
                        marker.setVisible(false);
@@ -487,350 +473,57 @@
                status[2]=1;              
                $(this).css({"opacity": 1});               
                markers.forEach(function(marker) {
-                   if(marker.title == 'obstacle'){
-                        marker.setVisible(true);                     
-                    }
-                    else
-                    {
-                      marker.setVisible(false);
+                   if(marker.title == 'obstacle' && marker.content != "linyipin"){
+                        marker.setVisible(true);
+                     
                     }
                });
-               /*
                if(CheckAllButton())
               {
-                     //$('#button_s1').css({"opacity": 1});
-                     //status[0] = 1;
+                     $('#button_s1').css({"opacity": 1});
+                     status[0] = 1;
                      change.innerHTML = "取消";
-              }*/
+              }
            }
         });
        
         $(document).on('click', '#button_s3', function(){
            if(status[3] == 1)
            {
-               $(this).css({"opacity": 0.5});
-               //$('#button_s1').css({"opacity": 0.5});
-               $('#Video-Display').attr('src', '');
-               //$('#function_but').show();
-               //change.innerHTML = "全選";
-               //$('#fuck_off').hide();
-               status[3]=0;
-               status[0]=0;
+               $('#Video-Display').css({"z-index": -10});
                markers.forEach(function(marker) {
                    if(marker.title == 'camera')
                        marker.setVisible(false);
                });
+               $('#button_s3').removeClass('active')
+               status[3]=0;
+               $(this).css({"opacity": 0.5});
+               $('#Video-Display').attr('src', '');
+               status[0]=0;
+               
+
            }
            else
-           {
+           {  
+
+              $('#button_s3').addClass('active')
               $(this).css({"opacity": 1});
               status[3]=1;                   
               markers.forEach(function(marker) {
                    if(marker.title == 'camera' )
                        marker.setVisible(true);
-                   else
-                   {
-                       marker.setVisible(false);
-                   }
                });
-               /*if(CheckAllButton())
+
+               if(CheckAllButton())
               {
                      $('#button_s1').css({"opacity": 1});
                      status[0] = 1;
                      change.innerHTML = "取消";
-              }*/
+              }
            }
         });
         
-
-        var flightPath;
-        var flag_history = 0;
-        var his_markers = [];
-        $(document).on('click', '#button_s4', function(){
-          
-          if (flag_history == 0)
-          {
-            $.getJSON($SCRIPT_ROOT + '/history',{
-                dog_id: 0
-              }, function(data) {
-                //console.log(data.result);
-                flightPlanCoordinates = data.result.map(function(dog) {return  {lat:dog.lat, lng:dog.lon}; })
-                //$("#result").text(courseStr);
-                console.log(flightPlanCoordinates);
-
-                var StartPosition = flightPlanCoordinates[0];
-                addMarker_Start(StartPosition);
-                  //setMapOnAll(map);
-
-                function addMarker_Start(location) {
-                  var marker = new google.maps.Marker({
-                    position: location,
-                    //label: "起點",
-                    map: map,
-                    icon: "/static/img/history_start_icon.png"
-                  });
-                  //markers.push(marker);
-                  console.log(marker);
-                  his_markers.push(marker);
-                }
-
-                var EndPosition = flightPlanCoordinates[flightPlanCoordinates.length - 1];
-                addMarker_End(EndPosition);
-                  //setMapOnAll(map);
-
-                function addMarker_End(location) {
-                  var marker = new google.maps.Marker({
-                    position: location,
-                    //label: "終點",
-                    map: map,
-                    icon: '/static/img/history_end_icon.png'
-                  });
-                  //markers.push(marker);
-                  console.log(marker);
-                  his_markers.push(marker);
-                }
-
-                var lineSymbol = {
-                  path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                  scale: 3,
-                  //strokeColor: '#393'
-                };
-
-                flightPath = new google.maps.Polyline({
-                path: flightPlanCoordinates,
-                icons: [{
-                  icon: lineSymbol,
-                  offset: '100%'
-                }],
-                geodesic: true,
-                strokeColor: '#FF0000',
-                strokeOpacity: 1.0,
-                strokeWeight: 2,
-                //map: map
-                });
-
-                animateCircle(flightPath);
-
-                flightPath.setMap(map);
-
-                function animateCircle(line) {
-                  console.log("animateCircle comein");
-                  var count = 0;
-                  window.setInterval(function() {
-                    count = (count + 1) % 200;
-
-                    var icons = line.get('icons');
-                    icons[0].offset = (count / 2) + '%';
-                    line.set('icons', icons);
-                }, 20);
-              }
-
-              flag_history = 1;
-
-            });
-
-          }
-          if (flag_history == 1)
-          {
-            console.log(flightPath);
-            //stopArrow(flightPath);
-            //clearMarkers();
-            flightPath.setMap(null);
-            for(var i=0; i<his_markers.length; i++)
-            {
-                his_markers[i].setMap(null);
-            }
-            his_markers = [];
-            flag_history = 0;
-/*
-            function stopArrow(line) {
-                clearInterval(line.handle);
-                line.setOptions({
-                    icons: null});
-            };*/
-          }
-
-        });
-
-        var flag_routing = 0;
-
-        $(document).on('click', '#button_s5', function(){
-
-          if (flag_routing == 0)
-          {
-
-              getLocation();
-
-              function getLocation() {
-                var startPos;
-                var geoOptions = {
-                  enableHighAccuracy: true
-                }
-
-                var geoSuccess = function(position) {
-                  var lat = position.coords.latitude;
-                  var lng = position.coords.longitude;
-                  var CurrentPosition = {lat: lat, lng: lng};
-                  addMarker(CurrentPosition);
-                  //setMapOnAll(map);
-
-                  function addMarker(location) {
-                    var marker = new google.maps.Marker({
-                      position: location,
-                      label: "現在位置",
-                      map: map,
-                      //icon: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi.png'
-                    });
-                    //markers.push(marker);
-                    console.log(marker);
-
-                  }
-                  /*
-                  function setMapOnAll(map) {
-                    for (var i = 0; i < markers.length; i++) {
-                      markers[i].setMap(map);
-                    }
-                  }*/
-                  //markers.push(marker);
-
-                  //marker.setMap(map);
-                  var directionsDisplay;
-                  var directionsService = new google.maps.DirectionsService();
-                  var haight = new google.maps.LatLng(lat, lng);
-                  var oceanBeach = new google.maps.LatLng(24.7852481, 120.9979445);
-
-                  function initialize() {
-                    directionsDisplay = new google.maps.DirectionsRenderer();
-                    directionsDisplay.setMap(map);
-                  }
-
-                  function calcRoute() {
-                    var selectedMode = "WALKING";
-                    var DirectionsRequest = {
-                        origin: haight,
-                        destination: oceanBeach,
-                        //optimizeWaypoints: true,
-                        provideRouteAlternatives: true,
-                        //waypoints: optimize:true,
-                        // Note that Javascript allows us to access the constant
-                        // using square brackets and a string value as its
-                        // "property."
-                        travelMode: google.maps.TravelMode[selectedMode]
-                    };
-
-                    directionsService.route(
-                        DirectionsRequest,
-                        function (response, status) {
-                            var line_color = ['#FF0000', '#db8555', '#806b63'];
-                            var ob_flag = 0;
-                            if (status == google.maps.DirectionsStatus.OK) {
-                                $.getJSON($SCRIPT_ROOT + '/_take_obstacles', function(data) {
-                                        //console.log(data.result);
-                                        ob_array = data.result.map(function(obj) {return  {lat:obj.lat, lng:obj.lon}; })
-                                        //$("#result").text(courseStr);
-                                        //console.log(JSON.stringify(ob_array));
-                                        for (var i = 0, len = response.routes.length; i < len; i++) {
-                                          /*new google.maps.DirectionsRenderer({
-                                              map: map,
-                                              directions: response,
-                                              routeIndex: i
-                                          });*/
-                                          console.log(JSON.stringify(response.routes[i]));
-                                          /*
-                                          console.log("response.routes" + i);
-                                          var paths = response.routes[i].overview_path;
-
-                                          for (var j = 0; j < paths.length; j++){
-                                              console.log("comein");
-                                              for(var k = 0; k < ob_array.length; k++){
-                                                var path_obj = JSON.stringify(paths[j]);
-                                                var path_obj = JSON.parse(path_obj);
-                                                //console.log(path_obj.lat);
-                                                  if(path_obj.lat < (ob_array[k].lat+0.000034) && path_obj.lat > (ob_array[k].lat-0.000034))
-                                                  {
-                                                    console.log("lat in" + ob_array[k].lat);
-                                                    console.log(path_obj.lat);
-                                                    ob_flag = 1;
-                                                    break;
-                                                  }
-
-                                                  if(path_obj.lng < (ob_array[k].lng+0.000034) && path_obj.lng > (ob_array[k].lng-0.000034))
-                                                  {
-                                                    console.log("lng in");
-                                                    ob_flag = 1;
-                                                    break;
-                                                  }
-                                              }
-                                              if(ob_flag == 1)
-                                              {
-                                                break;
-                                              }
-                                          }
-                                          */
-                                          if(ob_flag == 0)
-                                          {
-                                            var flightPath = new google.maps.Polyline({
-                                            path: response.routes[i].overview_path,
-                                            geodesic: true,
-                                            strokeColor: line_color[i],
-                                            strokeOpacity: 1.0,
-                                            strokeWeight: 2,
-                                            //map: map
-                                            });
-
-                                            flightPath.setMap(map);
-                                            /*new google.maps.DirectionsRenderer({
-                                              map: map,
-                                              directions: response,
-                                              routeIndex: i
-                                          });*/
-                                            //break;
-                                          }
-                                          else
-                                          {
-                                            ob_flag = 0;
-                                          }                                      
-                                      }
-
-                                });
-                                
-                            } else {
-                                $("#error").append("Unable to retrieve your route<br />");
-                            }
-                        }
-                    );
-                  }
-                  initialize();
-                  calcRoute();
-                  console.log(lat+","+lng);
-
-                  //console.log(typeof lat);
-                  //marker.setVisible(true);
-                };
-                var geoError = function(error) {
-                  console.log('Error occurred. Error code: ' + error.code);
-                  // error.code can be:
-                  //   0: unknown error
-                  //   1: permission denied
-                  //   2: position unavailable (error response from location provider)
-                  //   3: timed out
-                };
-
-                navigator.geolocation.getCurrentPosition(geoSuccess, geoError, geoOptions);
-              };
-              
-          }
-          /*if (flag_routing == 1)
-          {
-            
-          }*/
-
-        });
-
         $(document).on('click', '#button_d1', function(){
-
-          
-
            var button = document.getElementById('button_d1');
            if(status[4] == 1)
            {
@@ -880,21 +573,12 @@
               }
               return true;
         }
-
-        //$( document ).ready(function() {
-            
-             
-            
-            //return false;
-         //});
                 
         function GeoLoData_O(data){
-           time = data[0];
-           Latitude = parseFloat(data[1][0]);
-           Longitude = parseFloat(data[1][1]);
-           val = data[1][2].toString();
-           meta = JSON.stringify(data[1][3]);
-           //console.log(meta);
+           
+           Latitude = parseFloat(data[0]);
+           Longitude = parseFloat(data[1]);
+           val = data[2].toString();
            if(Latitude != -1 && Longitude != -1 && flag == 0) // check is the data come in for the first time
            {
               flag = 1;
@@ -907,18 +591,6 @@
            }
            else
                HideAllMarkers(markers_sensor[val]);
-
-            $.getJSON($SCRIPT_ROOT + '/_add_numbers',{
-                lat: Latitude,
-                lon: Longitude,
-                dog_id: val,
-                data: meta,
-                time: time
-              }, function(data) {
-              console.log(data.result);
-              //courseStr = data.result.map(function(dog) {return  dog.lat; })
-              //$("#result").text(courseStr);
-            });
         }
                
         function getDistance(p1, p2) {
@@ -938,10 +610,12 @@
               
         function HideAllMarkers(markerArr){
               
+              {
                   markerArr.forEach(function(marker) {
                          marker.setVisible(false);
                   });   
-
+              }
+            
         }
         
         function HideAllLines(lineArr){
@@ -1003,7 +677,7 @@
             }
             
         }
-        /*      
+              
         function addPolyLine( index, num, markerArr){     
               polyCoordinates = [];              
               polyCoordinates.push(markerArr[num].position);  // point n
@@ -1030,7 +704,7 @@
                   polyLines[index] = temp;                  
               }              
         }
-        */
+        
 
   /***************************************************************************************************************************************************************/      
         
@@ -1088,16 +762,13 @@
         var balala = function(icon , title){        
             var listenergg = google.maps.event.addListener(map, 'click', function(event) {
                 var LatLng = event.latLng;
-                lat = LatLng.lat().toPrecision(10);
-                lng = LatLng.lng().toPrecision(10);
+                lat = LatLng.lat().toPrecision(12);
+                lng = LatLng.lng().toPrecision(12);
                 // yoo
                 var URL = 1;
                 // yoo
                 if(URL)
-                {
-                    
                     addIcon(parseFloat(lat), parseFloat(lng), icon , title, URL);
-                }
                 return function(){};
             });
       };
@@ -1107,7 +778,6 @@
         {          
         //deleteMarkers();
             // yoo
-
             if(title == 'camera' && !($('#cam_add').hasClass('clickClass')))
               return;
             if(title == 'obstacle' && !($('#ob_add').hasClass('clickClass')))
@@ -1128,18 +798,6 @@
                 // yoo
             //icon: pinImage
                 });
-
-            $.getJSON($SCRIPT_ROOT + '/_add_markers',{
-                lat: lat,
-                lon: lng,
-                type:title,
-                content: infofo
-              }, function(data) {
-              console.log(data.result);
-              //courseStr = data.result.map(function(dog) {return  dog.lat; })
-              //$("#result").text(courseStr);
-            });
-
             if(marker.title == 'camera'){
                 markers.push(marker);
                 marker.addListener('click', function() {
