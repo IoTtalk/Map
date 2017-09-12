@@ -5,33 +5,48 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <html>
   <head>
-    <title>This is a map.</title>
+    <title>Realtime Traffic Information</title>
     <script type=text/javascript src="{{ url_for('static', filename='jquery.js') }}"></script>
-    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet"> 
-    <script type=text/javascript src="{{ url_for('static', filename='jquery.datetimepicker.full.min.js') }}"></script>
-    <script 
-    src="https://maps.googleapis.com/maps/api/js?libraries=geometry&key=AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8" type="text/javascript"></script>
-    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
     <script src="{{ url_for('static', filename='csmapi.js') }}"></script>
     <script src="{{ url_for('static', filename='dan.js') }}"></script>
     <script src="{{ url_for('static', filename='dai.js') }}"></script>
     <script src="{{ url_for('static', filename='img/history_start_icon.png') }}"></script>
     <script src="{{ url_for('static', filename='img/history_end_icon.png') }}"></script>
     <script src="{{ url_for('static', filename='dai-app.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='map-icons.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='map-icons.js') }}"></script> 
+    <script type=text/javascript src="{{ url_for('static', filename='jquery.datetimepicker.full.min.js') }}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    
+    
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    
+    <script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css">
+    
 
     <script type=text/javascript>
       $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
+
+
   </head>
-  <body>
+  <!-- <body>
     
    
     <div id="Location-map"></div>
     <div id="videoBox">
       <button  id="fuck_off">close</button>
       <iframe id = "Video-Display" width="420" height="236" src="" frameborder="0" allowfullscreen></iframe>       
-      <!--width="560" height="315"-->
+     
     </div>
     
     <div id="static">
@@ -44,7 +59,7 @@
     
     <div id="dynamic">
       <button class="button_d" id="button_d1">狗</button>
-      <!--button class="button_d" id="button_d2">貓</button-->
+      
     </div>
     
     <ul>
@@ -67,5 +82,44 @@
         </ul>
     </ul>
     
+  </body> -->
+
+<header>
+    <ul class="nav nav-pills ">
+      <li role="presentation" class="dropdown" class="active">
+        <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          功能 <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li id="button_s5" style="cursor:pointer"><a>路徑規劃</a></li>
+          <li id="cam_add" style="cursor:pointer"><a>新增攝影機</a></li>
+          <li id="ob_add" style="cursor:pointer"><a>新增路障</a></li>
+        </ul>
+      </li>
+      <li role="presentation" class="active" id="button_s3" style="cursor:pointer" ><a>攝影機</a></li>
+      <li role="presentation" class="active" id="button_s2" style="cursor:pointer"><a>路障</a></li>
+  <!--     <li role="presentation" class="disabled" id="dog" style="cursor:pointer"><a>狗</a></li> -->
+      <li id="dog" role="presentation" class="dropdown disabled" class="active">
+        <a id="dog_dropdown" class="dropdown-toggle"  role="button" aria-haspopup="true" aria-expanded="false" >
+          狗 <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li id="button_s5" style="cursor:pointer"><a>狗1</a></li>
+          <li id="cam_add" style="cursor:pointer"><a>狗2</a></li>
+          <li id="ob_add" style="cursor:pointer"><a>狗3</a></li>
+        </ul>
+      </li>
+      </li>
+    </ul>
+  </header>
+  <body>
+    <div id="Location-map">  </div>
+      <button style="display: none;" id="fuck_off" class="btn btn-danger">X</button>
+  <div class="container" id="wrapper" overflow="hidden"; >
+      <!-- <iframe  id = "Video-Display"  src="" frameborder="20" marginheight="0" marginwidth="0"  scrolling="no" width="100%" height="100%" ></iframe> -->
+      <img src=""  id = "Video-Display" class="shrinkToFit" width="495" height="278">
+  </div>       
+        <!--width="560" height="315"-->
+
   </body>
-<html>
+</html>
