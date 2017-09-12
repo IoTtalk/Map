@@ -27,7 +27,7 @@ class fixed_Marker(db.Model):
     lat = Column(Float)
     lon = Column(Float)
     type = Column(String(20))
-    content = Column(String(20))
+    content = Column(String(500))
 
     __table_args__ = {'sqlite_autoincrement': True}
 
@@ -132,6 +132,21 @@ def add_markers():
     marker_id = c.id
     return jsonify(result = marker_id)
 
+@app.route('/_modify_markers')
+def modify_markers():
+    id = request.args.get('id', type=float)
+    content = request.args.get('content', type=str)
+    db.session.query(fixed_Marker).filter(fixed_Marker.id == id).update(dict(content=content))
+    # 添加到session:
+    #db.session.add(new_data)
+    # 提交即保存到数据库:
+    db.session.commit()
+    # 关闭session:
+    #session.close()
+    # c = db.session.query(fixed_Marker).order_by(fixed_Marker.id.desc()).first()
+    # marker_id = c.id
+    return jsonify(result = content)
+
 @app.route('/_del_markers')
 def del_markers():
     id = request.args.get('id', 0, type=int)
@@ -149,7 +164,7 @@ def del_markers():
 @app.route('/history')
 def history():
     dog_id = request.args.get('a', 0, type=int)
-    c = db.session.query(Dog).filter_by(dog_id = dog_id).filter(Dog.timestamp.between('2017-08-17 17:12:00.00', '2017-08-17 17:12:40.00'))
+    c = db.session.query(Dog).filter_by(dog_id = dog_id).all()#filter(Dog.timestamp.between('2017-08-17 17:12:00.00', '2017-08-17 17:12:40.00'))
     recent_histories = []
     
     for row in c:
