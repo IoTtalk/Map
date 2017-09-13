@@ -57,7 +57,7 @@
                           "color": "#ffffff"
                       },
                       {
-                          "weight": 1.8
+                          "weight": 7
                       }
                   ]
               },
@@ -197,7 +197,7 @@
           // to the map type control.
           var mapOptions = {
             disableDefaultUI: true,
-            zoom: 18,
+            zoom: 17,
             zoomControl: true,
             scaleControl: true,
             scrollwheel: true,
@@ -207,7 +207,7 @@
             }
           };
           map = new google.maps.Map(document.getElementById('Location-map'), mapOptions);
-
+          //console.log($("#Location-map").height());
           //Associate the styled map with the MapTypeId and set it to display.
           map.mapTypes.set('map_style', styledMap);
           map.setMapTypeId('map_style');
@@ -242,8 +242,8 @@
         var flag_camera=0; // 1 : someone click the camera button , so ignore the triggers from makers who near the camera
         var change = document.getElementById("button_s1");
         
-        var camera1 = {lat:24.789655 , lng:120.997031};
-        var camera2 = {lat:24.788225 , lng:120.998487};  
+        // var camera1 = {lat:24.789655 , lng:120.997031};
+        // var camera2 = {lat:24.788225 , lng:120.998487};  
         /**************************************************************************************/
         /**************************************************************************************/
         
@@ -323,8 +323,30 @@
         ];*/
         
         var features;
+        var infowindow;
 
-        $.getJSON($SCRIPT_ROOT + '/_take_markers', function(data) {
+        function reinitIframe() {         
+           var iframe = document.getElementById("Video-Display");                
+         try 
+        {                          
+                           var bwidth = iframe.contentWindow.document.body.scrollwidth; 
+                           var bHeight = iframe.contentWindow.document.body.scrollHeight;              
+        /*       
+                           var dHeight = iframe.contentWindow.document.documentElement.scrollHeight;              
+                           var height = Math.max(bHeight, dHeight);                          
+                            iframe.height = height;                */                         
+                           
+                           iframe.width = bwidth;   
+                           iframe.height = bHeight;                  
+        } 
+                  catch (ex) { }                 
+        }
+        
+        load_markers();
+        
+        function load_markers()
+        {
+          $.getJSON($SCRIPT_ROOT + '/_take_markers', function(data) {
               features = data.result.map(function(object) {return  {
                 id: object.id,
                 position: new google.maps.LatLng(object.lat, object.lon),
@@ -341,68 +363,243 @@
                     title: feature.type,
                     content:feature.content,
                     id: feature.id,
-                    visible: false
+                    //visible: false
                 });
                 markers.push(marker);
-                 marker.addListener('click', function() {
-                     if(marker.title == 'camera'){
-                          if(marker.content == 'open') //if the camera is already open , close it
+
+                marker.addListener('click', function() {
+                  resetCenter();
+                  function resetCenter(){
+                      //console.log($("#Location-map").height());
+                      var high = $("#Location-map").height();
+                      var high_cam = $("#Video-Display").height();
+                      var bounds = map.getBounds();
+                      var ne = bounds.getNorthEast(); // LatLng of the north-east corner
+                      var sw = bounds.getSouthWest(); // LatLng of the south-west corder
+                      var LatLng = marker.getPosition();
+                      var percent = ((high-high_cam)/2)/high;
+                      var cen = sw.lat() + (ne.lat()-sw.lat())*percent;
+                      var latlng = new google.maps.LatLng({lat: map.getCenter().lat()-(cen-LatLng.lat()), lng:LatLng.lng()});
+                      map.setCenter(latlng);
+                    }
+                    google.maps.event.addListener(map, 'zoom_changed', function() {resetCenter();});
+
+                    if(marker.title == 'camera'){
+                          if(infowindow != null) {infowindow.close();}
+                          infowindow = new google.maps.InfoWindow({
+                            content: '<button type="submit" id="camera_info" value='+marker.id+'>修改</button><button type="submit" id="camera_del" value='+marker.id+'>刪除</button>'
+                          });
+
+                          //infowindow.setContent('<button onclick="myFunction()">修改</button>');
+                          infowindow.open(map, marker);
+
+                          if(flag_camera == 1) //if the camera is already open , close it
                           {
                                 $('#function_but').show(); 
-                                marker.content ='close';
+                                //marker.content ='close';
                                 $('#Video-Display').attr('src', '');
                                 flag_camera = 0;
+                                $('#Video-Display').css({"z-index": -10});
+                                $('#fuck_off').hide();
+                                $('#Video-Display').attr('src', marker.content);
+                                $('#Video-Display').css({"z-index": 10});
+                                $('#fuck_off').show();
                           }
                           else
                           {
                                 
                                 $('#function_but').hide();
                                 $('.button_sm').hide(); 
-                                if(marker.position == features[0].position)
-                                {
-                                    $('#Video-Display').attr('src', 'http://admin:5131339@140.113.124.220/GetData.cgi?CH=1');
-                                    //marker.content ='close';
-                                    markers.forEach(function(M) {
-                                        if(M.position != features[0].position && M.title == 'camera')
-                                        M.content = 'close';
-                                    });
-                                }
-                                else if(marker.position == features[1].position)
-                                {
-                                       //alert(marker.position[1] + new google.maps.LatLng(24.789655, 120.997031));
-                                    $('#Video-Display').attr('src', 'http://admin:5131339@140.113.124.221/video1.mjpg');
-                                    //marker.content ='close';
-                                    markers.forEach(function(M) {
-                                        if(M.position != features[1].position && M.title == 'camera')
-                                        M.content = 'close';
-                                    });
-                                }
-                                marker.content ='open';
+                                $('#Video-Display').attr('src', marker.content);
+                                $('#Video-Display').css({"z-index": 10});
+                                $('#fuck_off').show();
                                 flag_camera = 1;
+                                // if(marker.position == features[0].position)
+                                // {
+                                    // $('#Video-Display').attr('src', 'http://admin:5131339@140.113.124.220/GetData.cgi?CH=1');
+                                    //marker.content ='close';
+                                    
+                                //     markers.forEach(function(M) {
+                                //         if(M.position != features[0].position && M.title == 'camera')
+                                //         M.content = 'close';
+                                //     });
+                                // }
+                                // else if(marker.position == features[1].position)
+                                // {
+                                //        //alert(marker.position[1] + new google.maps.LatLng(24.789655, 120.997031));
+                                //     $('#Video-Display').attr('src', "https://www.youtube.com/embed/35FSJVS77Fw" );
+                                //     $('#Video-Display').css({"z-index": 10});
+                                //     $('#fuck_off').show();                                    
+                                //     markers.forEach(function(M) {
+                                //         if(M.position != features[1].position && M.title == 'camera')
+                                //         M.content = 'close';
+                                //     });
+                                // }
+                                // marker.content ='open';
+                                
+                                //console.log(latlng);
+                                
                           }
                       } 
 
                       if(marker.title == 'obstacle'){
-                          var infowindow = new google.maps.InfoWindow({
-                            content: marker.content +'</br><button type="submit" id="obstacle_info" value='+marker.id+'>修改</button>'
+                         if(infowindow != null) {infowindow.close();}
+                          infowindow = new google.maps.InfoWindow({
+                            content: marker.content +'</br><button type="submit" id="obstacle_info" value='+marker.id+'>修改</button><button type="submit" id="obstacle_del" value='+marker.id+'>刪除</button>'
                           });
 
                           //infowindow.setContent('<button onclick="myFunction()">修改</button>');
                           infowindow.open(map, marker);
-
-                          
-                          
-
                       } 
-
-                 });
-                  
+                });
+            
+            
             });
-            markers.forEach(function(marker) { marker.setVisible(true); });
-            });
+          markers.forEach(function(marker) { marker.setMap(map); });
+        });  
+        }
 
             $(document).on('click', '#obstacle_info', function(){            
-                      alert($(this).val());
+                      //var marker_id = $(this).val();
+                      while(true)
+                      {
+                        var pwd = prompt("Please input password");
+                        if(pwd == null) break;
+                        if(pwd == "pcs54784")
+                        {
+                            var marker_id = $(this).val();
+                            var new_info = prompt("Enter new information:");
+                            $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
+                                id: marker_id,
+                                content: new_info
+                              }, function(data) {
+                              
+                              for (var i = 0; i < markers.length; i++) {
+                                  if (markers[i].id == marker_id) {
+                                      infowindow.setContent(new_info +'</br><button type="submit" id="obstacle_info" value='+marker_id+'>修改</button><button type="submit" id="obstacle_del" value='+marker_id+'>刪除</button>');
+                                      infowindow.open(map, markers[i]);//console.log(data.result);
+                                      markers[i].content = new_info;
+                                  }
+                              }
+                            });
+
+                            break;
+                        } 
+                        else
+                        {
+                          alert("Wrong password!\nPlease try again.");
+                        } 
+                      }
+                            
+            });
+
+            $(document).on('click', '#camera_info', function(){            
+                      //var marker_id = $(this).val();
+                      while(true)
+                      {
+                        var pwd = prompt("Please input password");
+                        if(pwd == null) break;
+                        if(pwd == "pcs54784")
+                        {
+                            var marker_id = $(this).val();
+                            var new_info = prompt("Enter new information:");
+                            $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
+                                id: marker_id,
+                                content: new_info
+                              }, function(data) {
+                              
+                              for (var i = 0; i < markers.length; i++) {
+                                  if (markers[i].id == marker_id) {
+                                      infowindow.setContent('<button type="submit" id="obstacle_info" value='+marker_id+'>修改</button><button type="submit" id="obstacle_del" value='+marker_id+'>刪除</button>');
+                                      infowindow.open(map, markers[i]);//console.log(data.result);
+                                      markers[i].content = new_info;
+                                  }
+                              }
+                            });
+
+                            break;
+                        } 
+                        else
+                        {
+                          alert("Wrong password!\nPlease try again.");
+                        } 
+                      }
+                            
+            });
+
+            $(document).on('click', '#obstacle_del', function(){            
+                      //alert($(this).val());
+                      while(true)
+                      {
+                        var pwd = prompt("Please input password");
+                        if(pwd == null) break;
+                        if(pwd == "pcs54784")
+                        {
+                            var marker_id = $(this).val();
+                            console.log(marker_id);
+                            $.getJSON($SCRIPT_ROOT + '/_del_markers',{
+                                id: marker_id
+                              }, function(data) {
+                              //console.log(data.result);
+                              //Find and remove the marker from the Array
+                              for (var i = 0; i < markers.length; i++) {
+                                  if (markers[i].id == marker_id) {
+                                      //Remove the marker from Map  
+                                      //console.log(markers[i].id);                
+                                      markers[i].setMap(null);console.log(markers[i].id);
+                                      //Remove the marker from array.
+                                      markers.splice(i, 1);
+                                  }
+                              }
+
+                            });
+                            break;
+                        } 
+                        else
+                        {
+                          alert("Wrong password!\nPlease try again.");
+                        }            
+                      }
+                        
+            });
+
+            $(document).on('click', '#camera_del', function(){            
+                      //alert($(this).val());
+                      while(true)
+                      {
+                        var pwd = prompt("Please input password");
+                        if(pwd == null) break;
+                        if(pwd == "pcs54784")
+                        {
+                            var marker_id = $(this).val();
+                            console.log(marker_id);
+                            $.getJSON($SCRIPT_ROOT + '/_del_markers',{
+                                id: marker_id
+                              }, function(data) {
+                              //console.log(data.result);
+                              //Find and remove the marker from the Array
+                              for (var i = 0; i < markers.length; i++) {
+                                  if (markers[i].id == marker_id) {
+                                      //Remove the marker from Map                  
+                                      markers[i].setMap(null);console.log(markers[i].id);
+                                      //Remove the marker from array.
+                                      markers.splice(i, 1);
+                                      $('#Video-Display').attr('src', '');
+                                      flag_camera = 0;
+                                      $('#Video-Display').css({"z-index": -10});
+                                      $('#fuck_off').hide();
+                                  }
+                              }
+
+                            });
+                            break;
+                        } 
+                        else
+                        {
+                          alert("Wrong password!\nPlease try again.");
+                        }            
+                      }
+                        
             });
 
 
@@ -412,133 +609,109 @@
         
        
         $('#button_d1').hide();  // we dont show this button initially        
-        //$('#fuck_off').hide();
+        $('#fuck_off').hide();
         
         status[0]=1;
         status[1]=1; // i should set obstacle to this flag but i mess up haha (目前無用)
-        status[2]=0;
-        status[3]=0;
+        status[2]=1;
+        status[3]=1;
         status[4]=0;
         
-        /*
+        
         $(document).on('click', '#fuck_off', function(){
            $('#Video-Display').attr('src', '');
+           $('#Video-Display').css({"z-index": -10});
            $('#fuck_off').hide();
-        });*/
+        });
         
-        $(document).on('click', '#button_s1', function(){            
-            if(status[0] == 1)
-            {                
-                change.innerHTML = "全選";
-                //$(this).css({"opacity": 1});
-                status[0]=0;
-                status[2]=0;
-                status[3]=0;
-                //$('#button_s2').css({"opacity": 0.5});
-                //$('#button_s3').css({"opacity": 0.5});
-                markers.forEach(function(marker) {
-                       marker.setVisible(false);
-               });
+        // $(document).on('click', '#button_s1', function(){            
+        //     if(status[0] == 1)
+        //     {                
+        //         change.innerHTML = "全選";
+        //         //$(this).css({"opacity": 1});
+        //         status[0]=0;
+        //         status[2]=0;
+        //         status[3]=0;
+        //         //$('#button_s2').css({"opacity": 0.5});
+        //         //$('#button_s3').css({"opacity": 0.5});
+        //         markers.forEach(function(marker) {
+        //                marker.setVisible(false);
+        //        });
 
-                /*for(i = 0; i < infowindowArr.length; i++)
-                        infowindowArr[i].close();*/
+        //         /*for(i = 0; i < infowindowArr.length; i++)
+        //                 infowindowArr[i].close();*/
 
                 
-            }
-            else
-            {
-                change.innerHTML = "取消";
-                //$(this).css({"opacity": 0.5});
-                status[0] = 1;
-                //$('#button_s2').css({"opacity": 1});
-                //$('#button_s3').css({"opacity": 1});
-                //$('#button_d1').css({"opacity": 1});
-                status[2]=0;
-                status[3]=0;
-                //status[4]=1;
+        //     }
+        //     else
+        //     {
+        //         change.innerHTML = "取消";
+        //         //$(this).css({"opacity": 0.5});
+        //         status[0] = 1;
+        //         //$('#button_s2').css({"opacity": 1});
+        //         //$('#button_s3').css({"opacity": 1});
+        //         //$('#button_d1').css({"opacity": 1});
+        //         status[2]=0;
+        //         status[3]=0;
+        //         //status[4]=1;
            
-                markers.forEach(function(marker) {
-                        marker.setVisible(true);
-                });
+        //         markers.forEach(function(marker) {
+        //                 marker.setVisible(true);
+        //         });
            
-                /*markers_sensor.forEach(function(arr) {
-                     HideAllMarkers(arr);
-               });*/
-            }
+        //         /*markers_sensor.forEach(function(arr) {
+        //              HideAllMarkers(arr);
+        //        });*/
+        //     }
                   
-        });
+        // });
        
         $(document).on('click', '#button_s2', function(){
            if(status[2] == 1)
            {
-              //alert("123");
-               $(this).css({"opacity": 0.5});
-               //$('#button_s1').css({"opacity": 0.5});
-               //change.innerHTML = "全選";
                status[2]=0;
-               status[0]=0;
+               $(this).removeClass('active')               
                markers.forEach(function(marker) {
                    if(marker.title == 'obstacle')
                        marker.setVisible(false);
                });
+              infowindow.close();
            }
            else
            {
                status[2]=1;              
-               $(this).css({"opacity": 1});               
+               $(this).addClass('active')              
                markers.forEach(function(marker) {
-                   if(marker.title == 'obstacle'){
-                        marker.setVisible(true);                     
-                    }
-                    else
-                    {
-                      marker.setVisible(false);
-                    }
+                   if(marker.title == 'obstacle')
+                        marker.setVisible(true);                                        
                });
-               /*
-               if(CheckAllButton())
-              {
-                     //$('#button_s1').css({"opacity": 1});
-                     //status[0] = 1;
-                     change.innerHTML = "取消";
-              }*/
+               
            }
         });
        
         $(document).on('click', '#button_s3', function(){
            if(status[3] == 1)
            {
-               $(this).css({"opacity": 0.5});
-               //$('#button_s1').css({"opacity": 0.5});
-               $('#Video-Display').attr('src', '');
-               //$('#function_but').show();
-               //change.innerHTML = "全選";
-               //$('#fuck_off').hide();
-               status[3]=0;
-               status[0]=0;
+               $('#fuck_off').hide();
+               $('#Video-Display').css({"z-index": -10});
                markers.forEach(function(marker) {
                    if(marker.title == 'camera')
                        marker.setVisible(false);
                });
+               $('#button_s3').removeClass('active')
+               status[3]=0;
+               // $(this).css({"opacity": 0.5});
+               $('#Video-Display').attr('src', '');
+               status[0]=0;
            }
            else
            {
-              $(this).css({"opacity": 1});
+              $('#button_s3').addClass('active')
               status[3]=1;                   
               markers.forEach(function(marker) {
-                   if(marker.title == 'camera' )
+                   if(marker.title == 'camera')
                        marker.setVisible(true);
-                   else
-                   {
-                       marker.setVisible(false);
-                   }
-               });
-               /*if(CheckAllButton())
-              {
-                     $('#button_s1').css({"opacity": 1});
-                     status[0] = 1;
-                     change.innerHTML = "取消";
-              }*/
+              });
            }
         });
         
@@ -654,6 +827,9 @@
 
         var flag_routing = 0;
 
+        
+
+
         $(document).on('click', '#button_s5', function(){
 
           if (flag_routing == 0)
@@ -696,8 +872,10 @@
                   //marker.setMap(map);
                   var directionsDisplay;
                   var directionsService = new google.maps.DirectionsService();
-                  var haight = new google.maps.LatLng(lat, lng);
-                  var oceanBeach = new google.maps.LatLng(24.7852481, 120.9979445);
+                  var haight = new google.maps.LatLng(lat,lng);//origin: (24.7882499,121.01580720000001)(24.782146, 120.997231)(24.7872622,120.9979454)
+                  var oceanBeach //= new google.maps.LatLng(24.7852481, 120.9979445);
+
+                  
 
                   function initialize() {
                     directionsDisplay = new google.maps.DirectionsRenderer();
@@ -705,7 +883,15 @@
                   }
 
                   function calcRoute() {
-                    var selectedMode = "WALKING";
+                    alert("Please click your destination on the map.");
+                    var listener_routing = google.maps.event.addListener(map, 'click', function(event) {
+                      oceanBeach = event.latLng;
+                      //console.log(oceanBeach);
+                      var marker_routing = new google.maps.Marker({
+                      position:oceanBeach,
+                      map: map
+                    });
+                    var selectedMode = "DRIVING";
                     var DirectionsRequest = {
                         origin: haight,
                         destination: oceanBeach,
@@ -721,8 +907,9 @@
                     directionsService.route(
                         DirectionsRequest,
                         function (response, status) {
-                            var line_color = ['#FF0000', '#db8555', '#806b63'];
+                            var line_color = ['#0044BB','#FF0000', '#db8555', '#806b63'];
                             var ob_flag = 0;
+                            var ob_array = [];
                             if (status == google.maps.DirectionsStatus.OK) {
                                 $.getJSON($SCRIPT_ROOT + '/_take_obstacles', function(data) {
                                         //console.log(data.result);
@@ -735,42 +922,58 @@
                                               directions: response,
                                               routeIndex: i
                                           });*/
-                                          console.log(JSON.stringify(response.routes[i]));
-                                          /*
+                                          //console.log(JSON.stringify(response.routes[i]));
+                                          
                                           console.log("response.routes" + i);
-                                          var paths = response.routes[i].overview_path;
-
-                                          for (var j = 0; j < paths.length; j++){
-                                              console.log("comein");
+                                          var path = response.routes[i].overview_path;
+                                          path = JSON.stringify(path);
+                                          path = JSON.parse(path);
+                                          //console.log(path);
+                                          for (var j = 0; j < path.length-1; j++){
+                                              
                                               for(var k = 0; k < ob_array.length; k++){
-                                                var path_obj = JSON.stringify(paths[j]);
-                                                var path_obj = JSON.parse(path_obj);
-                                                //console.log(path_obj.lat);
-                                                  if(path_obj.lat < (ob_array[k].lat+0.000034) && path_obj.lat > (ob_array[k].lat-0.000034))
-                                                  {
-                                                    console.log("lat in" + ob_array[k].lat);
-                                                    console.log(path_obj.lat);
-                                                    ob_flag = 1;
-                                                    break;
-                                                  }
+                                                var dis = 0;
 
-                                                  if(path_obj.lng < (ob_array[k].lng+0.000034) && path_obj.lng > (ob_array[k].lng-0.000034))
+                                                if(path[j+1].lat == path[j].lat)
+                                                {　
+                                                  dis = Math.abs(path[j].lat-ob_array[k].lat);
+                                                }
+                                                else
+                                                {
+                                                  var a = (path[j+1].lng-path[j].lng)/(path[j+1].lat-path[j].lat);
+                                                  var b = path[j].lng - a*path[j].lat;
+                                                  dis = Math.abs(a*ob_array[k].lat-ob_array[k].lng+b)/Math.sqrt(a*a+1);
+                                                }
+                                                //console.log(dis);
+
+                                                if(dis < 0.0000086)   //0.0000086
                                                   {
-                                                    console.log("lng in");
+                                                    console.log("in" + dis);
+                                                    //console.log(path_obj.lat);
                                                     ob_flag = 1;
                                                     break;
                                                   }
+                                                  // if(Math.abs(path[j].lat - ob_array[k].lat) < 0.00028 && Math.abs(path[j].lng - ob_array[k].lng) < 0.00028)
+                                                  // {
+                                                  //   console.log("in" + ob_array[k].lat);
+                                                  //   //console.log(path_obj.lat);
+                                                  //   ob_flag = 1;
+                                                  //   break;
+                                                  // }
                                               }
                                               if(ob_flag == 1)
                                               {
+                                                console.log("break");
                                                 break;
                                               }
                                           }
-                                          */
+                                          
                                           if(ob_flag == 0)
                                           {
+
+                                            //var path = response.routes[i].overview_path;
                                             var flightPath = new google.maps.Polyline({
-                                            path: response.routes[i].overview_path,
+                                            path: path,
                                             geodesic: true,
                                             strokeColor: line_color[i],
                                             strokeOpacity: 1.0,
@@ -779,18 +982,81 @@
                                             });
 
                                             flightPath.setMap(map);
+                                            google.maps.event.removeListener(listener_routing);
+                                            break;
+                                            // console.log(path);
+                                            // path = JSON.stringify(path);
+                                            // path = JSON.parse(path);
+                                            // console.log(path);
+                                            // // Snap a user-created polyline to roads and draw the snapped path
+                                            // var pathValues = [];
+                                            // for (var i = 0; i < path.length; i++) {
+                                            //   pathValues.push(path[i].lat+","+path[i].lng);
+                                            //   //console.log("snaptoroad:"+pathValues);
+                                            // }
+
+                                            // pathValues = pathValues.join('|');
+                                            // //console.log("snaptoroad:"+pathValues);
+                                            // $.get('https://roads.googleapis.com/v1/snapToRoads', {
+                                            //   interpolate: true,
+                                            //   key: "AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8",
+                                            //   path: pathValues
+                                            // }, function(data) {
+                                            //   console.log(data.snappedPoints.length);
+                                            //   snappedCoordinates = [];
+                                            //   placeIdArray = [];
+                                            //   for (var i = 0; i < data.snappedPoints.length; i++) {
+                                            //     var latlng = new google.maps.LatLng(
+                                            //         data.snappedPoints[i].location.latitude,
+                                            //         data.snappedPoints[i].location.longitude);
+                                            //     snappedCoordinates.push(latlng);
+                                            //     placeIdArray.push(data.snappedPoints[i].placeId);
+                                            //   }
+
+                                            //   var snappedPolyline = new google.maps.Polyline({
+                                            //     path: snappedCoordinates,
+                                            //     strokeColor: 'black',
+                                            //     strokeWeight: 3
+                                            //   });
+
+                                            //   snappedPolyline.setMap(map);
+
+                                              
+                                            // });
+
+
+                                            
+
                                             /*new google.maps.DirectionsRenderer({
                                               map: map,
                                               directions: response,
                                               routeIndex: i
                                           });*/
                                             //break;
+                                          
                                           }
                                           else
                                           {
+                                            if(i == (response.routes.length-1))
+                                            {
+                                              alert("There is no road to destination.");
+                                              marker_routing.setMap(null);
+                                            }
                                             ob_flag = 0;
                                           }                                      
                                       }
+                                      // marker_routing.addListener('click', function() {
+                                      //         infowindow = new google.maps.InfoWindow({
+                                      //           content: '<button type="submit" id="routing_cancel">取消</button>'
+                                      //         });
+
+                                      //         infowindow.open(map, marker);
+
+                                      //       $(document).on('click', '#routing_cancel', function(){            
+                                      //         flightPath.setMap(null);
+                                      //       });
+                            
+                                      //       });
 
                                 });
                                 
@@ -799,6 +1065,8 @@
                             }
                         }
                     );
+                    });
+                    
                   }
                   initialize();
                   calcRoute();
@@ -895,6 +1163,14 @@
            val = data[1][2].toString();
            meta = JSON.stringify(data[1][3]);
            //console.log(meta);
+
+           if (time != null)
+           {
+            $('#dog').removeClass('disabled'); 
+            $('#dog_dropdown').attr("data-toggle", "dropdown");
+            document.getElementById(dog_dropdown).style.property = "cursor:pointer"
+           }
+           
            if(Latitude != -1 && Longitude != -1 && flag == 0) // check is the data come in for the first time
            {
               flag = 1;
@@ -1033,44 +1309,98 @@
         */
 
   /***************************************************************************************************************************************************************/      
-        
+        var flag_ob_add = false;
+        $(document).on('click', '#ob_add', function(){
+          while(true)
+          {
+            
+            //console.log("ob_add");
+            var pwd = prompt("Please input password");
+            if(pwd == null) break;
+            if(pwd == "pcs54784")
+            {
+              flag_ob_add = true;
+              alert("Please click where you want to add obstacle.");
+              google.maps.event.clearInstanceListeners(map);
+              icon = 'http://maps.google.com/mapfiles/kml/pal3/icon33.png';
+              // prompt("Add Description: ");
+              var title = 'obstacle';
 
-        $('.button').on('click', function(){
-            console.log('tared');
-            console.log(infowindowIndex);
-            var clicked = false;
-            if($(this).hasClass('clickClass'))
-              clicked = true;
-            $('.button').removeClass('clickClass');
-            if(clicked)
-                $(this).removeClass('clickClass');
+              balala(icon,title);
+              break;
+            }
             else
-               $(this).addClass('clickClass');
-            /*if($('#ob_upd').hasClass('clickClass'))
             {
-                //var newInfo = prompt('Enter new information');
-                //infowindowArr[infowindowIndex].setContent(newInfo);
-
-            }*/
-            if($('#ob_add').hasClass('clickClass'))
-            {
-                google.maps.event.clearInstanceListeners(map);
-
-                icon = 'http://maps.google.com/mapfiles/kml/pal3/icon33.png';
-          // prompt("Add Description: ");
-                var title = 'obstacle';
-
-                gg1listen = balala(icon,title);
+              alert("Wrong password!\nPlease try again.");
             }
-            else if($('#cam_add').hasClass('clickClass'))
-            {
-                google.maps.event.clearInstanceListeners(map);
-    //prompt("Stream URI: ");
-                icon = 'http://i.imgur.com/Eh9U0qI.png';
-                var title = 'camera';
-                gg2listen = balala(icon , title);
-            }
+          }
+          
         });
+
+        var flag_cam_add = false;
+        $(document).on('click', '#cam_add', function(){
+          while(true)
+          {
+            
+            //console.log("ob_add");
+            var pwd = prompt("Please input password");
+            if(pwd == null) break;
+            if(pwd == "pcs54784")
+            {
+              flag_cam_add = true;
+              alert("Please click where you want to add camera.");
+              google.maps.event.clearInstanceListeners(map);
+              icon = 'http://i.imgur.com/Eh9U0qI.png';
+              // prompt("Add Description: ");
+              var title = 'camera';
+
+              balala(icon,title);
+              break;
+            }
+            else
+            {
+              alert("Wrong password!\nPlease try again.");
+            }
+          }
+          
+        });
+
+    //     $('.button').on('click', function(){
+    //         console.log('tared');
+    //         console.log(infowindowIndex);
+    //         var clicked = false;
+    //         if($(this).hasClass('clickClass'))
+    //           clicked = true;
+    //         $('.button').removeClass('clickClass');
+    //         if(clicked)
+    //             $(this).removeClass('clickClass');
+    //         else
+    //            $(this).addClass('clickClass');
+    //         /*if($('#ob_upd').hasClass('clickClass'))
+    //         {
+    //             //var newInfo = prompt('Enter new information');
+    //             //infowindowArr[infowindowIndex].setContent(newInfo);
+
+    //         }*/
+    //         if($('#ob_add').hasClass('clickClass'))
+    //         {
+    //             google.maps.event.clearInstanceListeners(map);
+
+    //             icon = 'http://maps.google.com/mapfiles/kml/pal3/icon33.png';
+    //       // prompt("Add Description: ");
+    //             var title = 'obstacle';
+
+    //             gg1listen = balala(icon,title);
+    //         }
+    //         else if($('#cam_add').hasClass('clickClass'))
+    //         {
+    //             google.maps.event.clearInstanceListeners(map);
+    // //prompt("Stream URI: ");
+    //             icon = 'http://i.imgur.com/Eh9U0qI.png';
+    //             var title = 'camera';
+    //             gg2listen = balala(icon , title);
+    //         }
+    //     });
 
         /*$('#cam_add').on('click', function(){
             $('#ob_add').removeClass('clickClass');
@@ -1087,47 +1417,91 @@
 
         var balala = function(icon , title){        
             var listenergg = google.maps.event.addListener(map, 'click', function(event) {
-                var LatLng = event.latLng;
-                lat = LatLng.lat().toPrecision(10);
-                lng = LatLng.lng().toPrecision(10);
-                // yoo
-                var URL = 1;
-                // yoo
-                if(URL)
+                
+                // var sv = new google.maps.StreetViewService();
+                // sv.getPanorama({location: event.latLng, radius: 30}, processSVData);
+
+                // function processSVData(data, status) {
+                //   if (status === 'OK') {
+                //     // yoo
+                //     var URL = 1;
+                //     // yoo
+                //     if(URL)
+                //     {
+                        
+                //         addIcon(data.location.latLng, icon , title, URL);
+                //     }
+                //   } else {
+                //     console.error('Street View data not found for this location.');
+                //   }
+                // }
+                if(flag_ob_add == true || flag_cam_add ==true)
                 {
-                    
-                    addIcon(parseFloat(lat), parseFloat(lng), icon , title, URL);
+                  var LatLng = event.latLng;
+                  //console.log(LatLng.lat()+","+LatLng.lng());
+                  var RoadAPI = "https://roads.googleapis.com/v1/nearestRoads?points="+LatLng.lat()+","+LatLng.lng()+"&key=AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8";
+                  $.getJSON( RoadAPI, {
+                  })
+                    .done(function(data) {
+                      //console.log("done" + data);
+                      if(jQuery.isEmptyObject(data))
+                      {
+                        alert("Please click on the road");
+                        return;
+                      }
+                      //console.log(data.snappedPoints[0].location.latitude);
+                      var lat = data.snappedPoints[0].location.latitude;
+                      var lng = data.snappedPoints[0].location.longitude;
+                      if(lat-LatLng.lat() > 0.00001 || lng-LatLng.lng() > 0.00001)
+                      {
+                        alert("Please click on the road");
+                      }
+                      else
+                      {
+                        addIcon(lat,lng, icon , title, URL);
+                      }
+                      
+                    });
+
                 }
-                return function(){};
+                  
+
+                // return function(){};
             });
       };
         
 
-        function addIcon(lat, lng,icon_ ,title, URL)
+        
+
+        function addIcon(lat,lng,icon_ ,title, URL)
         {          
         //deleteMarkers();
             // yoo
-
-            if(title == 'camera' && !($('#cam_add').hasClass('clickClass')))
-              return;
-            if(title == 'obstacle' && !($('#ob_add').hasClass('clickClass')))
-              return;
+            flag_ob_add = false;
+            flag_cam_add = false;
+            console.log("addicon");
+            // if(title == 'camera' && !($('#cam_add').hasClass('clickClass')))
+            //   return;
+            // if(title == 'obstacle' && !($('#ob_add').hasClass('clickClass')))
+            //   return;
 
             var infofo = prompt("Add Information: ");
                         // yoo
             if(!infofo) return 0;
-            var marker = new google.maps.Marker({
-                icon: icon_,
-                position:{ lat: lat, lng: lng },
-                map: map, 
-                fillOpacity: 0.4,
-                title: title,
-                // yoo
-                content: infofo
+            // var marker = new google.maps.Marker({
+            //     icon: icon_,
+            //     position:{lat: lat, lng: lng},
+            //     map: map, 
+            //     fillOpacity: 0.4,
+            //     title: title,
+            //     // yoo
+            //     content: infofo
 
-                // yoo
-            //icon: pinImage
-                });
+            //     // yoo
+            // //icon: pinImage
+            //     });
+
+
 
             $.getJSON($SCRIPT_ROOT + '/_add_markers',{
                 lat: lat,
@@ -1135,62 +1509,73 @@
                 type:title,
                 content: infofo
               }, function(data) {
-              console.log(data.result);
-              //courseStr = data.result.map(function(dog) {return  dog.lat; })
-              //$("#result").text(courseStr);
-            });
-
-            if(marker.title == 'camera'){
-                markers.push(marker);
-                marker.addListener('click', function() {
-                  if($('#Video-Display').attr('src') == marker.content){
-                        $('#Video-Display').attr('src', '');
-                        $('#function_but').show();
-
-                  }
-                  else{
-                  $('#Video-Display').attr('src', marker.content);
-                  $('#function_but').hide();
-                  $('.button_sm').hide();
-                  $('.button').hide();
+                for (var i = 0; i < markers.length; i++) {
+                  markers[i].setMap(null);
                 }
 
+                markers = [];
+                load_markers();
+                // var marker = new google.maps.Marker({
+                //     position: {lat: lat, lng: lng},
+                //     icon: icon_,
+                //     map: map,
+                //     title: title,
+                //     content:infofo,
+                //     id: data.result
+                // });
+                // console.log(data.result);
+            //   if(marker.title == 'camera'){
+            //     markers.push(marker);
+            //     marker.addListener('click', function() {
+            //       if($('#Video-Display').attr('src') == marker.content){
+            //             $('#Video-Display').attr('src', '');
+            //             $('#function_but').show();
+
+            //       }
+            //       else{
+            //       $('#Video-Display').attr('src', marker.content);
+            //       $('#function_but').hide();
+            //       $('.button_sm').hide();
+            //       $('.button').hide();
+            //     }
 
 
-                  if($('#cam_rm').hasClass('clickClass'))
-                          {
-                            marker.setVisible(false);
-                            infowindow.close();
-                            $('#Video-Display').attr('src', '');
 
-                          }
-                });
-            }
-            if(marker.title == 'obstacle'){
-            var infowindow = new google.maps.InfoWindow({
-                          content: marker.content
+            //       if($('#cam_rm').hasClass('clickClass'))
+            //               {
+            //                 marker.setVisible(false);
+            //                 infowindow.close();
+            //                 $('#Video-Display').attr('src', '');
+
+            //               }
+            //     });
+            // }
+            // if(marker.title == 'camera'){
+            // var infowindow = new google.maps.InfoWindow({
+            //               content: '<button type="submit" id="camera_info" value='+data.result+'>修改</button><button type="submit" id="camera_del" value='+data.result+'>刪除</button>'
+            // });
+            // marker.addListener('click', function() {
+            //     infowindow.open(map, marker);
+            // });
+            // }
+            // if(marker.title == 'obstacle'){
+              
+            // var infowindow = new google.maps.InfoWindow({
+            //               content: marker.content +'</br><button type="submit" id="obstacle_info" value='+data.result+'>修改</button><button type="submit" id="obstacle_del" value='+data.result+'>刪除</button>'
+            // });
+            // marker.addListener('click', function() {
+            //     infowindow.open(map, marker);
+            // });
+
+            // }
+            // markers.push(marker);
+
             });
-            marker.addListener('click', function() {
-                infowindow.open(map, marker);
-                if($('#ob_upd').hasClass('clickClass'))
-                {
-                   var newInfo = prompt('Enter new information');
-                              infowindow.setContent(newInfo);
-                }
-                if($('#ob_rm').hasClass('clickClass'))
-                          {
-                            marker.setVisible(false);
-                            infowindow.close();
-                            marker.content = "";
 
-                          }
-                
-            });
-                marker.index = infowindowArr.length;
-                    infowindowArr.push(infowindow);
-                    };
-        markers.push(marker);
+            
         }
+
+
         var infowindowIndex = -1;
         infowindowArr = [];
         function addListenertoObstacle()
