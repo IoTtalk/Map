@@ -1,5 +1,23 @@
  $(function(){
-        
+
+        // $('#function_list').hide();
+        // $('#Video-Display').hide();
+
+        // while(true)
+        // {
+        //   var pwd = prompt("Please input password");
+        //   if(pwd == null) return;
+        //   if(pwd == "pcs54784")
+        //   {
+        //       $('#function_list').show();
+        //       $('#Video-Display').show();
+        //       break;
+        //   } 
+        //   else
+        //   {
+        //     alert("Wrong password!\nPlease try again.");
+        //   }            
+        // }
         var map;        
         function initialize() {
           // Create an array of styles.
@@ -461,144 +479,90 @@
 
             $(document).on('click', '#obstacle_info', function(){            
                       //var marker_id = $(this).val();
-                      while(true)
-                      {
-                        var pwd = prompt("Please input password");
-                        if(pwd == null) break;
-                        if(pwd == "pcs54784")
-                        {
-                            var marker_id = $(this).val();
-                            var new_info = prompt("Enter new information:");
-                            $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
-                                id: marker_id,
-                                content: new_info
-                              }, function(data) {
-                              
-                              for (var i = 0; i < markers.length; i++) {
-                                  if (markers[i].id == marker_id) {
-                                      infowindow.setContent(new_info +'</br><button type="submit" id="obstacle_info" value='+marker_id+'>修改</button><button type="submit" id="obstacle_del" value='+marker_id+'>刪除</button>');
-                                      infowindow.open(map, markers[i]);//console.log(data.result);
-                                      markers[i].content = new_info;
-                                  }
-                              }
-                            });
-
-                            break;
-                        } 
-                        else
-                        {
-                          alert("Wrong password!\nPlease try again.");
-                        } 
-                      }
+                      var marker_id = $(this).val();
+                      var new_info = prompt("Enter new information:");
+                      $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
+                          id: marker_id,
+                          content: new_info
+                        }, function(data) {
+                        
+                        for (var i = 0; i < markers.length; i++) {
+                            if (markers[i].id == marker_id) {
+                                infowindow.setContent(new_info +'</br><button type="submit" id="obstacle_info" value='+marker_id+'>修改</button><button type="submit" id="obstacle_del" value='+marker_id+'>刪除</button>');
+                                infowindow.open(map, markers[i]);//console.log(data.result);
+                                markers[i].content = new_info;
+                            }
+                        }
+                      });
                             
             });
 
             $(document).on('click', '#camera_info', function(){            
                       //var marker_id = $(this).val();
-                      while(true)
-                      {
-                        var pwd = prompt("Please input password");
-                        if(pwd == null) break;
-                        if(pwd == "pcs54784")
-                        {
-                            var marker_id = $(this).val();
-                            var new_info = prompt("Enter new information:");
-                            $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
-                                id: marker_id,
-                                content: new_info
-                              }, function(data) {
-                              
-                              for (var i = 0; i < markers.length; i++) {
-                                  if (markers[i].id == marker_id) {
-                                      infowindow.setContent('<button type="submit" id="obstacle_info" value='+marker_id+'>修改</button><button type="submit" id="obstacle_del" value='+marker_id+'>刪除</button>');
-                                      infowindow.open(map, markers[i]);//console.log(data.result);
-                                      markers[i].content = new_info;
-                                  }
-                              }
-                            });
-
-                            break;
-                        } 
-                        else
-                        {
-                          alert("Wrong password!\nPlease try again.");
-                        } 
-                      }
+                      var marker_id = $(this).val();
+                      var new_info = prompt("Enter new information:");
+                      $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
+                          id: marker_id,
+                          content: new_info
+                        }, function(data) {
+                        
+                        for (var i = 0; i < markers.length; i++) {
+                            if (markers[i].id == marker_id) {
+                                infowindow.setContent('<button type="submit" id="obstacle_info" value='+marker_id+'>修改</button><button type="submit" id="obstacle_del" value='+marker_id+'>刪除</button>');
+                                infowindow.open(map, markers[i]);//console.log(data.result);
+                                markers[i].content = new_info;
+                            }
+                        }
+                      });
                             
             });
 
             $(document).on('click', '#obstacle_del', function(){            
                       //alert($(this).val());
-                      while(true)
-                      {
-                        var pwd = prompt("Please input password");
-                        if(pwd == null) break;
-                        if(pwd == "pcs54784")
-                        {
-                            var marker_id = $(this).val();
-                            console.log(marker_id);
-                            $.getJSON($SCRIPT_ROOT + '/_del_markers',{
-                                id: marker_id
-                              }, function(data) {
-                              //console.log(data.result);
-                              //Find and remove the marker from the Array
-                              for (var i = 0; i < markers.length; i++) {
-                                  if (markers[i].id == marker_id) {
-                                      //Remove the marker from Map  
-                                      //console.log(markers[i].id);                
-                                      markers[i].setMap(null);console.log(markers[i].id);
-                                      //Remove the marker from array.
-                                      markers.splice(i, 1);
-                                  }
-                              }
+                      var marker_id = $(this).val();
+                      console.log(marker_id);
+                      $.getJSON($SCRIPT_ROOT + '/_del_markers',{
+                          id: marker_id
+                        }, function(data) {
+                        //console.log(data.result);
+                        //Find and remove the marker from the Array
+                        for (var i = 0; i < markers.length; i++) {
+                            if (markers[i].id == marker_id) {
+                                //Remove the marker from Map  
+                                //console.log(markers[i].id);                
+                                markers[i].setMap(null);console.log(markers[i].id);
+                                //Remove the marker from array.
+                                markers.splice(i, 1);
+                            }
+                        }
 
-                            });
-                            break;
-                        } 
-                        else
-                        {
-                          alert("Wrong password!\nPlease try again.");
-                        }            
-                      }
+                      });
                         
             });
 
             $(document).on('click', '#camera_del', function(){            
                       //alert($(this).val());
-                      while(true)
-                      {
-                        var pwd = prompt("Please input password");
-                        if(pwd == null) break;
-                        if(pwd == "pcs54784")
-                        {
-                            var marker_id = $(this).val();
-                            console.log(marker_id);
-                            $.getJSON($SCRIPT_ROOT + '/_del_markers',{
-                                id: marker_id
-                              }, function(data) {
-                              //console.log(data.result);
-                              //Find and remove the marker from the Array
-                              for (var i = 0; i < markers.length; i++) {
-                                  if (markers[i].id == marker_id) {
-                                      //Remove the marker from Map                  
-                                      markers[i].setMap(null);console.log(markers[i].id);
-                                      //Remove the marker from array.
-                                      markers.splice(i, 1);
-                                      $('#Video-Display').attr('src', '');
-                                      flag_camera = 0;
-                                      $('#Video-Display').css({"z-index": -10});
-                                      $('#fuck_off').hide();
-                                  }
-                              }
+                      var marker_id = $(this).val();
+                      console.log(marker_id);
+                      $.getJSON($SCRIPT_ROOT + '/_del_markers',{
+                          id: marker_id
+                        }, function(data) {
+                        //console.log(data.result);
+                        //Find and remove the marker from the Array
+                        for (var i = 0; i < markers.length; i++) {
+                            if (markers[i].id == marker_id) {
+                                //Remove the marker from Map                  
+                                markers[i].setMap(null);console.log(markers[i].id);
+                                //Remove the marker from array.
+                                markers.splice(i, 1);
+                                $('#Video-Display').attr('src', '');
+                                flag_camera = 0;
+                                $('#Video-Display').css({"z-index": -10});
+                                $('#fuck_off').hide();
+                            }
+                        }
 
-                            });
-                            break;
-                        } 
-                        else
-                        {
-                          alert("Wrong password!\nPlease try again.");
-                        }            
-                      }
+                      });
                         
             });
 
@@ -670,7 +634,7 @@
            if(status[2] == 1)
            {
                status[2]=0;
-               $(this).removeClass('active')               
+               $(this).removeClass('active');               
                markers.forEach(function(marker) {
                    if(marker.title == 'obstacle')
                        marker.setVisible(false);
@@ -680,7 +644,7 @@
            else
            {
                status[2]=1;              
-               $(this).addClass('active')              
+               $(this).addClass('active');              
                markers.forEach(function(marker) {
                    if(marker.title == 'obstacle')
                         marker.setVisible(true);                                        
@@ -787,7 +751,7 @@
                 flightPath.setMap(map);
 
                 function animateCircle(line) {
-                  console.log("animateCircle comein");
+                  // console.log("animateCircle comein");
                   var count = 0;
                   window.setInterval(function() {
                     count = (count + 1) % 200;
@@ -795,7 +759,7 @@
                     var icons = line.get('icons');
                     icons[0].offset = (count / 2) + '%';
                     line.set('icons', icons);
-                }, 20);
+                }, 50);
               }
 
               flag_history = 1;
@@ -847,10 +811,10 @@
                   var lat = position.coords.latitude;
                   var lng = position.coords.longitude;
                   var CurrentPosition = {lat: lat, lng: lng};
-                  addMarker(CurrentPosition);
+                  addMarker_routing(CurrentPosition);
                   //setMapOnAll(map);
 
-                  function addMarker(location) {
+                  function addMarker_routing(location) {
                     var marker = new google.maps.Marker({
                       position: location,
                       label: "現在位置",
@@ -915,7 +879,7 @@
                                         //console.log(data.result);
                                         ob_array = data.result.map(function(obj) {return  {lat:obj.lat, lng:obj.lon}; })
                                         //$("#result").text(courseStr);
-                                        //console.log(JSON.stringify(ob_array));
+                                        // console.log(JSON.stringify(ob_array));
                                         for (var i = 0, len = response.routes.length; i < len; i++) {
                                           /*new google.maps.DirectionsRenderer({
                                               map: map,
@@ -924,25 +888,38 @@
                                           });*/
                                           //console.log(JSON.stringify(response.routes[i]));
                                           
-                                          console.log("response.routes" + i);
+                                          console.log("response.routes " + i);
+                                          var path_bounds = response.routes[i].bounds;
+                                          path_bounds = JSON.stringify(path_bounds);
+                                          path_bounds = JSON.parse(path_bounds);        //path_bounds.south
+                                          console.log(path_bounds.south);
                                           var path = response.routes[i].overview_path;
                                           path = JSON.stringify(path);
                                           path = JSON.parse(path);
-                                          //console.log(path);
+                                          // console.log(path);
+
+                                          var ob_array_in_area = [];
+                                          for(var m = 0; m < ob_array.length; m++){
+                                            if(ob_array[m].lat > path_bounds.south && ob_array[m].lat < path_bounds.north)
+                                              if(ob_array[m].lng > path_bounds.west && ob_array[m].lng < path_bounds.east)
+                                                ob_array_in_area.push(ob_array[m]);
+                                          }
+
+                                          console.log(JSON.stringify(ob_array_in_area));
                                           for (var j = 0; j < path.length-1; j++){
                                               
-                                              for(var k = 0; k < ob_array.length; k++){
+                                              for(var k = 0; k < ob_array_in_area.length; k++){
                                                 var dis = 0;
 
                                                 if(path[j+1].lat == path[j].lat)
                                                 {　
-                                                  dis = Math.abs(path[j].lat-ob_array[k].lat);
+                                                  dis = Math.abs(path[j].lat-ob_array_in_area[k].lat);
                                                 }
                                                 else
                                                 {
                                                   var a = (path[j+1].lng-path[j].lng)/(path[j+1].lat-path[j].lat);
                                                   var b = path[j].lng - a*path[j].lat;
-                                                  dis = Math.abs(a*ob_array[k].lat-ob_array[k].lng+b)/Math.sqrt(a*a+1);
+                                                  dis = Math.abs(a*ob_array_in_area[k].lat-ob_array_in_area[k].lng+b)/Math.sqrt(a*a+1);
                                                 }
                                                 //console.log(dis);
 
@@ -1156,34 +1133,47 @@
             //return false;
          //});
                 
+        var marker_dog;
+        var old_lat;
+        var old_lng;
         function GeoLoData_O(data){
-           time = data[0];
-           Latitude = parseFloat(data[1][0]);
-           Longitude = parseFloat(data[1][1]);
-           val = data[1][2].toString();
-           meta = JSON.stringify(data[1][3]);
-           //console.log(meta);
+           var time = data[0];
+           var Latitude = parseFloat(data[1][0]);
+           var Longitude = parseFloat(data[1][1]);
+           var val = data[1][2].toString();
+           var meta = JSON.stringify(data[1][3]);
+           console.log(typeof(val));
 
-           if (time != null)
-           {
-            $('#dog').removeClass('disabled'); 
-            $('#dog_dropdown').attr("data-toggle", "dropdown");
-            document.getElementById(dog_dropdown).style.property = "cursor:pointer"
-           }
+           
            
            if(Latitude != -1 && Longitude != -1 && flag == 0) // check is the data come in for the first time
            {
               flag = 1;
+              $('#dog').removeClass('disabled'); 
+              $('#dog_dropdown').attr("data-toggle", "dropdown");
+              document.getElementById("dog_dropdown").style.cursor = "pointer";
               $('#button_d1').show();
-              //status[4] = 1;              
+              status[4] = 1;              
            }
-           if(status[4]==1)
+           if(status[4]==1 && (Latitude!=old_lat||Longitude!=old_lng) )
            {              
-               addMarker(Latitude, Longitude, val);
+               if(marker_dog != null) marker_dog.setMap(null);
+               marker_dog = new google.maps.Marker({
+                    position:{ lat: Latitude, lng: Longitude },
+                    map: map,
+                    title: "fat fuck",
+                    label: val,
+                    icon:'http://maps.google.com/mapfiles/kml/paddle/blu-blank.png',
+                });
+               marker_dog.setMap(map);
+               old_lat = Latitude;
+               old_lng = Longitude;
+               //addMarker(Latitude, Longitude, val);
+
            }
            else
                HideAllMarkers(markers_sensor[val]);
-
+            
             $.getJSON($SCRIPT_ROOT + '/_add_numbers',{
                 lat: Latitude,
                 lon: Longitude,
@@ -1191,6 +1181,7 @@
                 data: meta,
                 time: time
               }, function(data) {
+              //console.log("data in");
               console.log(data.result);
               //courseStr = data.result.map(function(dog) {return  dog.lat; })
               //$("#result").text(courseStr);
@@ -1311,57 +1302,27 @@
   /***************************************************************************************************************************************************************/      
         var flag_ob_add = false;
         $(document).on('click', '#ob_add', function(){
-          while(true)
-          {
-            
-            //console.log("ob_add");
-            var pwd = prompt("Please input password");
-            if(pwd == null) break;
-            if(pwd == "pcs54784")
-            {
-              flag_ob_add = true;
-              alert("Please click where you want to add obstacle.");
-              google.maps.event.clearInstanceListeners(map);
-              icon = 'http://maps.google.com/mapfiles/kml/pal3/icon33.png';
-              // prompt("Add Description: ");
-              var title = 'obstacle';
+          flag_ob_add = true;
+          alert("Please click where you want to add obstacle.");
+          google.maps.event.clearInstanceListeners(map);
+          icon = 'http://maps.google.com/mapfiles/kml/pal3/icon33.png';
+          // prompt("Add Description: ");
+          var title = 'obstacle';
 
-              balala(icon,title);
-              break;
-            }
-            else
-            {
-              alert("Wrong password!\nPlease try again.");
-            }
-          }
+          balala(icon,title);
           
         });
 
         var flag_cam_add = false;
         $(document).on('click', '#cam_add', function(){
-          while(true)
-          {
-            
-            //console.log("ob_add");
-            var pwd = prompt("Please input password");
-            if(pwd == null) break;
-            if(pwd == "pcs54784")
-            {
-              flag_cam_add = true;
-              alert("Please click where you want to add camera.");
-              google.maps.event.clearInstanceListeners(map);
-              icon = 'http://i.imgur.com/Eh9U0qI.png';
-              // prompt("Add Description: ");
-              var title = 'camera';
+          flag_cam_add = true;
+          alert("Please click where you want to add camera.");
+          google.maps.event.clearInstanceListeners(map);
+          icon = 'http://i.imgur.com/Eh9U0qI.png';
+          // prompt("Add Description: ");
+          var title = 'camera';
 
-              balala(icon,title);
-              break;
-            }
-            else
-            {
-              alert("Wrong password!\nPlease try again.");
-            }
-          }
+          balala(icon,title);
           
         });
 
@@ -1452,14 +1413,14 @@
                       //console.log(data.snappedPoints[0].location.latitude);
                       var lat = data.snappedPoints[0].location.latitude;
                       var lng = data.snappedPoints[0].location.longitude;
-                      if(lat-LatLng.lat() > 0.00001 || lng-LatLng.lng() > 0.00001)
-                      {
-                        alert("Please click on the road");
-                      }
-                      else
-                      {
+                      // if(lat-LatLng.lat() > 0.00001 || lng-LatLng.lng() > 0.00001)
+                      // {
+                      //   alert("Please click on the road");
+                      // }
+                      // else
+                      // {
                         addIcon(lat,lng, icon , title, URL);
-                      }
+                      // }
                       
                     });
 

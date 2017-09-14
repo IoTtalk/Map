@@ -1,5 +1,5 @@
 import time, requests, random, json
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import Column, String, Float, Integer, DATETIME
 #from sqlalchemy.orm import sessionmaker
 #from sqlalchemy.ext.declarative import declarative_base
@@ -164,7 +164,11 @@ def del_markers():
 @app.route('/history')
 def history():
     dog_id = request.args.get('a', 0, type=int)
-    c = db.session.query(Dog).filter_by(dog_id = dog_id).all()#filter(Dog.timestamp.between('2017-08-17 17:12:00.00', '2017-08-17 17:12:40.00'))
+    right_now = datetime.now()#datetime.strptime('2017-08-1 00:12:00.00', "%Y-%m-%d %H:%M:%S.%f")
+    start_time = right_now - timedelta(hours=2)#days=2 hours=2
+    print(start_time)
+    c = db.session.query(Dog).filter_by(dog_id = dog_id).filter(Dog.timestamp.between(start_time, right_now))#all()
+    # c = db.session.query(Dog).filter_by(dog_id = dog_id).filter(Dog.timestamp.between('2017-08-17 17:12:00.00', '2017-08-17 17:12:40.00'))#all()
     recent_histories = []
     
     for row in c:
@@ -180,9 +184,14 @@ def history():
 @app.route('/index')
 def index():
     return render_template('index.html')
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
 
 with app.test_request_context():
-	print(url_for('index'))
+    print(url_for('index'))
+    print(url_for('admin'))
+
 
 
 
