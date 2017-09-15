@@ -15,7 +15,9 @@
         //   } 
         //   else
         //   {
+
         //     toast("Wrong password!\nPlease try again.");
+
         //   }            
         // }
         var map;        
@@ -360,6 +362,7 @@
                   catch (ex) { }                 
         }
         
+
         function toast(y) {
         // Get the snackbar DIV
         var x = document.getElementById("snackbar")
@@ -371,7 +374,7 @@
         setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
         }
 
-        
+
         load_markers();
         
         function load_markers()
@@ -456,7 +459,9 @@
                                 // }
                                 // else if(marker.position == features[1].position)
                                 // {
+
                                 //        //toast(marker.position[1] + new google.maps.LatLng(24.789655, 120.997031));
+
                                 //     $('#Video-Display').attr('src', "https://www.youtube.com/embed/35FSJVS77Fw" );
                                 //     $('#Video-Display').css({"z-index": 10});
                                 //     $('#fuck_off').show();                                    
@@ -530,7 +535,9 @@
             });
 
             $(document).on('click', '#obstacle_del', function(){            
+
                       //toast($(this).val());
+
                       var marker_id = $(this).val();
                       console.log(marker_id);
                       $.getJSON($SCRIPT_ROOT + '/_del_markers',{
@@ -553,7 +560,9 @@
             });
 
             $(document).on('click', '#camera_del', function(){            
+
                       //toast($(this).val());
+
                       var marker_id = $(this).val();
                       console.log(marker_id);
                       $.getJSON($SCRIPT_ROOT + '/_del_markers',{
@@ -859,7 +868,9 @@
                   }
 
                   function calcRoute() {
+
                     toast("Please click your destination on the map.");
+
                     var listener_routing = google.maps.event.addListener(map, 'click', function(event) {
                       oceanBeach = event.latLng;
                       //console.log(oceanBeach);
@@ -1028,7 +1039,9 @@
                                           {
                                             if(i == (response.routes.length-1))
                                             {
+
                                               toast("There is no road to destination.");
+
                                               marker_routing.setMap(null);
                                             }
                                             ob_flag = 0;
@@ -1315,7 +1328,9 @@
         var flag_ob_add = false;
         $(document).on('click', '#ob_add', function(){
           flag_ob_add = true;
+
           toast("Please click where you want to add obstacle.");
+
           google.maps.event.clearInstanceListeners(map);
           icon = 'http://maps.google.com/mapfiles/kml/pal3/icon33.png';
           // prompt("Add Description: ");
@@ -1328,7 +1343,9 @@
         var flag_cam_add = false;
         $(document).on('click', '#cam_add', function(){
           flag_cam_add = true;
+
           toast("Please click where you want to add camera.");
+
           google.maps.event.clearInstanceListeners(map);
           icon = 'http://i.imgur.com/Eh9U0qI.png';
           // prompt("Add Description: ");
@@ -1419,7 +1436,9 @@
                       //console.log("done" + data);
                       if(jQuery.isEmptyObject(data))
                       {
+
                         toast("Please click on the road");
+
                         return;
                       }
                       //console.log(data.snappedPoints[0].location.latitude);
@@ -1427,7 +1446,9 @@
                       var lng = data.snappedPoints[0].location.longitude;
                       // if(lat-LatLng.lat() > 0.00001 || lng-LatLng.lng() > 0.00001)
                       // {
+
                       //   toast("Please click on the road");
+
                       // }
                       // else
                       // {

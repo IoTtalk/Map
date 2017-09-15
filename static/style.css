@@ -33,7 +33,6 @@ html,body{
   z-index: 20;
   left:530px;
   top:40px;
-
 }
 @media (max-width: 480px) {
 
@@ -85,7 +84,10 @@ However, delay the fade out process for 2.5 seconds */
 @keyframes fadein {
     from {bottom: 0; opacity: 0;}
     to {bottom: 30px; opacity: 1;}
+
 }
+@media (max-width: 480px) {
+
 
 @-webkit-keyframes fadeout {
     from {bottom: 30px; opacity: 1;} 
@@ -96,6 +98,7 @@ However, delay the fade out process for 2.5 seconds */
     from {bottom: 30px; opacity: 1;}
     to {bottom: 0; opacity: 0;}
 }
+
 /*@media (max-width: 559px) {
   .video-container {
     position: relative;
