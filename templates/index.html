@@ -29,7 +29,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     
     <script type="text/javascript"
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8"></script>
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJJZnblGUcntIKP4Cn0TZv5UzBN4xDSB0"></script><!-- AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8 -->
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css">
     
 
@@ -98,13 +98,14 @@
       </li>
       <li role="presentation" class="active" id="button_s3" style="cursor:pointer" ><a>攝影機</a></li>
       <li role="presentation" class="active" id="button_s2" style="cursor:pointer"><a>路障</a></li>
+      <li role="presentation" id="button_s4" style="cursor:pointer"><a>歷史紀錄</a></li>
   <!--     <li role="presentation" class="disabled" id="dog" style="cursor:pointer"><a>狗</a></li> -->
       <li id="dog" role="presentation" class="dropdown disabled" class="active">
         <a id="dog_dropdown" class="dropdown-toggle"  role="button" aria-haspopup="true" aria-expanded="false" >
           狗 <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
-          <li id="button_s5" style="cursor:pointer"><a>狗1</a></li>
+          <li id="button_d1" style="cursor:pointer"><a>狗1</a></li>
           <li id="cam_add" style="cursor:pointer"><a>狗2</a></li>
           <li id="ob_add" style="cursor:pointer"><a>狗3</a></li>
         </ul>
@@ -113,9 +114,10 @@
     </ul>
   </header>
   <body>
+    <div id="snackbar"></div>
     <div id="Location-map">  </div>
       <button style="display: none;" id="fuck_off" class="btn btn-danger">X</button>
-  <div class="container" id="wrapper" overflow="hidden"; >
+  <div class="container" id="wrapper" overflow="hidden" >
       <!-- <iframe  id = "Video-Display"  src="" frameborder="20" marginheight="0" marginwidth="0"  scrolling="no" width="100%" height="100%" ></iframe> -->
       <img src=""  id = "Video-Display" class="shrinkToFit" width="495" height="278">
   </div>       
