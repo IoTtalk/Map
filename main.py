@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*- 
 import time, requests, random, json
 from datetime import datetime, timedelta
 from sqlalchemy import Column, String, Float, Integer, DATETIME
