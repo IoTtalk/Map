@@ -222,6 +222,7 @@
             scaleControl: true,
             scrollwheel: true,
             center: new google.maps.LatLng(24.7895711, 120.9967021),
+            gestureHandling: 'greedy',
             mapTypeControlOptions: {
               mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'map_style']
             }
@@ -365,7 +366,7 @@
 
         function toast(y) {
         // Get the snackbar DIV
-        var x = document.getElementById("snackbar")
+        var x = document.getElementById("snackbar");
 
         // Add the "show" class to DIV
         x.className = "show";
