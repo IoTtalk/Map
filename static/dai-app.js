@@ -222,6 +222,7 @@
             scaleControl: true,
             scrollwheel: true,
             center: new google.maps.LatLng(24.7895711, 120.9967021),
+            gestureHandling: 'greedy',
             mapTypeControlOptions: {
               mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'map_style']
             }
@@ -365,7 +366,7 @@
 
         function toast(y) {
         // Get the snackbar DIV
-        var x = document.getElementById("snackbar")
+        var x = document.getElementById("snackbar");
 
         // Add the "show" class to DIV
         x.className = "show";
@@ -1161,18 +1162,21 @@
         var marker_dog;
         var old_lat;
         var old_lng;
+        var online_list = []; 
+        var str = '';
         function GeoLoData_O(data){
            var time = data[0];
            var Latitude = parseFloat(data[1][0]);
            var Longitude = parseFloat(data[1][1]);
-           var val = data[1][2].toString();
+           var val = data[1][2].toString(); //val is dog id
            var meta = JSON.stringify(data[1][3]);
-           console.log(typeof(val));
-
+           //console.log(typeof(val));
+           
            
            
            if(Latitude != -1 && Longitude != -1 && flag == 0) // check is the data come in for the first time
            {
+              
               flag = 1;
               $('#dog').removeClass('disabled'); 
               $('#dog_dropdown').attr("data-toggle", "dropdown");
@@ -1180,13 +1184,26 @@
               $('#button_d1').show();
               status[4] = 1;              
            }
-           if(status[4]==1 && (Latitude!=old_lat||Longitude!=old_lng) )
-           {              
+           if((Latitude!=old_lat||Longitude!=old_lng) )//status[4]==1 && 
+           {   
+               var new_online = 1; // 0:this id is not a new one, 1:this is a new id             
+               for (var i = 0; i < online_list.length; i++) {
+                 if(val == online_list[i]){
+                    new_online = 0;
+                    break;
+                 }
+               }
+
+               if (new_online == 1){
+                str = str + '<li id='+val+'style="cursor:pointer"><a>'+val+'</a></li>';
+                console.log(str);
+                online_list.push(val);
+               }
+               $("#dog-list").html(str);
                if(marker_dog != null) marker_dog.setMap(null);
                marker_dog = new google.maps.Marker({
                     position:{ lat: Latitude, lng: Longitude },
                     map: map,
-                    title: "fat fuck",
                     label: val,
                     icon:'http://maps.google.com/mapfiles/kml/paddle/blu-blank.png',
                 });
@@ -1194,12 +1211,7 @@
                old_lat = Latitude;
                old_lng = Longitude;
                //addMarker(Latitude, Longitude, val);
-
-           }
-           else
-               HideAllMarkers(markers_sensor[val]);
-            
-            $.getJSON($SCRIPT_ROOT + '/_add_numbers',{
+                $.getJSON($SCRIPT_ROOT + '/_add_numbers',{
                 lat: Latitude,
                 lon: Longitude,
                 dog_id: val,
@@ -1211,6 +1223,11 @@
               //courseStr = data.result.map(function(dog) {return  dog.lat; })
               //$("#result").text(courseStr);
             });
+           }
+           // else
+           //     HideAllMarkers(markers_sensor[val]);
+            
+            
         }
                
         function getDistance(p1, p2) {
