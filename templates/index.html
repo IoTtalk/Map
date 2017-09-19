@@ -19,6 +19,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
 
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
@@ -99,7 +101,33 @@
       <li role="presentation" class="active" id="button_s3" style="cursor:pointer" ><a>攝影機</a></li>
       <li role="presentation" class="active" id="button_s2" style="cursor:pointer"><a>路障</a></li>
 
-      <!-- <li role="presentation" id="button_s4" style="cursor:pointer"><a>歷史紀錄</a></li> -->
+      <li role="presentation" id="history" style="cursor:pointer"><a>歷史紀錄</a></li>
+
+      <form type="submit" id="trace" style="font-size:18px;">
+      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"  aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+              <label class="radio-inline" >
+                <input type="radio" name="optradio" id="inlineRadio1" style="height: 18px; width: 18px;" checked > &nbsp;當前位置
+              </label><br>
+              <label class="radio-inline">
+                <input type="radio" name="optradio" id="inlineRadio2" style="height: 18px; width: 18px;"> &nbsp;最近一小時
+              </label><br>
+              <label class="radio-inline">
+                <input type="radio" name="optradio" id="inlineRadio3" style="height: 18px; width: 18px;"> &nbsp;最近一天
+              </label>
+            </div>
+            <div class="modal-footer">
+              <!-- <button type="button" class="btn btn-default" data-dismiss="modal">關閉</button> -->
+              <button type="button" class="btn btn-primary" data-dismiss="modal" style="font-size:18px;">確認</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </form>
+      <!-- ****************************** -->
 
   <!--     <li role="presentation" class="disabled" id="dog" style="cursor:pointer"><a>狗</a></li> -->
       <li id="dog" role="presentation" class="dropdown disabled" class="active">
@@ -119,7 +147,7 @@
     <div id="snackbar"></div>
 
     <div id="Location-map">  </div>
-      <button style="display: none;" id="fuck_off" class="btn btn-danger">X</button>
+      <button style="display: none;" id="fuck_off" class="btn btn-danger">×</button>
   <div class="container" id="wrapper" overflow="hidden" >
       <!-- <iframe  id = "Video-Display"  src="" frameborder="20" marginheight="0" marginwidth="0"  scrolling="no" width="100%" height="100%" ></iframe> -->
       <img src=""  id = "Video-Display" class="shrinkToFit" width="495" height="278">
