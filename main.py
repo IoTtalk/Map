@@ -200,5 +200,5 @@ with app.test_request_context():
 
 if __name__ == '__main__':
     #context = ('C:/Users/cindy/server.crt', 'C:/Users/cindy/server.key')
-    app.run(host='0.0.0.0', port=8866)
+    app.run('0.0.0.0', port=int("8866"),debug=True, threaded=True)#app.run(host='0.0.0.0', port=8866)
 

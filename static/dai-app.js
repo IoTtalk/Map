@@ -1159,18 +1159,36 @@
             //return false;
          //});
                 
-        var marker_dog;
-        var old_lat;
-        var old_lng;
+        var marker_dog = [];
+        var online_list = []; 
+        var str = '';
+        var flag_active = []; 
+        var arr_latlng = [];
+
+        $(document).on('click', '#active_marker', function(){
+          var marker_id = $(this).val();
+          console.log(marker_id);
+          if (flag_active[marker_id] == 0) {
+            flag_active[marker_id] = 1;
+            marker_dog[marker_id].setVisible(true);
+            console.log(flag_active.length);
+            console.log(flag_active[marker_id]);
+          } else {
+            console.log(flag_active.length);
+            flag_active[marker_id] = 0;
+            marker_dog[marker_id].setMap(null);
+            arr_latlng[i] = null;
+          }
+          
+        });
+        
         function GeoLoData_O(data){
            var time = data[0];
            var Latitude = parseFloat(data[1][0]);
            var Longitude = parseFloat(data[1][1]);
-           var val = data[1][2].toString();
+           var val = data[1][2];
            var meta = JSON.stringify(data[1][3]);
-           console.log(typeof(val));
 
-           
            
            if(Latitude != -1 && Longitude != -1 && flag == 0) // check is the data come in for the first time
            {
@@ -1178,29 +1196,106 @@
               $('#dog').removeClass('disabled'); 
               $('#dog_dropdown').attr("data-toggle", "dropdown");
               document.getElementById("dog_dropdown").style.cursor = "pointer";
-              $('#button_d1').show();
               status[4] = 1;              
            }
-           if(status[4]==1 && (Latitude!=old_lat||Longitude!=old_lng) )
+           if( Number.isInteger(val) && !isNaN(Latitude) && !isNaN(Longitude) && (Latitude>=-90) && (Latitude<=90) && (Longitude>=-180) && (Longitude<=180))//status[4]==1 &&
            {              
-               if(marker_dog != null) marker_dog.setMap(null);
-               marker_dog = new google.maps.Marker({
-                    position:{ lat: Latitude, lng: Longitude },
-                    map: map,
-                    title: "fat fuck",
-                    label: val,
-                    icon:'http://maps.google.com/mapfiles/kml/paddle/blu-blank.png',
-                });
-               marker_dog.setMap(map);
+               var val = parseInt(val);
+               var new_online = 1; // 0:this id is not a new one, 1:this is a new id             
+               for (var i = 0; i < online_list.length; i++) {
+                 if(val == online_list[i]){
+                    new_online = 0;
+                    break;
+                 }
+               }
+
+               if (new_online == 1){
+                str = str + '<li style="cursor:pointer" ><button type="submit" id="active_marker" value='+online_list.length+'>'+val+'</button></li>';
+                console.log(str);
+                online_list.push(val);
+                flag_active.push(0);
+                marker_dog.push(null);
+                arr_latlng.push({lat:Latitude, lng:Longitude});
+                console.log(online_list);
+               }
+               $("#dog-list").html(str);
+
                old_lat = Latitude;
                old_lng = Longitude;
-               //addMarker(Latitude, Longitude, val);
+               console.log(flag_active.length);
 
-           }
-           else
-               HideAllMarkers(markers_sensor[val]);
-            
-            $.getJSON($SCRIPT_ROOT + '/_add_numbers',{
+               for(var i=0; i<online_list.length; i++)
+               {
+                if(val == online_list[i])
+                {
+                  console.log(arr_latlng[i].lat);
+                  //if(!(arr_latlng[i].lat==Latitude && arr_latlng[i].lng==Longitude))
+                  //{
+                    console.log(arr_latlng[i]);
+                    arr_latlng[i] = {lat:Latitude, lng:Longitude};
+                    if(marker_dog[i] != null)
+                     {
+                      marker_dog[i].setMap(null);
+                     }
+                    var marker = new google.maps.Marker({
+                    position:arr_latlng[i],
+                    map: map,
+                    label: online_list[i].toString(),
+                    icon:'http://maps.google.com/mapfiles/kml/paddle/blu-blank.png',
+                    visible: false
+                    });
+                    marker_dog[i] = marker;
+                    if(flag_active[i]==1)
+                    {
+                      marker_dog[i].setVisible(true);
+                    }
+                  //}
+                }
+               }
+
+                // for(var i=0; i<flag_active.length; i++)
+                // {
+                //   if(flag_active[i]==1)
+                //   {
+                //       marker_dog[i].setVisible(true);
+                //       // if(marker_dog[i] != null)
+                //       //  {
+                //       //   marker_dog[i].setMap(null);
+                //       //   marker_dog[i] = null;
+                //       //  }
+                //       // var marker = new google.maps.Marker({
+                //       // position:arr_latlng[i],
+                //       // map: map,
+                //       // label: online_list[i].toString(),
+                //       // icon:'http://maps.google.com/mapfiles/kml/paddle/blu-blank.png',
+                //       // //visible: false
+                //       // });
+                //       // marker_dog[i] = marker;
+                    
+                //   }
+                // }
+
+
+                // function add_marker(marker_id){
+                //  if(marker_dog[marker_id] != null)
+                //  {
+                //   marker_dog[marker_id].setMap(null);
+                //   marker_dog.splice(marker_id, 1);
+                //  }
+                
+                //  var marker = new google.maps.Marker({
+                //       position:{ lat: Latitude, lng: Longitude},
+                //       map: map,
+                //       label: online_list[marker_id],
+                //       icon:'http://maps.google.com/mapfiles/kml/paddle/blu-blank.png'
+                //   });
+                //  marker.setMap(map);
+                //  marker_dog.push(marker);
+                // }
+
+
+               //addMarker(Latitude, Longitude, val);
+               $.getJSON($SCRIPT_ROOT + '/_add_numbers',{
                 lat: Latitude,
                 lon: Longitude,
                 dog_id: val,
@@ -1208,10 +1303,26 @@
                 time: time
               }, function(data) {
               //console.log("data in");
-              console.log(data.result);
+              //console.log(data.result);
               //courseStr = data.result.map(function(dog) {return  dog.lat; })
               //$("#result").text(courseStr);
             });
+           }
+           // else
+           //     HideAllMarkers(markers_sensor[val]);
+            
+            // $.getJSON($SCRIPT_ROOT + '/_add_numbers',{
+            //     lat: Latitude,
+            //     lon: Longitude,
+            //     dog_id: val,
+            //     data: meta,
+            //     time: time
+            //   }, function(data) {
+            //   //console.log("data in");
+            //   console.log(data.result);
+            //   //courseStr = data.result.map(function(dog) {return  dog.lat; })
+            //   //$("#result").text(courseStr);
+            // });
         }
                
         function getDistance(p1, p2) {
