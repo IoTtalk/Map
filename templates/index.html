@@ -99,7 +99,34 @@
       <li role="presentation" class="active" id="button_s3" style="cursor:pointer" ><a>攝影機</a></li>
       <li role="presentation" class="active" id="button_s2" style="cursor:pointer"><a>路障</a></li>
 
-      <!-- <li role="presentation" id="button_s4" style="cursor:pointer"><a>歷史紀錄</a></li> -->
+      
+      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"  aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+              <form method="post" id="history_trace" style="font-size:18px;">
+              <label class="radio-inline" >
+                <input type="radio" name="optradio" id="inlineRadio1" value="active_marker" style="height: 18px; width: 18px;" checked > &nbsp;當前位置
+              </label><br>
+              <label class="radio-inline">
+                <input type="radio" name="optradio" id="inlineRadio2" value="recent_hour" style="height: 18px; width: 18px;"> &nbsp;最近一小時
+              </label><br>
+              <label class="radio-inline">
+                <input type="radio" name="optradio" id="inlineRadio3" value="recent_day" style="height: 18px; width: 18px;"> &nbsp;最近一天
+              </label>
+
+            </div>
+            <div class="modal-footer">
+              <!-- <button type="button" class="btn btn-default" data-dismiss="modal">關閉</button> -->
+              <input type="submit" value="確認" class="btn btn-primary" data-dismiss="modal" id="history_check" style="font-size:18px;">
+              <!-- <button type="button" class="btn btn-primary" data-dismiss="modal" id="history_check" style="font-size:18px;">確認</button> -->
+            </div>
+          </form>
+          </div>
+        </div>
+      </div>
+      
 
   <!--     <li role="presentation" class="disabled" id="dog" style="cursor:pointer"><a>狗</a></li> -->
       <li id="dog" role="presentation" class="dropdown disabled" class="active">
@@ -107,9 +134,9 @@
           狗 <span class="caret"></span>
         </a>
         <ul class="dropdown-menu" id="dog-list">
-          <li id="button_d1" style="cursor:pointer"><a>狗1</a></li>
+<!--           <li id="button_d1" style="cursor:pointer"><a>狗1</a></li>
           <li id="cam_add" style="cursor:pointer"><a>狗2</a></li>
-          <li id="ob_add" style="cursor:pointer"><a>狗3</a></li>
+          <li id="ob_add" style="cursor:pointer"><a>狗3</a></li> -->
         </ul>
       </li>
       </li>
