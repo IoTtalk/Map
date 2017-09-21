@@ -603,13 +603,7 @@
         status[3]=1;
         status[4]=0;
         
-        $(document).on('click','#history',function(){
-            $('#myModal').modal('show');
-
-        })
         
-        
-
         $(document).on('click', '#fuck_off', function(){
            $('#Video-Display').attr('src', '');
            $('#Video-Display').css({"z-index": -10});
@@ -815,6 +809,30 @@
             };*/
           }
 
+        });
+
+
+        var flag_route = 0;
+
+        var str1
+
+        $(document).on('click', '#button_route', function(){
+          if (flag_route == 0){
+            flag_route = 1;
+            $('#input_destination').show();
+            // document.getElementById("button_route").innerHTML="結束規劃";
+            
+            $("#text").html('結束規劃');
+            $('#button_route').addClass('active')
+          }
+          else{
+            flag_route = 0;
+            $('#input_destination').hide();
+            // str1 = '<li role="presentation" id="button_route" style="cursor:pointer"><a>路徑規劃</a></li>';
+            // $("#button_route").html(str1);
+            $("#text").html('路徑規劃');
+            $('#button_route').removeClass('active')
+          }
         });
 
         var flag_routing = 0;
@@ -1164,19 +1182,287 @@
             
             //return false;
          //});
-                
-        var marker_dog;
-        var old_lat;
-        var old_lng;
+              
+
+
+        
+
+        
+
+        var marker_dog = [];
+        var online_list = []; 
+        var str = '';
+        var flag_marker = [];
+        var flag_active = []; 
+        var flag_his = [];
+        var arr_latlng = [];
+        var active_id;
+        var history_hour = [];
+        var history_day = [];
+        $(document).on('click','#history',function(){
+            
+            var now = new Date();
+            active_id = $(this).val();
+            console.log(now.getSeconds() +" "+active_id);
+            if(flag_marker[active_id] == 0)
+            { 
+              
+              $("#inlineRadio1").prop("checked", true);
+              $('#myModal').modal('show');
+              $(document).on('click','#history_check',function(){
+                  var form = document.getElementById("history_trace");
+                  //取得radio的值
+                  for (var i=0; i<form.optradio.length; i++)
+                  {
+                     if (form.optradio[i].checked)
+                     {
+                        var optradio = form.optradio[i].value;
+                        break;
+                     }
+                  }
+                  console.log(now.getSeconds() +" "+active_id);
+                  //console.log(optradio);
+                  if(optradio == "active_marker")
+                  {
+                    //if (flag_active[marker_id] == 0) {
+                      console.log(now.getSeconds() +" "+active_id);
+                      flag_marker[active_id] = 1;
+                      flag_active[active_id] = 1;
+                      //console.log(now.getSeconds() +" "+marker_id);
+                      marker_dog[active_id].setVisible(true);
+                      // console.log(flag_active.length);
+                      // console.log(flag_active[marker_id]);
+                    //} else {
+                      
+                    //}
+                  }
+                  if(optradio == "recent_hour")
+                  {
+                    var t = 1;
+                    flag_marker[active_id] = 1;
+                    flag_his[active_id] = 1;
+                    $.getJSON($SCRIPT_ROOT + '/history',{
+                      dog_id: online_list[active_id],
+                      time: t
+                    }, function(data) {
+                      //console.log(data.result);
+                      var flightPlanCoordinates = data.result.map(function(dog) {return  {lat:dog.lat, lng:dog.lon}; });
+                      console.log(flightPlanCoordinates);
+                      //$("#result").text(courseStr);
+                      // console.log(flightPlanCoordinates);
+
+                      // var StartPosition = flightPlanCoordinates[0];
+                      // addMarker_Start(StartPosition);
+                        //setMapOnAll(map);
+
+                      // function addMarker_Start(location) {
+                      //   var marker = new google.maps.Marker({
+                      //     position: location,
+                      //     //label: "起點",
+                      //     map: map,
+                      //     icon: "/static/img/history_start_icon.png"
+                      //   });
+                      //   //markers.push(marker);
+                      //   console.log(marker);
+                      //   his_markers.push(marker);
+                      // }
+
+                      // var EndPosition = flightPlanCoordinates[flightPlanCoordinates.length - 1];
+                      // addMarker_End(EndPosition);
+                      //   //setMapOnAll(map);
+
+                      // function addMarker_End(location) {
+                      //   var marker = new google.maps.Marker({
+                      //     position: location,
+                      //     //label: "終點",
+                      //     map: map,
+                      //     icon: '/static/img/history_end_icon.png'
+                      //   });
+                      //   //markers.push(marker);
+                      //   console.log(marker);
+                      //   his_markers.push(marker);
+                      // }
+
+                      var lineSymbol = {
+                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                        scale: 3,
+                        //strokeColor: '#393'
+                      };
+
+                      flightPath = new google.maps.Polyline({
+                      path: flightPlanCoordinates,
+                      icons: [{
+                        icon: lineSymbol,
+                        offset: '100%'
+                      }],
+                      geodesic: true,
+                      strokeColor: '#FF0000',
+                      strokeOpacity: 1.0,
+                      strokeWeight: 2,
+                      //map: map
+                      });
+
+                      animateCircle(flightPath);
+
+                      flightPath.setMap(map);
+                      history_hour[active_id] = flightPath;
+
+                      function animateCircle(line) {
+                        // console.log("animateCircle comein");
+                        var count = 0;
+                        window.setInterval(function() {
+                          count = (count + 1) % 200;
+
+                          var icons = line.get('icons');
+                          icons[0].offset = (count / 20) + '%';
+                          line.set('icons', icons);
+                      }, 50);
+                    }
+
+            });
+                  }
+                  if(optradio == "recent_day")
+                  {
+                    var t = 2;
+                    flag_marker[active_id] = 1;
+                    flag_his[active_id] = 1;
+                    $.getJSON($SCRIPT_ROOT + '/history',{
+                      dog_id: online_list[active_id],
+                      time: t
+                    }, function(data) {
+                      //console.log(data.result);
+                      var flightPlanCoordinates = data.result.map(function(dog) {return  {lat:dog.lat, lng:dog.lon}; });
+                      console.log(flightPlanCoordinates);
+                      //$("#result").text(courseStr);
+                      // console.log(flightPlanCoordinates);
+
+                      // var StartPosition = flightPlanCoordinates[0];
+                      // addMarker_Start(StartPosition);
+                        //setMapOnAll(map);
+
+                      // function addMarker_Start(location) {
+                      //   var marker = new google.maps.Marker({
+                      //     position: location,
+                      //     //label: "起點",
+                      //     map: map,
+                      //     icon: "/static/img/history_start_icon.png"
+                      //   });
+                      //   //markers.push(marker);
+                      //   console.log(marker);
+                      //   his_markers.push(marker);
+                      // }
+
+                      // var EndPosition = flightPlanCoordinates[flightPlanCoordinates.length - 1];
+                      // addMarker_End(EndPosition);
+                      //   //setMapOnAll(map);
+
+                      // function addMarker_End(location) {
+                      //   var marker = new google.maps.Marker({
+                      //     position: location,
+                      //     //label: "終點",
+                      //     map: map,
+                      //     icon: '/static/img/history_end_icon.png'
+                      //   });
+                      //   //markers.push(marker);
+                      //   console.log(marker);
+                      //   his_markers.push(marker);
+                      // }
+
+                      var lineSymbol = {
+                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                        scale: 3,
+                        //strokeColor: '#393'
+                      };
+
+                      flightPath = new google.maps.Polyline({
+                      path: flightPlanCoordinates,
+                      icons: [{
+                        icon: lineSymbol,
+                        offset: '100%'
+                      }],
+                      geodesic: true,
+                      strokeColor: '#FF0000',
+                      strokeOpacity: 1.0,
+                      strokeWeight: 2,
+                      //map: map
+                      });
+
+                      animateCircle(flightPath);
+
+                      flightPath.setMap(map);
+                      history_day[active_id] = flightPath;
+
+                      function animateCircle(line) {
+                        // console.log("animateCircle comein");
+                        var count = 0;
+                        window.setInterval(function() {
+                          count = (count + 1) % 200;
+
+                          var icons = line.get('icons');
+                          icons[0].offset = (count / 100) + '%';
+                          line.set('icons', icons);
+                      }, 50);
+                    }
+
+            });
+                  }
+                  document.body.removeChild(form);
+
+
+              });
+
+              
+            }
+            if(flag_marker[active_id] == 1)
+            {
+              //console.log(flag_active.length);
+              flag_active[active_id] = 0;
+              flag_marker[active_id] = 0;
+              flag_his[active_id] = 0;
+              marker_dog[active_id].setVisible(false);
+              if(history_hour[active_id] != null)
+              {
+                history_hour[active_id].setMap(null);
+                history_hour[active_id] = null;
+              }
+              if(history_day[active_id] != null)
+              {
+                history_day[active_id].setMap(null);
+                history_day[active_id] = null;
+              }
+              
+              //$('#myModal').remove();
+              // $('#myModal').modal.close();
+
+            }
+
+        });
+
+        // $(document).on('click', '#active_marker', function(){
+        //   var marker_id = $(this).val();
+        //   console.log(marker_id);
+        //   if (flag_active[marker_id] == 0) {
+        //     flag_active[marker_id] = 1;
+        //     marker_dog[marker_id].setVisible(true);
+        //     console.log(flag_active.length);
+        //     console.log(flag_active[marker_id]);
+        //   } else {
+        //     console.log(flag_active.length);
+        //     flag_active[marker_id] = 0;
+        //     marker_dog[marker_id].setMap(null);
+        //     arr_latlng[i] = null;
+        //   }
+          
+        // });
+
+
         function GeoLoData_O(data){
            var time = data[0];
            var Latitude = parseFloat(data[1][0]);
            var Longitude = parseFloat(data[1][1]);
-           var val = data[1][2].toString();
+           var val = data[1][2];
            var meta = JSON.stringify(data[1][3]);
-           console.log(typeof(val));
 
-           
            
            if(Latitude != -1 && Longitude != -1 && flag == 0) // check is the data come in for the first time
            {
@@ -1184,29 +1470,72 @@
               $('#dog').removeClass('disabled'); 
               $('#dog_dropdown').attr("data-toggle", "dropdown");
               document.getElementById("dog_dropdown").style.cursor = "pointer";
-              $('#button_d1').show();
               status[4] = 1;              
            }
-           if(status[4]==1 && (Latitude!=old_lat||Longitude!=old_lng) )
+           if( Number.isInteger(val) && !isNaN(Latitude) && !isNaN(Longitude) && (Latitude>=-90) && (Latitude<=90) && (Longitude>=-180) && (Longitude<=180))//status[4]==1 &&
            {              
-               if(marker_dog != null) marker_dog.setMap(null);
-               marker_dog = new google.maps.Marker({
-                    position:{ lat: Latitude, lng: Longitude },
-                    map: map,
-                    title: "fat fuck",
-                    label: val,
-                    icon:'http://maps.google.com/mapfiles/kml/paddle/blu-blank.png',
-                });
-               marker_dog.setMap(map);
+               var val = parseInt(val);
+               var new_online = 1; // 0:this id is not a new one, 1:this is a new id             
+               for (var i = 0; i < online_list.length; i++) {
+                 if(val == online_list[i]){
+                    new_online = 0;
+                    break;
+                 }
+               }
+
+               if (new_online == 1){
+                str = str + '<li style="cursor:pointer" ><button type="submit" id="history" value='+online_list.length+'>'+val+'</button></li>';
+                // console.log(str);
+                online_list.push(val);
+                flag_active.push(0);
+                flag_marker.push(0);
+                flag_his.push(0);
+                marker_dog.push(null);
+                history_hour.push(null);
+                history_day.push(null);
+                arr_latlng.push({lat:Latitude, lng:Longitude});
+                console.log(marker_dog);
+               }
+               $("#dog-list").html(str);
+
                old_lat = Latitude;
                old_lng = Longitude;
-               //addMarker(Latitude, Longitude, val);
+               // console.log(flag_active.length);
 
-           }
-           else
-               HideAllMarkers(markers_sensor[val]);
-            
-            $.getJSON($SCRIPT_ROOT + '/_add_numbers',{
+               for(var i=0; i<online_list.length; i++)
+               {
+                if(val == online_list[i])
+                {
+                  // console.log(arr_latlng[i].lat);
+                  //if(!(arr_latlng[i].lat==Latitude && arr_latlng[i].lng==Longitude))
+                  //{
+                    // console.log(arr_latlng[i]);
+                    arr_latlng[i] = {lat:Latitude, lng:Longitude};
+                    if(marker_dog[i] != null)
+                     {
+                      marker_dog[i].setMap(null);
+                     }
+                    var marker = new google.maps.Marker({
+                    position:arr_latlng[i],
+                    map: map,
+                    label: online_list[i].toString(),
+                    icon:'http://maps.google.com/mapfiles/kml/paddle/blu-blank.png',
+                    visible: false
+                    });
+                    marker_dog[i] = marker;
+                    if(flag_active[i]==1)
+                    {
+                      marker_dog[i].setVisible(true);
+                    }
+                  //}
+                }
+               }
+
+                
+
+
+               //addMarker(Latitude, Longitude, val);
+               $.getJSON($SCRIPT_ROOT + '/_add_numbers',{
                 lat: Latitude,
                 lon: Longitude,
                 dog_id: val,
@@ -1214,10 +1543,15 @@
                 time: time
               }, function(data) {
               //console.log("data in");
-              console.log(data.result);
+              //console.log(data.result);
               //courseStr = data.result.map(function(dog) {return  dog.lat; })
               //$("#result").text(courseStr);
             });
+           }
+           // else
+           //     HideAllMarkers(markers_sensor[val]);
+            
+            
         }
                
         function getDistance(p1, p2) {
