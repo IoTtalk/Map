@@ -1666,6 +1666,7 @@
   /***************************************************************************************************************************************************************/      
         var flag_ob_add = false;
         $(document).on('click', '#ob_add', function(){
+          $(this).addClass('active');
           flag_ob_add = true;
 
           // toast("Please click where you want to add obstacle.");
@@ -1681,6 +1682,7 @@
 
         var flag_cam_add = false;
         $(document).on('click', '#cam_add', function(){
+          $(this).addClass('active');
           flag_cam_add = true;
 
           // toast("Please click where you want to add camera.");

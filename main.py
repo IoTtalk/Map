@@ -1,5 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*- 
 import time, requests, random, json
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import Column, String, Float, Integer, DATETIME
 #from sqlalchemy.orm import sessionmaker
 #from sqlalchemy.ext.declarative import declarative_base
@@ -39,7 +41,7 @@ class Dog(db.Model):
 
     # 表的结构:
     id = Column(Integer, primary_key=True)
-    dog_id = Column(String(20))
+    dog_id = Column(Integer)
     lat = Column(Float)
     lon = Column(Float)
     timestamp = Column(DATETIME)
@@ -95,7 +97,7 @@ def take_obstacles():
 def add_numbers():
     lat = request.args.get('lat', 0, type=float)
     lon = request.args.get('lon', 0, type=float)
-    dog_id = request.args.get('dog_id', type=str)
+    dog_id = request.args.get('dog_id', type=int)
     data = request.args.get('data', type=str)
     time = request.args.get('time', type=str)
     time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S.%f")
@@ -147,6 +149,19 @@ def modify_markers():
     # marker_id = c.id
     return jsonify(result = content)
 
+# @app.route('/_take_active_markers')
+# def _take_active_markers():
+#     dog_id = request.args.get('dog_id', type=int)
+#     c = db.session.query(Dog).filter(Dog.dog_id == dog_id).order_by(Dog.id.desc()).first()
+    
+#     recent_histories={
+#         'id':  c.dog_id,
+#         'lat': c.lat,
+#         'lon': c.lon
+#     }
+#     return jsonify(result = recent_histories)
+
+
 @app.route('/_del_markers')
 def del_markers():
     id = request.args.get('id', 0, type=int)
@@ -163,8 +178,17 @@ def del_markers():
 
 @app.route('/history')
 def history():
-    dog_id = request.args.get('a', 0, type=int)
-    c = db.session.query(Dog).filter_by(dog_id = dog_id).all()#filter(Dog.timestamp.between('2017-08-17 17:12:00.00', '2017-08-17 17:12:40.00'))
+    dog_id = request.args.get('dog_id', 0, type=int)
+    val = request.args.get('time', 0, type=int)
+    if(val == 1):
+        val = timedelta(hours=1)
+    if(val == 2):
+        val = timedelta(days=1)
+    right_now = datetime.now()#datetime.strptime('2017-08-1 00:12:00.00', "%Y-%m-%d %H:%M:%S.%f")
+    start_time = right_now - val#days=2 hours=2
+    print(start_time)
+    c = db.session.query(Dog).filter_by(dog_id = dog_id).filter(Dog.timestamp.between(start_time, right_now))#all()
+    # c = db.session.query(Dog).filter_by(dog_id = dog_id).filter(Dog.timestamp.between('2017-08-17 17:12:00.00', '2017-08-17 17:12:40.00'))#all()
     recent_histories = []
     
     for row in c:
@@ -180,14 +204,19 @@ def history():
 @app.route('/index')
 def index():
     return render_template('index.html')
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
 
 with app.test_request_context():
-	print(url_for('index'))
+    print(url_for('index'))
+    print(url_for('admin'))
+
 
 
 
 
 if __name__ == '__main__':
     #context = ('C:/Users/cindy/server.crt', 'C:/Users/cindy/server.key')
-    app.run(host='0.0.0.0', port=8866)
+    app.run('0.0.0.0', port=int("8866"),debug=True, threaded=True)#app.run(host='0.0.0.0', port=8866)
 
