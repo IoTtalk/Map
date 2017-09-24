@@ -1672,12 +1672,52 @@
         */
 
   /***************************************************************************************************************************************************************/      
+        function getLocation_admin() {
+                var startPos;
+                var geoOptions = {
+                  enableHighAccuracy: true
+                }
+
+                var geoSuccess = function(position) {
+                  var lat = position.coords.latitude;
+                  var lng = position.coords.longitude;
+                  var CurrentPosition = {lat: lat, lng: lng};
+                  addMarker_routing(CurrentPosition);
+                  //setMapOnAll(map);
+
+                  function addMarker_routing(location) {
+                    var marker = new google.maps.Marker({
+                      position: location,
+                      label: "現在位置",
+                      map: map,
+                      //icon: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi.png'
+                    });
+                    //markers.push(marker);
+                    console.log(marker);
+
+                  }
+                 
+                };
+                var geoError = function(error) {
+                  console.log('Error occurred. Error code: ' + error.code);
+                  // error.code can be:
+                  //   0: unknown error
+                  //   1: permission denied
+                  //   2: position unavailable (error response from location provider)
+                  //   3: timed out
+                };
+
+                navigator.geolocation.getCurrentPosition(geoSuccess, geoError, geoOptions);
+              }
+
         var flag_ob_add = false;
         $(document).on('click', '#ob_add', function(){
+          $(this).addClass('active');
+          $('#input_destination').show();
           flag_ob_add = true;
 
           // toast("Please click where you want to add obstacle.");
-
+          getLocation_admin();
           google.maps.event.clearInstanceListeners(map);
           icon = 'http://maps.google.com/mapfiles/kml/pal3/icon33.png';
           // prompt("Add Description: ");
@@ -1689,11 +1729,14 @@
 
         var flag_cam_add = false;
         $(document).on('click', '#cam_add', function(){
+          $(this).addClass('active');
+          $('#input_destination').show();
           flag_cam_add = true;
 
           // toast("Please click where you want to add camera.");
+          getLocation_admin();
 
-          google.maps.event.clearInstanceListeners(map);
+
           icon = 'http://i.imgur.com/Eh9U0qI.png';
           // prompt("Add Description: ");
           var title = 'camera';
