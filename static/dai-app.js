@@ -364,16 +364,16 @@
         }
         
 
-        function toast(y) {
-        // Get the snackbar DIV
-        var x = document.getElementById("snackbar");
+        // function toast(y) {
+        // // Get the snackbar DIV
+        // var x = document.getElementById("snackbar");
 
-        // Add the "show" class to DIV
-        x.className = "show";
-        x.innerHTML = y;
-        // After 3 seconds, remove the show class from DIV
-        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-        }
+        // // Add the "show" class to DIV
+        // x.className = "show";
+        // x.innerHTML = y;
+        // // After 3 seconds, remove the show class from DIV
+        // setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        // }
 
 
         load_markers();
@@ -811,10 +811,7 @@
 
         });
 
-
         var flag_route = 0;
-
-        var str1
 
         $(document).on('click', '#button_route', function(){
           if (flag_route == 0){
@@ -823,7 +820,7 @@
             // document.getElementById("button_route").innerHTML="結束規劃";
             
             $("#text").html('結束規劃');
-            $('#button_route').addClass('active')
+            $('#button_route').addClass('active');
           }
           else{
             flag_route = 0;
@@ -831,9 +828,10 @@
             // str1 = '<li role="presentation" id="button_route" style="cursor:pointer"><a>路徑規劃</a></li>';
             // $("#button_route").html(str1);
             $("#text").html('路徑規劃');
-            $('#button_route').removeClass('active')
+            $('#button_route').removeClass('active');
           }
         });
+
 
         var flag_routing = 0;
 
@@ -894,7 +892,7 @@
 
                   function calcRoute() {
 
-                    toast("Please click your destination on the map.");
+                    // toast("Please click your destination on the map.");
 
                     var listener_routing = google.maps.event.addListener(map, 'click', function(event) {
                       oceanBeach = event.latLng;
@@ -1065,7 +1063,7 @@
                                             if(i == (response.routes.length-1))
                                             {
 
-                                              toast("There is no road to destination.");
+                                              // toast("There is no road to destination.");
 
                                               marker_routing.setMap(null);
                                             }
@@ -1199,7 +1197,9 @@
         var active_id;
         var history_hour = [];
         var history_day = [];
-        $(document).on('click','#history',function(){
+        var color123 = ['SlateGray','SteelBlue','Teal','MediumSeaGreen','Purple'];
+        $(document).on('click','.history',function(){
+
             
             var now = new Date();
             active_id = $(this).val();
@@ -1207,6 +1207,10 @@
             if(flag_marker[active_id] == 0)
             { 
               
+                           
+              //$(".history").css("background-color", "red");
+              $("#"+active_id).css("background-color", color123[active_id]);
+              $("#"+active_id).css("color", "white");
               $("#inlineRadio1").prop("checked", true);
               $('#myModal').modal('show');
               $(document).on('click','#history_check',function(){
@@ -1415,6 +1419,8 @@
             }
             if(flag_marker[active_id] == 1)
             {
+              $("#"+active_id).css("background-color", "white");
+              $("#"+active_id).css("color", "black");
               //console.log(flag_active.length);
               flag_active[active_id] = 0;
               flag_marker[active_id] = 0;
@@ -1484,7 +1490,7 @@
                }
 
                if (new_online == 1){
-                str = str + '<li style="cursor:pointer" ><button type="submit" id="history" value='+online_list.length+'>'+val+'</button></li>';
+                str = str + '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+val+'</button></li>';
                 // console.log(str);
                 online_list.push(val);
                 flag_active.push(0);
@@ -1495,8 +1501,9 @@
                 history_day.push(null);
                 arr_latlng.push({lat:Latitude, lng:Longitude});
                 console.log(marker_dog);
+                $("#dog-list").html(str);
                }
-               $("#dog-list").html(str);
+               
 
                old_lat = Latitude;
                old_lng = Longitude;
@@ -1670,7 +1677,7 @@
         $(document).on('click', '#ob_add', function(){
           flag_ob_add = true;
 
-          toast("Please click where you want to add obstacle.");
+          // toast("Please click where you want to add obstacle.");
 
           google.maps.event.clearInstanceListeners(map);
           icon = 'http://maps.google.com/mapfiles/kml/pal3/icon33.png';
@@ -1685,7 +1692,7 @@
         $(document).on('click', '#cam_add', function(){
           flag_cam_add = true;
 
-          toast("Please click where you want to add camera.");
+          // toast("Please click where you want to add camera.");
 
           google.maps.event.clearInstanceListeners(map);
           icon = 'http://i.imgur.com/Eh9U0qI.png';
@@ -1778,7 +1785,7 @@
                       if(jQuery.isEmptyObject(data))
                       {
 
-                        toast("Please click on the road");
+                        // toast("Please click on the road");
 
                         return;
                       }
