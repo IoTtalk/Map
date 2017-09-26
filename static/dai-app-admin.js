@@ -375,6 +375,16 @@
         // setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
         // }
 
+        function close_form()
+        {
+          $('#add-obstacle').hide();
+          $('#add-camera').hide();
+          $('#delete-obstacle').hide();
+          $('#delete-camera').hide();
+          $("#ob_add").removeClass('active');
+          $("#cam_add").removeClass('active');
+          if(marker_now != null)marker_now.setMap(null);
+        }
 
         load_markers();
         
@@ -419,6 +429,11 @@
                     google.maps.event.addListener(map, 'zoom_changed', function() {resetCenter();});
 
                     if(marker.title == 'camera'){
+                          $('#new_url').val("");
+                          close_form();
+                          $("#delete-camera").show();
+                          $("#cam_info").val(marker.id);
+                          $("#cam_del").val(marker.id);
                           
                           // if(infowindow != null) {infowindow.close();}
                           // infowindow = new google.maps.InfoWindow({
@@ -484,6 +499,8 @@
                       } 
 
                       if(marker.title == 'obstacle'){
+                        //google.maps.event.clearInstanceListeners(marker);
+                         $('#new_info').val("");
                          if(infowindow != null) {infowindow.close();}
                           infowindow = new google.maps.InfoWindow({
                             content: marker.content //+'</br><button type="submit" id="obstacle_info" value='+marker.id+'>修改</button><button type="submit" id="obstacle_del" value='+marker.id+'>刪除</button>'
@@ -491,6 +508,11 @@
 
                           //infowindow.setContent('<button onclick="myFunction()">修改</button>');
                           infowindow.open(map, marker);
+                          close_form();
+                          $("#delete-obstacle").show();
+                          $("#ob_info").val(marker.id);
+                          $("#ob_del").val(marker.id);
+
                       } 
                 });
             
@@ -500,10 +522,10 @@
         });  
         }
 
-            $(document).on('click', '#obstacle_info', function(){            
+            $(document).on('click', '#ob_info', function(){            
                       //var marker_id = $(this).val();
                       var marker_id = $(this).val();
-                      var new_info = prompt("Enter new information:");
+                      var new_info = $('#new_info').val();
                       $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
                           id: marker_id,
                           content: new_info
@@ -511,36 +533,37 @@
                         
                         for (var i = 0; i < markers.length; i++) {
                             if (markers[i].id == marker_id) {
-                                infowindow.setContent(new_info +'</br><button type="submit" id="obstacle_info" value='+marker_id+'>修改</button><button type="submit" id="obstacle_del" value='+marker_id+'>刪除</button>');
+                                infowindow.setContent(new_info);
                                 infowindow.open(map, markers[i]);//console.log(data.result);
                                 markers[i].content = new_info;
+                                $("#delete-obstacle").hide();
                             }
                         }
                       });
                             
             });
 
-            $(document).on('click', '#camera_info', function(){            
+            $(document).on('click', '#cam_info', function(){            
                       //var marker_id = $(this).val();
                       var marker_id = $(this).val();
-                      var new_info = prompt("Enter new information:");
+                      var new_info = $('#new_url').val();
                       $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
                           id: marker_id,
                           content: new_info
                         }, function(data) {
-                        
-                        for (var i = 0; i < markers.length; i++) {
-                            if (markers[i].id == marker_id) {
-                                infowindow.setContent('<button type="submit" id="obstacle_info" value='+marker_id+'>修改</button><button type="submit" id="obstacle_del" value='+marker_id+'>刪除</button>');
-                                infowindow.open(map, markers[i]);//console.log(data.result);
-                                markers[i].content = new_info;
-                            }
-                        }
+                        $("#delete-camera").hide();
+                        // for (var i = 0; i < markers.length; i++) {
+                        //     if (markers[i].id == marker_id) {
+                        //         infowindow.setContent('<button type="submit" id="obstacle_info" value='+marker_id+'>修改</button><button type="submit" id="obstacle_del" value='+marker_id+'>刪除</button>');
+                        //         infowindow.open(map, markers[i]);//console.log(data.result);
+                        //         markers[i].content = new_info;
+                        //     }
+                        // }
                       });
                             
             });
 
-            $(document).on('click', '#obstacle_del', function(){            
+            $(document).on('click', '#ob_del', function(){            
 
                       //toast($(this).val());
 
@@ -558,14 +581,16 @@
                                 markers[i].setMap(null);console.log(markers[i].id);
                                 //Remove the marker from array.
                                 markers.splice(i, 1);
+                                $("#delete-obstacle").hide();
                             }
                         }
+                        load_markers();
 
                       });
                         
             });
 
-            $(document).on('click', '#camera_del', function(){            
+            $(document).on('click', '#cam_del', function(){            
 
                       //toast($(this).val());
 
@@ -587,6 +612,7 @@
                                 // $('#Video-Display').css({"z-index": -10});
                                 $('#Video-Display').hide();
                                 $('#fuck_off').hide();
+                                $("#delete-camera").hide();
                             }
                         }
 
@@ -1672,6 +1698,7 @@
         */
 
   /***************************************************************************************************************************************************************/      
+        var marker_now;
         function getLocation_admin() {
                 var startPos;
                 var geoOptions = {
@@ -1686,7 +1713,7 @@
                   //setMapOnAll(map);
 
                   function addMarker_routing(location) {
-                    var marker = new google.maps.Marker({
+                    marker_now = new google.maps.Marker({
                       position: location,
                       label: "現在位置",
                       map: map,
@@ -1711,9 +1738,14 @@
               }
 
         var flag_ob_add = false;
+        var lat_ob_add;
+        var lng_ob_add;
+        var title_ob_add = 'obstacle';
+        var marker_ob_add;
         $(document).on('click', '#ob_add', function(){
+          close_form();
           $(this).addClass('active');
-          $('#input_destination').show();
+          $('#add-obstacle').show();
           flag_ob_add = true;
 
           // toast("Please click where you want to add obstacle.");
@@ -1721,27 +1753,167 @@
           google.maps.event.clearInstanceListeners(map);
           icon = 'http://maps.google.com/mapfiles/kml/pal3/icon33.png';
           // prompt("Add Description: ");
-          var title = 'obstacle';
+          
+            
+            google.maps.event.addListener(map, 'click', function(event) {
+                if(marker_ob_add!=null) marker_ob_add.setMap(null);
+                if(flag_ob_add == true)
+                {
+                  var LatLng = event.latLng;
+                  var RoadAPI = "https://roads.googleapis.com/v1/nearestRoads?points="+LatLng.lat()+","+LatLng.lng()+"&key=AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8";
+                  $.getJSON( RoadAPI, {
+                  })
+                    .done(function(data) {
+                      if(jQuery.isEmptyObject(data)){return;}
 
-          balala(icon,title);
+                      lat_ob_add = data.snappedPoints[0].location.latitude;
+                      lng_ob_add = data.snappedPoints[0].location.longitude;
+
+                      marker_ob_add = new google.maps.Marker({
+                          position: {lat: lat_ob_add, lng: lng_ob_add},
+                          icon: icon,
+                          map: map,
+                          title: title_ob_add,
+                      });
+
+
+
+                    });
+
+                }
+
+            });
+
+            $(document).on('click', '#ob_in', function(){
+            marker_now.setMap(null);
+            $("#ob_add").removeClass('active');
+            $('#add-obstacle').hide();
+            flag_ob_add = false;
+            console.log("addicon");
+            var infofo = $('#add_content').val();
+            $('#add_content').val("");
+            console.log(lat_ob_add);
+            if(!infofo || !lat_ob_add || !lng_ob_add || !title_ob_add) return 0;
+
+            $.getJSON($SCRIPT_ROOT + '/_add_markers',{
+                lat: lat_ob_add,
+                lon: lng_ob_add,
+                type:title_ob_add,
+                content: infofo
+              }, function(data) {
+                console.log(data.result);
+                for (var i = 0; i < markers.length; i++) {
+                  markers[i].setMap(null);
+                }
+
+                markers = [];
+                load_markers();
+                
+            });
+
+          });
+
+          $(document).on('click', '#ob_cancel', function(){
+            marker_now.setMap(null);
+            $("#ob_add").removeClass('active');
+            $('#add-obstacle').hide();
+            flag_ob_add = false;
+            $('#add_url').val("");
+            marker_ob_add.setMap(null);
+            marker_ob_add = null;
+            lat_ob_add = null;
+            lng_ob_add = null;
+          });           
           
         });
 
         var flag_cam_add = false;
+        var lat_cam_add;
+        var lng_cam_add;
+        var title_cam_add = 'camera';
+        var marker_cam_add;
         $(document).on('click', '#cam_add', function(){
+          close_form();
           $(this).addClass('active');
-          $('#input_destination').show();
+          $('#add-camera').show();
           flag_cam_add = true;
 
           // toast("Please click where you want to add camera.");
           getLocation_admin();
 
-
           icon = 'http://i.imgur.com/Eh9U0qI.png';
           // prompt("Add Description: ");
-          var title = 'camera';
+          
 
-          balala(icon,title);
+          google.maps.event.addListener(map, 'click', function(event) {
+                if(marker_cam_add!=null) marker_cam_add.setMap(null);
+                if(flag_cam_add == true)
+                {
+                  var LatLng = event.latLng;
+                  var RoadAPI = "https://roads.googleapis.com/v1/nearestRoads?points="+LatLng.lat()+","+LatLng.lng()+"&key=AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8";
+                  $.getJSON( RoadAPI, {
+                  })
+                    .done(function(data) {
+                      if(jQuery.isEmptyObject(data)){return;}
+
+                      lat_cam_add = data.snappedPoints[0].location.latitude;
+                      lng_cam_add = data.snappedPoints[0].location.longitude;
+
+                      marker_cam_add = new google.maps.Marker({
+                          position: {lat: lat_cam_add, lng: lng_cam_add},
+                          icon: icon,
+                          map: map,
+                          title: title_cam_add,
+                      });
+
+
+
+                    });
+
+                }
+
+            });
+
+            $(document).on('click', '#cam_in', function(){
+            marker_now.setMap(null);
+            $("#cam_add").removeClass('active');
+            $('#add-camera').hide();
+            flag_cam_add = false;
+            console.log("addicon");
+            var infofo = $('#add_url').val();
+            $('#add_url').val("");
+            console.log(lat_cam_add);
+            if(!infofo || !lat_cam_add || !lng_cam_add || !title_cam_add) return 0;
+
+            $.getJSON($SCRIPT_ROOT + '/_add_markers',{
+                lat: lat_cam_add,
+                lon: lng_cam_add,
+                type:title_cam_add,
+                content: infofo
+              }, function(data) {
+                console.log(data.result);
+                for (var i = 0; i < markers.length; i++) {
+                  markers[i].setMap(null);
+                }
+
+                markers = [];
+                load_markers();
+                
+            });
+
+          });     
+
+          $(document).on('click', '#cam_cancel', function(){
+            marker_now.setMap(null);
+            $("#cam_add").removeClass('active');
+            $('#add-camera').hide();
+            flag_cam_add = false;
+            $('#add_url').val("");
+            marker_cam_add.setMap(null);
+            marker_cam_add = null;
+            lat_cam_add = null;
+            lng_cam_add = null;
+          });     
           
         });
 
