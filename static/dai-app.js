@@ -1205,14 +1205,16 @@
         var active_id;
         var history_hour = [];
         var history_day = [];
-        $(document).on('click','#history',function(){
+        var color123 = ['SlateGray','SteelBlue','Teal','MediumSeaGreen','Purple'];
+        $(document).on('click','.history',function(){
             
             var now = new Date();
             active_id = $(this).val();
             console.log(now.getSeconds() +" "+active_id);
             if(flag_marker[active_id] == 0)
             { 
-              
+              $("#"+active_id).css("background-color", color123[active_id]);
+              $("#"+active_id).css("color", "white");
               $("#inlineRadio1").prop("checked", true);
               $('#myModal').modal('show');
               $(document).on('click','#history_check',function(){
@@ -1421,6 +1423,8 @@
             }
             if(flag_marker[active_id] == 1)
             {
+              $("#"+active_id).css("background-color", "white");
+              $("#"+active_id).css("color", "black");
               //console.log(flag_active.length);
               flag_active[active_id] = 0;
               flag_marker[active_id] = 0;
@@ -1490,7 +1494,7 @@
                }
 
                if (new_online == 1){
-                str = str + '<li style="cursor:pointer" ><button type="submit" id="history" value='+online_list.length+'>'+val+'</button></li>';
+                str = str + '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+val+'</button></li>';
                 // console.log(str);
                 online_list.push(val);
                 flag_active.push(0);
@@ -1501,8 +1505,9 @@
                 history_day.push(null);
                 arr_latlng.push({lat:Latitude, lng:Longitude});
                 console.log(marker_dog);
+                $("#dog-list").html(str);
                }
-               $("#dog-list").html(str);
+               
 
                old_lat = Latitude;
                old_lng = Longitude;

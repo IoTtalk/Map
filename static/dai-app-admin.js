@@ -416,7 +416,7 @@
                   function resetCenter(){
                       //console.log($("#Location-map").height());
                       var high = $("#Location-map").height();
-                      var high_cam = $("#Video-Display").height();
+                      var high_cam = $("#Video-Display").height()+$("#delete-camera").height();
                       var bounds = map.getBounds();
                       var ne = bounds.getNorthEast(); // LatLng of the north-east corner
                       var sw = bounds.getSouthWest(); // LatLng of the south-west corder
