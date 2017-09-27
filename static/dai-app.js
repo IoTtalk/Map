@@ -1205,7 +1205,7 @@
         var active_id;
         var history_hour = [];
         var history_day = [];
-        var color123 = ['SlateGray','SteelBlue','Teal','MediumSeaGreen','Purple'];
+        var color123 = ['#708090','#4682b4','#008080','#3cb371','#800080'];
         $(document).on('click','.history',function(){
             
             var now = new Date();
@@ -1304,7 +1304,7 @@
                         offset: '100%'
                       }],
                       geodesic: true,
-                      strokeColor: '#FF0000',
+                      strokeColor: color123[active_id],
                       strokeOpacity: 1.0,
                       strokeWeight: 2,
                       //map: map
@@ -1389,7 +1389,7 @@
                         offset: '100%'
                       }],
                       geodesic: true,
-                      strokeColor: '#FF0000',
+                      strokeColor: color123[active_id],
                       strokeOpacity: 1.0,
                       strokeWeight: 2,
                       //map: map
@@ -1494,7 +1494,7 @@
                }
 
                if (new_online == 1){
-                str = str + '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+val+'</button></li>';
+                str = '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+val+'</button></li>';
                 // console.log(str);
                 online_list.push(val);
                 flag_active.push(0);
@@ -1505,7 +1505,7 @@
                 history_day.push(null);
                 arr_latlng.push({lat:Latitude, lng:Longitude});
                 console.log(marker_dog);
-                $("#dog-list").html(str);
+                $("#dog-list").append(str);
                }
                
 
@@ -1530,7 +1530,12 @@
                     position:arr_latlng[i],
                     map: map,
                     label: online_list[i].toString(),
-                    icon:'http://maps.google.com/mapfiles/kml/paddle/blu-blank.png',
+                    icon:{
+                      path: google.maps.SymbolPath.CIRCLE,
+                      scale: 10,
+                      strokeWeight:7,
+                      strokeColor:color123[i]
+                    },
                     visible: false
                     });
                     marker_dog[i] = marker;
