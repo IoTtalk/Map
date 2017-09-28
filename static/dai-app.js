@@ -1973,4 +1973,12 @@
 });
 
 
+ function detach() {
+            window.d_name = null;
+            IoTtalk.detach(mac);
+        }
+        window.onunload = detach;
+        window.onbeforeunload = detach;
+        window.onclose = detach;
+        window.onpagehide = detach;
 
