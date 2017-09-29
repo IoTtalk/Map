@@ -1,5 +1,51 @@
  $(function(){
+        function initAutocomplete() 
+        { 
+          var map = new google.maps.Map(document.getElementById('map'), { center: {lat: -33.8688, lng: 151.2195}, zoom: 13, mapTypeId: 'roadmap' }); 
+          var input = document.getElementById('pac-input'); 
+          var searchBox = new google.maps.places.SearchBox(input); 
+          map.controls[google.maps.ControlPosition.TOP_LEFT].push(input); 
+          map.addListener('bounds_changed', 
+            function() { searchBox.setBounds(map.getBounds()); 
+          }); 
+          var markers = []; 
+          searchBox.addListener('places_changed', function() { 
+            var places = searchBox.getPlaces(); 
+            if (places.length == 0) { return; } 
+            markers.forEach(function(marker) { marker.setMap(null); }); 
+            markers = []; 
+            var bounds = new google.maps.LatLngBounds(); 
+            places.forEach(function(place) { 
+            if (!place.geometry) { 
+              console.log("Returned place contains no geometry"); return; 
+            } 
+          var icon = { 
+            url: place.icon, 
+            size: new google.maps.Size(71, 71), 
+            origin: new google.maps.Point(0, 0), 
+            anchor: new google.maps.Point(17, 34), 
+            scaledSize: new google.maps.Size(25, 25) 
+          }; 
+          markers.push(
+            new google.maps.Marker({ 
+              map: map, 
+              icon: icon, 
+              title: place.name, 
+              position: place.geometry.location 
+            })); 
 
+          if (place.geometry.viewport) { 
+            bounds.union(place.geometry.viewport); 
+          } 
+          else { 
+            bounds.extend(place.geometry.location); 
+          } 
+        }); 
+          map.fitBounds(bounds); }); 
+        } 
+        //$.ajax({headers: { "cache-control": "no-cache" }});
+        //$.ajaxSettings.cache = false;
+        // jQuery.support.cors = true; 
         // $('#function_list').hide();
         // $('#Video-Display').hide();
 
@@ -419,24 +465,28 @@
                     google.maps.event.addListener(map, 'zoom_changed', function() {resetCenter();});
 
                     if(marker.title == 'camera'){
-                          if(infowindow != null) {infowindow.close();}
-                          infowindow = new google.maps.InfoWindow({
-                            content: '<button type="submit" id="camera_info" value='+marker.id+'>修改</button><button type="submit" id="camera_del" value='+marker.id+'>刪除</button>'
-                          });
+                          
+                          // if(infowindow != null) {infowindow.close();}
+                          // infowindow = new google.maps.InfoWindow({
+                          //   content: '<button type="submit" id="camera_info" value='+marker.id+'>修改</button><button type="submit" id="camera_del" value='+marker.id+'>刪除</button>'
+                          // });
 
-                          //infowindow.setContent('<button onclick="myFunction()">修改</button>');
-                          infowindow.open(map, marker);
+                          // //infowindow.setContent('<button onclick="myFunction()">修改</button>');
+                          // infowindow.open(map, marker);
 
                           if(flag_camera == 1) //if the camera is already open , close it
                           {
-                                $('#function_but').show(); 
+                                // $('#function_but').show(); 
+                                
                                 //marker.content ='close';
-                                $('#Video-Display').attr('src', '');
+                                // $('#Video-Display').attr('src', '');
                                 flag_camera = 0;
-                                $('#Video-Display').css({"z-index": -10});
-                                $('#fuck_off').hide();
+                                //$('#Video-Display').css({"z-index": -10});
+                                // $('#Video-Display').hide();
+                                // $('#fuck_off').hide();
                                 $('#Video-Display').attr('src', marker.content);
-                                $('#Video-Display').css({"z-index": 10});
+                                //$('#Video-Display').css({"z-index": 10});
+                                $('#Video-Display').show();
                                 $('#fuck_off').show();
                           }
                           else
@@ -445,7 +495,8 @@
                                 $('#function_but').hide();
                                 $('.button_sm').hide(); 
                                 $('#Video-Display').attr('src', marker.content);
-                                $('#Video-Display').css({"z-index": 10});
+                                //$('#Video-Display').css({"z-index": 10});
+                                $('#Video-Display').show();
                                 $('#fuck_off').show();
                                 flag_camera = 1;
                                 // if(marker.position == features[0].position)
@@ -481,7 +532,7 @@
                       if(marker.title == 'obstacle'){
                          if(infowindow != null) {infowindow.close();}
                           infowindow = new google.maps.InfoWindow({
-                            content: marker.content +'</br><button type="submit" id="obstacle_info" value='+marker.id+'>修改</button><button type="submit" id="obstacle_del" value='+marker.id+'>刪除</button>'
+                            content: marker.content //+'</br><button type="submit" id="obstacle_info" value='+marker.id+'>修改</button><button type="submit" id="obstacle_del" value='+marker.id+'>刪除</button>'
                           });
 
                           //infowindow.setContent('<button onclick="myFunction()">修改</button>');
@@ -579,7 +630,8 @@
                                 markers.splice(i, 1);
                                 $('#Video-Display').attr('src', '');
                                 flag_camera = 0;
-                                $('#Video-Display').css({"z-index": -10});
+                                // $('#Video-Display').css({"z-index": -10});
+                                $('#Video-Display').hide();
                                 $('#fuck_off').hide();
                             }
                         }
@@ -606,7 +658,8 @@
         
         $(document).on('click', '#fuck_off', function(){
            $('#Video-Display').attr('src', '');
-           $('#Video-Display').css({"z-index": -10});
+           // $('#Video-Display').css({"z-index": -10});
+           $('#Video-Display').hide();
            $('#fuck_off').hide();
         });
         
@@ -678,8 +731,9 @@
         $(document).on('click', '#button_s3', function(){
            if(status[3] == 1)
            {
+               $('#Video-Display').hide();
                $('#fuck_off').hide();
-               $('#Video-Display').css({"z-index": -10});
+               // $('#Video-Display').css({"z-index": -10});
                markers.forEach(function(marker) {
                    if(marker.title == 'camera')
                        marker.setVisible(false);
@@ -834,15 +888,15 @@
 
 
         var flag_routing = 0;
-
+        var marker_now;
         
 
 
-        $(document).on('click', '#button_s5', function(){
+        $(document).on('click', '#button_route', function(){
 
           if (flag_routing == 0)
           {
-
+              flag_routing = 1;
               getLocation();
 
               function getLocation() {
@@ -859,7 +913,7 @@
                   //setMapOnAll(map);
 
                   function addMarker_routing(location) {
-                    var marker = new google.maps.Marker({
+                    marker_now = new google.maps.Marker({
                       position: location,
                       label: "現在位置",
                       map: map,
@@ -889,6 +943,8 @@
                     directionsDisplay = new google.maps.DirectionsRenderer();
                     directionsDisplay.setMap(map);
                   }
+
+
 
                   function calcRoute() {
 
@@ -1113,10 +1169,11 @@
               };
               
           }
-          /*if (flag_routing == 1)
+          if (flag_routing == 1)
           {
-            
-          }*/
+            flag_routing = 0;
+
+          }
 
         });
 
@@ -1183,28 +1240,41 @@
               
 
 
-        
+        function sleep(milliseconds) {
+          var start = new Date().getTime();
+          for (var i = 0; i < 1e7; i++) {
+            if ((new Date().getTime() - start) > milliseconds){
+              break;
+            }
+          }
+        }
 
-        
-
+        var t = [];
+        var interval;
         var marker_dog = [];
         var online_list = []; 
         var str = '';
         var flag_marker = [];
         var flag_active = []; 
-        var flag_his = [];
+        var flag_his_hour = [];
+        var flag_his_day = [];
         var arr_latlng = [];
         var active_id;
         var history_hour = [];
         var history_day = [];
-        $(document).on('click','#history',function(){
+        var color123 = ['#708090','#4682b4','#008080','#3cb371','#800080'];
+
+
+
+        $(document).on('click','.history',function(){
             
             var now = new Date();
             active_id = $(this).val();
             console.log(now.getSeconds() +" "+active_id);
             if(flag_marker[active_id] == 0)
             { 
-              
+              $("#"+active_id).css("background-color", color123[active_id]);
+              $("#"+active_id).css("color", "white");
               $("#inlineRadio1").prop("checked", true);
               $('#myModal').modal('show');
               $(document).on('click','#history_check',function(){
@@ -1236,55 +1306,18 @@
                   }
                   if(optradio == "recent_hour")
                   {
-                    var t = 1;
+                     t[active_id] = 1;
                     flag_marker[active_id] = 1;
-                    flag_his[active_id] = 1;
+                    flag_his_hour[active_id] = 1;
                     $.getJSON($SCRIPT_ROOT + '/history',{
                       dog_id: online_list[active_id],
-                      time: t
+                      time: t[active_id]
                     }, function(data) {
                       //console.log(data.result);
                       var flightPlanCoordinates = data.result.map(function(dog) {return  {lat:dog.lat, lng:dog.lon}; });
-                      console.log(flightPlanCoordinates);
-                      //$("#result").text(courseStr);
-                      // console.log(flightPlanCoordinates);
-
-                      // var StartPosition = flightPlanCoordinates[0];
-                      // addMarker_Start(StartPosition);
-                        //setMapOnAll(map);
-
-                      // function addMarker_Start(location) {
-                      //   var marker = new google.maps.Marker({
-                      //     position: location,
-                      //     //label: "起點",
-                      //     map: map,
-                      //     icon: "/static/img/history_start_icon.png"
-                      //   });
-                      //   //markers.push(marker);
-                      //   console.log(marker);
-                      //   his_markers.push(marker);
-                      // }
-
-                      // var EndPosition = flightPlanCoordinates[flightPlanCoordinates.length - 1];
-                      // addMarker_End(EndPosition);
-                      //   //setMapOnAll(map);
-
-                      // function addMarker_End(location) {
-                      //   var marker = new google.maps.Marker({
-                      //     position: location,
-                      //     //label: "終點",
-                      //     map: map,
-                      //     icon: '/static/img/history_end_icon.png'
-                      //   });
-                      //   //markers.push(marker);
-                      //   console.log(marker);
-                      //   his_markers.push(marker);
-                      // }
-
                       var lineSymbol = {
                         path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                        scale: 3,
-                        //strokeColor: '#393'
+                        scale: 3
                       };
 
                       flightPath = new google.maps.Polyline({
@@ -1294,82 +1327,33 @@
                         offset: '100%'
                       }],
                       geodesic: true,
-                      strokeColor: '#FF0000',
+                      strokeColor: color123[active_id],
                       strokeOpacity: 1.0,
-                      strokeWeight: 2,
+                      strokeWeight: 2
                       //map: map
                       });
-
-                      animateCircle(flightPath);
 
                       flightPath.setMap(map);
                       history_hour[active_id] = flightPath;
 
-                      function animateCircle(line) {
-                        // console.log("animateCircle comein");
-                        var count = 0;
-                        window.setInterval(function() {
-                          count = (count + 1) % 200;
-
-                          var icons = line.get('icons');
-                          icons[0].offset = (count / 20) + '%';
-                          line.set('icons', icons);
-                      }, 50);
+                    });
                     }
 
-            });
-                  }
                   if(optradio == "recent_day")
                   {
-                    var t = 2;
+                    t[active_id] = 2;
                     flag_marker[active_id] = 1;
-                    flag_his[active_id] = 1;
+                    flag_his_day[active_id] = 1;
                     $.getJSON($SCRIPT_ROOT + '/history',{
                       dog_id: online_list[active_id],
-                      time: t
+                      time: t[active_id]
                     }, function(data) {
-                      //console.log(data.result);
                       var flightPlanCoordinates = data.result.map(function(dog) {return  {lat:dog.lat, lng:dog.lon}; });
                       console.log(flightPlanCoordinates);
-                      //$("#result").text(courseStr);
-                      // console.log(flightPlanCoordinates);
-
-                      // var StartPosition = flightPlanCoordinates[0];
-                      // addMarker_Start(StartPosition);
-                        //setMapOnAll(map);
-
-                      // function addMarker_Start(location) {
-                      //   var marker = new google.maps.Marker({
-                      //     position: location,
-                      //     //label: "起點",
-                      //     map: map,
-                      //     icon: "/static/img/history_start_icon.png"
-                      //   });
-                      //   //markers.push(marker);
-                      //   console.log(marker);
-                      //   his_markers.push(marker);
-                      // }
-
-                      // var EndPosition = flightPlanCoordinates[flightPlanCoordinates.length - 1];
-                      // addMarker_End(EndPosition);
-                      //   //setMapOnAll(map);
-
-                      // function addMarker_End(location) {
-                      //   var marker = new google.maps.Marker({
-                      //     position: location,
-                      //     //label: "終點",
-                      //     map: map,
-                      //     icon: '/static/img/history_end_icon.png'
-                      //   });
-                      //   //markers.push(marker);
-                      //   console.log(marker);
-                      //   his_markers.push(marker);
-                      // }
 
                       var lineSymbol = {
                         path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                        scale: 3,
-                        //strokeColor: '#393'
+                        scale: 3
                       };
 
                       flightPath = new google.maps.Polyline({
@@ -1379,31 +1363,117 @@
                         offset: '100%'
                       }],
                       geodesic: true,
-                      strokeColor: '#FF0000',
+                      strokeColor: color123[active_id],
                       strokeOpacity: 1.0,
-                      strokeWeight: 2,
-                      //map: map
+                      strokeWeight: 2
                       });
-
-                      animateCircle(flightPath);
 
                       flightPath.setMap(map);
                       history_day[active_id] = flightPath;
-
-                      function animateCircle(line) {
-                        // console.log("animateCircle comein");
-                        var count = 0;
-                        window.setInterval(function() {
-                          count = (count + 1) % 200;
-
-                          var icons = line.get('icons');
-                          icons[0].offset = (count / 100) + '%';
-                          line.set('icons', icons);
-                      }, 50);
-                    }
-
-            });
+                    });
                   }
+
+                    if(interval != null) window.clearInterval(interval);
+                    interval = setInterval(function(){
+                    var color_line;
+                    var t_his;
+                    for(var i=0; i<online_list.length; i++)
+                    {
+                      if(flag_his_hour[i] == 1)
+                      {   color_line = i;
+                          t_his = t[i];
+                          //console.log(t_his);
+                          if(history_hour[i] != null)
+                          {
+                            history_hour[i].setMap(null);
+                            history_hour[i] = null;
+                          }
+                          
+                          $.ajaxSettings.async = false;
+                          //$.ajaxSettings.traditional = true;  //solve %5B%5D
+                          //$.ajaxSettings.cache = false; //solve pass last value
+                          //var noCache = new Date().getTime();
+                          $.getJSON($SCRIPT_ROOT + '/history',{
+                          dog_id: online_list[i],
+                          time: t_his
+                        }, function(data) {
+                          console.log(data.result);
+                          var flightPlanCoordinates = data.result.map(function(dog) {return  {lat:dog.lat, lng:dog.lon}; });
+                          var lineSymbol = {
+                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                            scale: 3
+                          };
+
+                          flightPath = new google.maps.Polyline({
+                          path: flightPlanCoordinates,
+                          icons: [{
+                            icon: lineSymbol,
+                            offset: '100%'
+                          }],
+                          geodesic: true,
+                          strokeColor: color123[color_line],
+                          strokeOpacity: 1.0,
+                          strokeWeight: 2,
+                          //map: map
+                          });
+                          console.log(color123[color_line]);
+                          flightPath.setMap(map);
+                          history_hour[color_line] = flightPath;
+                          
+                        });
+                          //$.ajaxSettings.async = true;
+                          
+                          //$.ajaxSettings.cache = true;
+                        //sleep(5000);
+                      }
+
+                      if(flag_his_day[i] == 1)
+                      {
+                        color_line = i;
+                        t_his = t[i];
+                        if(history_day[i] != null)
+                        {
+                          history_day[i].setMap(null);
+                          history_day[i] = null;
+                        }
+                        $.ajaxSettings.async = false;
+                        $.getJSON($SCRIPT_ROOT + '/history',{
+                          dog_id: online_list[i],
+                          time: t_his
+                        }, function(data) {
+                          var flightPlanCoordinates = data.result.map(function(dog) {return  {lat:dog.lat, lng:dog.lon}; });
+                          console.log(flightPlanCoordinates);
+
+                          var lineSymbol = {
+                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                            scale: 3
+                          };
+
+                          flightPath = new google.maps.Polyline({
+                          path: flightPlanCoordinates,
+                          icons: [{
+                            icon: lineSymbol,
+                            offset: '100%'
+                          }],
+                          geodesic: true,
+                          strokeColor: color123[color_line],
+                          strokeOpacity: 1.0,
+                          strokeWeight: 2
+                          });
+
+                          flightPath.setMap(map);
+                          history_day[color_line] = flightPath;
+                        });
+                        $.ajaxSettings.async = true;
+                      }
+                     }
+                    },10000);
+                      
+
+                    
+                    
+                  
+                  
                   document.body.removeChild(form);
 
 
@@ -1413,10 +1483,14 @@
             }
             if(flag_marker[active_id] == 1)
             {
+              $("#"+active_id).css("background-color", "white");
+              $("#"+active_id).css("color", "black");
               //console.log(flag_active.length);
               flag_active[active_id] = 0;
               flag_marker[active_id] = 0;
-              flag_his[active_id] = 0;
+              flag_his_hour[active_id] = 0;
+              flag_his_day[active_id] = 0;
+              t[active_id] = null;
               marker_dog[active_id].setVisible(false);
               if(history_hour[active_id] != null)
               {
@@ -1428,7 +1502,8 @@
                 history_day[active_id].setMap(null);
                 history_day[active_id] = null;
               }
-              
+              //window.clearInterval(interval[active_id]);
+              //interval[active_id] = null;
               //$('#myModal').remove();
               // $('#myModal').modal.close();
 
@@ -1482,19 +1557,22 @@
                }
 
                if (new_online == 1){
-                str = str + '<li style="cursor:pointer" ><button type="submit" id="history" value='+online_list.length+'>'+val+'</button></li>';
+                str = '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+val+'</button></li>';
                 // console.log(str);
                 online_list.push(val);
                 flag_active.push(0);
                 flag_marker.push(0);
-                flag_his.push(0);
+                flag_his_hour.push(0);
+                flag_his_day.push(0);
                 marker_dog.push(null);
                 history_hour.push(null);
                 history_day.push(null);
+                t.push(null);
                 arr_latlng.push({lat:Latitude, lng:Longitude});
                 console.log(marker_dog);
+                $("#dog-list").append(str);
                }
-               $("#dog-list").html(str);
+               
 
                old_lat = Latitude;
                old_lng = Longitude;
@@ -1516,8 +1594,13 @@
                     var marker = new google.maps.Marker({
                     position:arr_latlng[i],
                     map: map,
-                    label: online_list[i].toString(),
-                    icon:'http://maps.google.com/mapfiles/kml/paddle/blu-blank.png',
+                    //label: online_list[i].toString(),
+                    icon:{
+                      path: google.maps.SymbolPath.CIRCLE,
+                      scale: 10,
+                      strokeWeight:7,
+                      strokeColor:color123[i]
+                    },
                     visible: false
                     });
                     marker_dog[i] = marker;

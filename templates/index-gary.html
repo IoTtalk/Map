@@ -13,7 +13,7 @@
     <script src="{{ url_for('static', filename='dai.js') }}"></script>
     <script src="{{ url_for('static', filename='img/history_start_icon.png') }}"></script>
     <script src="{{ url_for('static', filename='img/history_end_icon.png') }}"></script>
-    <script src="{{ url_for('static', filename='dai-app.js') }}"></script>
+    <script src="{{ url_for('static', filename='dai-app-gary.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='map-icons.js') }}"></script> 
     <script type=text/javascript src="{{ url_for('static', filename='jquery.datetimepicker.full.min.js') }}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -28,59 +28,16 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     
-    <!-- <script type="text/javascript"
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJJZnblGUcntIKP4Cn0TZv5UzBN4xDSB0&libraries=places&callback=initAutocomplete" async defer></script> --><!-- AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8 -->
+    <script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJJZnblGUcntIKP4Cn0TZv5UzBN4xDSB0"></script><!-- AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8 -->
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css">
     
 
     <script type=text/javascript>
       $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
-    <script>
-            // This example displays an address form, using the autocomplete feature
-            // of the Google Places API to help users fill in the information.
-            // This example requires the Places library. Include the libraries=places
-            // parameter when you first load the API. For example:
-            // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
-            var placeSearch, autocomplete;
-            var componentForm = {
-              street_number: 'short_name',
-              route: 'long_name',
-              locality: 'long_name',
-              administrative_area_level_1: 'short_name',
-              country: 'long_name',
-              postal_code: 'short_name'
-            };
-            function initAutocomplete() {
-              // Create the autocomplete object, restricting the search to geographical
-              // location types.
-              autocomplete = new google.maps.places.Autocomplete(
-                  /** @type {!HTMLInputElement} */(document.getElementById('autocomplete')),
-                  {types: ['geocode']});
-              // When the user selects an address from the dropdown, populate the address
-              // fields in the form.
-              autocomplete.addListener('place_changed');
-            }
-  
-            // Bias the autocomplete object to the user's geographical location,
-            // as supplied by the browser's 'navigator.geolocation' object.
-            function geolocate() {
-              if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                  var geolocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                  };
-                  var circle = new google.maps.Circle({
-                    center: geolocation,
-                    radius: position.coords.accuracy
-                  });
-                  autocomplete.setBounds(circle.getBounds());
-                });
-              }
-            }
-          </script>
-    
+
+
   </head>
   <!-- <body>
     
@@ -188,30 +145,9 @@
   </header>
   <body>
 
-    <div id="input_destination" style="display:none">
-  <div class="bg-primary form-inline" style="margin-top:1px ;margin-bottom: 0px" >
-      <div class="form-group " style="margin-bottom: 0px">
-        <div style="height:5px;"> &nbsp; </div>
-        <label  class="col-sm-2 col-2 col-xl-2">起點</label>
-        <div class="col-sm-10 col-10 col-xl-10">
-          <input readonly disabled class="form-control" placeholder="現在位置">
-        </div>
-        <div style="height:5px;"> &nbsp; </div>
-      </div>
-  </div>
+    
 
-  <div class="bg-primary form-inline" style="margin-bottom: 0px">
-      <div class="form-group " style="margin-bottom: 0px">
-        <label  class="col-sm-2 col-2 col-xl-2">終點</label>
-        <div class="col-sm-10 col-10 col-xl-10">
-          <input  id="autocomplete" onFocus="geolocate()" class="form-control controls"  placeholder="選擇目的地">
-        </div>
-      </div>
-      <br>
-      
-      <button type="submit" id="button_s5" class="btn pull-right btn-primary" style="margin: 15px">立即出發</button>
-  </div>
-  </div>
+    
     <div id="snackbar"></div>
 
     <div id="Location-map">  </div>
@@ -221,5 +157,4 @@
   </div>       
         
   </body>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8&libraries=places&callback=initAutocomplete" async defer></script>
 </html>

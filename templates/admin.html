@@ -7,7 +7,7 @@
   <head>
     <title>Realtime Traffic Information</title>
     <script type=text/javascript src="{{ url_for('static', filename='jquery.js') }}"></script>
-    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style-admin.css') }}" rel="stylesheet">
     <script src="{{ url_for('static', filename='csmapi.js') }}"></script>
     <script src="{{ url_for('static', filename='dan.js') }}"></script>
     <script src="{{ url_for('static', filename='dai.js') }}"></script>
@@ -96,7 +96,7 @@
           <li id="ob_add" style="cursor:pointer"><a>新增路障</a></li>
         </ul>
       </li> -->
-      <li role="presentation" id="cam_add" style="cursor:pointer" ><a>新增攝影機</a></li>
+      <li role="presentation" id="cam_add" style="cursor:pointer"  ><a>新增攝影機</a></li>
       <li role="presentation" id="ob_add" style="cursor:pointer"><a>新增路障</a></li>
       <!-- <li role="presentation" id="button_route" style="cursor:pointer"><a id="text">路徑規劃</a></li> -->
 
@@ -116,7 +116,6 @@
               <label class="radio-inline">
                 <input type="radio" name="optradio" id="inlineRadio3" value="recent_day" style="height: 18px; width: 18px;"> &nbsp;最近一天
               </label>
-
             </div>
             <div class="modal-footer">
               <input type="submit" value="確認" class="btn btn-primary" data-dismiss="modal" id="history_check" style="font-size:18px;">
@@ -140,36 +139,91 @@
   </header>
   <body>
 
-    <div id="input_destination" style="display:none">
-  <div class="bg-primary form-inline" style="margin-top:1px ;margin-bottom: 0px" >
-      <div class="form-group " style="margin-bottom: 0px">
-        <div style="height:5px;"> &nbsp; </div>
-        <label  class="col-sm-2 col-2 col-xl-2">起點</label>
-        <div class="col-sm-10 col-10 col-xl-10">
-          <input readonly disabled class="form-control" placeholder="現在位置">
-        </div>
-        <div style="height:5px;"> &nbsp; </div>
+
+
+  <div id="add-camera" style="display: none;">
+      <div class="bg-primary form-inline" style="margin-top:1px ;margin-bottom: 0px" >
+          <div class="form-group " style="margin-bottom: 0px">
+            <div style="height:5px;"> &nbsp; </div>
+            <label  class="col-sm-2 col-2 col-xl-2">網址</label>
+            <div class="col-sm-10 col-10 col-xl-10">
+              <input id="add_url" class="form-control" placeholder="請輸入影像URL來源">
+
+            </div>
+            <br>
+          </div>
       </div>
+
+      <button type="submit" id="cam_cancel" class="btn pull-right btn-primary" style="margin: 15px">取消</button>
+      <button type="submit" id="cam_in" class="btn pull-right btn-primary" style="margin: 15px">新增</button>
+
   </div>
 
-  <div class="bg-primary form-inline" style="margin-bottom: 0px">
-      <div class="form-group " style="margin-bottom: 0px">
-        <label  class="col-sm-2 col-2 col-xl-2">終點</label>
-        <div class="col-sm-10 col-10 col-xl-10">
-          <input  id="pac-input"  class="form-control controls"  placeholder="選擇目的地">
-        </div>
+  <div id="add-obstacle" style="display: none;" >
+      <div class="bg-primary form-inline" style="margin-top:1px ;margin-bottom: 0px" >
+          <div class="form-group " style="margin-bottom: 0px">
+            <div style="height:5px;"> &nbsp; </div>
+            <label  class="col-sm-2 col-2 col-xl-2">說明</label>
+            <div class="col-sm-10 col-10 col-xl-10">
+              <input id="add_content" class="form-control" placeholder="請輸入說明">
+
+            </div>
+            <br>
+          </div>
       </div>
-      <br>
-      
-      <button type="submit" id="button_s5" class="btn pull-right btn-primary" style="margin: 15px">立即出發</button>
+
+      <button type="submit" id="ob_cancel" class="btn pull-right btn-primary" style="margin: 15px">取消</button>
+      <button type="submit" id="ob_in" class="btn pull-right btn-primary" style="margin: 15px">新增</button>
+
   </div>
+
+  <div id="delete-camera" style="display: none;">
+      <div class="bg-primary form-inline" style="margin-top:1px ;margin-bottom: 0px" >
+          <div class="form-group " style="margin-bottom: 0px">
+            <div style="height:5px;"> &nbsp; </div>
+            <label  class="col-sm-2 col-2 col-xl-2">網址</label>
+            <div class="col-sm-10 col-10 col-xl-10">
+
+              <input id="new_url" class="form-control" placeholder="請輸入影像URL來源">
+
+            </div>
+            <br>
+          </div>
+      </div>
+
+
+      <button type="submit" id="cam_del" class="btn pull-right btn-primary" style="margin: 15px">刪除</button>
+      <button type="submit" id="cam_info" class="btn pull-right btn-primary" style="margin: 15px">修改</button>
+
   </div>
+
+  <div id="delete-obstacle" style="display: none;">
+      <div class="bg-primary form-inline" style="margin-top:1px ;margin-bottom: 0px" >
+          <div class="form-group " style="margin-bottom: 0px">
+            <div style="height:5px;"> &nbsp; </div>
+            <label  class="col-sm-2 col-2 col-xl-2">說明</label>
+            <div class="col-sm-10 col-10 col-xl-10">
+
+              <input id="new_info" class="form-control" placeholder="請輸入說明">
+
+            </div>
+            <br>
+          </div>
+      </div>
+
+
+      <button type="submit" id="ob_del" class="btn pull-right btn-primary" style="margin: 15px">刪除</button>
+      <button type="submit" id="ob_info" class="btn pull-right btn-primary" style="margin: 15px">修改</button>
+
+  </div>
+
     <div id="snackbar"></div>
 
     <div id="Location-map">  </div>
       <button style="display: none;" id="fuck_off" class="btn btn-default">X</button>
-  <div style="display: none;" class="container" id="wrapper" overflow="hidden" >
-      <img src=""  id = "Video-Display" class="shrinkToFit" width="495" height="278">
+
+  <div class="container" id="wrapper" overflow="hidden" >
+      <img src=""  id = "Video-Display" class="shrinkToFit" width="495" height="278" style="display: none;">
   </div>       
         
   </body>
