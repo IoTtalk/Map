@@ -27,9 +27,10 @@
     
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    
-    <script type="text/javascript"
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJJZnblGUcntIKP4Cn0TZv5UzBN4xDSB0"></script><!-- AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8 -->
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8&libraries=places"></script>
+    <!-- <script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJJZnblGUcntIKP4Cn0TZv5UzBN4xDSB0"></script> --><!-- AIzaSyCT1MkhTlOJjKg1NLqb0yyD_0o3Q6_-dr8 -->
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css">
     
 
@@ -161,7 +162,7 @@
       <div class="form-group " style="margin-bottom: 0px">
         <label  class="col-sm-2 col-2 col-xl-2">終點</label>
         <div class="col-sm-10 col-10 col-xl-10">
-          <input  id="pac-input"  class="form-control controls"  placeholder="選擇目的地">
+          <input  id="autocomplete" type="text" class="form-control controls"  placeholder="選擇目的地">
         </div>
       </div>
       <br>

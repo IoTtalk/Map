@@ -820,7 +820,7 @@
         });
 
         var flag_route = 0;
-
+        var placeSearch, autocomplete;
         $(document).on('click', '#button_route', function(){
           if (flag_route == 0){
             flag_route = 1;
@@ -829,6 +829,48 @@
             
             $("#text").html('結束規劃');
             $('#button_route').addClass('active');
+            geolocate();
+            initAutocomplete();
+
+            
+            var componentForm = {
+              street_number: 'short_name',
+              route: 'long_name',
+              locality: 'long_name',
+              administrative_area_level_1: 'short_name',
+              country: 'long_name',
+              postal_code: 'short_name'
+            };
+            function initAutocomplete() {
+              // Create the autocomplete object, restricting the search to geographical
+              // location types.
+              autocomplete = new google.maps.places.Autocomplete(
+                  /** @type {!HTMLInputElement} */(document.getElementById('autocomplete')),
+                  {types: []});
+              // When the user selects an address from the dropdown, populate the address
+              // fields in the form.
+              autocomplete.addListener('place_changed', function(){
+                placeSearch = autocomplete.getPlace();
+              });
+            }
+  
+            // Bias the autocomplete object to the user's geographical location,
+            // as supplied by the browser's 'navigator.geolocation' object.
+            function geolocate() {
+              if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                  var geolocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                  };
+                  var circle = new google.maps.Circle({
+                    center: geolocation,
+                    radius: position.coords.accuracy
+                  });
+                  autocomplete.setBounds(circle.getBounds());
+                });
+              }
+            }
           }
           else{
             flag_route = 0;
@@ -846,7 +888,7 @@
         
 
 
-        $(document).on('click', '#button_s5', function(){
+        $(document).on('click', '#button_route', function(){
 
           if (flag_routing == 0)
           {
@@ -890,25 +932,46 @@
                   var directionsService = new google.maps.DirectionsService();
                   var haight = new google.maps.LatLng(lat,lng);//origin: (24.7882499,121.01580720000001)(24.782146, 120.997231)(24.7872622,120.9979454)
                   var oceanBeach //= new google.maps.LatLng(24.7852481, 120.9979445);
-
-                  
+                  var marker_routing;
+                  var listener_routing = google.maps.event.addListener(map, 'click', function(event) {
+                      oceanBeach = event.latLng;
+                      //console.log(oceanBeach);
+                      marker_routing = new google.maps.Marker({
+                      position:oceanBeach,
+                      map: map
+                    });
+                    // var service = new google.maps.places.PlacesService(map);
+                    // service.nearbySearch({
+                    //   location: oceanBeach,
+                    //   radius: 50,
+                    //   type: []
+                    // }, callback);
+                    // function callback(results, status) {
+                    //   if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    //     for (var i = 0; i < results.length; i++) {
+                    //       console.log(results[i].name);
+                    //     }
+                    //   }
+                    // }
+                    $('#autocomplete').val(oceanBeach);
+                  });
 
                   function initialize() {
                     directionsDisplay = new google.maps.DirectionsRenderer();
                     directionsDisplay.setMap(map);
                   }
 
+                  
+
                   function calcRoute() {
-
-                    // toast("Please click your destination on the map.");
-
-                    var listener_routing = google.maps.event.addListener(map, 'click', function(event) {
-                      oceanBeach = event.latLng;
-                      //console.log(oceanBeach);
-                      var marker_routing = new google.maps.Marker({
-                      position:oceanBeach,
+                    if(marker_routing == undefined)
+                    {
+                      oceanBeach = $('#autocomplete').val();
+                      var marker = new google.maps.Marker({
+                      position:placeSearch.geometry.location,
                       map: map
                     });
+                    }
                     var selectedMode = "DRIVING";
                     var DirectionsRequest = {
                         origin: haight,
@@ -1098,11 +1161,13 @@
                             }
                         }
                     );
-                    });
+                    
                     
                   }
                   initialize();
+                  $(document).on('click', '#button_s5', function(){
                   calcRoute();
+                });
                   console.log(lat+","+lng);
 
                   //console.log(typeof lat);
