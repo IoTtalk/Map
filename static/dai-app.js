@@ -1,5 +1,29 @@
  $(function(){
 
+            var startPos;
+            var geoOptions = {
+               timeout: 10 * 1000
+            }
+
+            var geoSuccess = function(position) {
+              var geolocation_init = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              };
+              map_init(geolocation_init);
+            };
+            var geoError = function(error) {
+              console.log('Error occurred. Error code: ' + error.code);
+              // error.code can be:
+              //   0: unknown error
+              //   1: permission denied
+              //   2: position unavailable (error response from location provider)
+              //   3: timed out
+            };
+
+            navigator.geolocation.getCurrentPosition(geoSuccess, geoError, geoOptions);
+
+
         // $('#function_list').hide();
         // $('#Video-Display').hide();
 
@@ -20,6 +44,8 @@
 
         //   }            
         // }
+      function map_init(geolocation_init)
+      {
         var map;        
         function initialize() {
           // Create an array of styles.
@@ -209,6 +235,8 @@
                   ]
               }
           ];
+          
+
           // Create a new StyledMapType object, passing it the array of styles,
           // as well as the name to be displayed on the map type control.
           var styledMap = new google.maps.StyledMapType(styles,
@@ -221,7 +249,7 @@
             zoomControl: true,
             scaleControl: true,
             scrollwheel: true,
-            center: new google.maps.LatLng(24.7895711, 120.9967021),
+            center: geolocation_init,//new google.maps.LatLng(24.7895711, 120.9967021),
             gestureHandling: 'greedy',
             mapTypeControlOptions: {
               mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'map_style']
@@ -364,23 +392,23 @@
         }
         
 
-        // function toast(y) {
-        // // Get the snackbar DIV
-        // var x = document.getElementById("snackbar");
+        function toast(y) {
+        // Get the snackbar DIV
+        var x = document.getElementById("snackbar");
 
-        // // Add the "show" class to DIV
-        // x.className = "show";
-        // x.innerHTML = y;
-        // // After 3 seconds, remove the show class from DIV
-        // setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-        // }
+        // Add the "show" class to DIV
+        x.className = "show";
+        x.innerHTML = y;
+        // After 3 seconds, remove the show class from DIV
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
 
 
         load_markers();
         
         function load_markers()
         {
-          $.getJSON($SCRIPT_ROOT + '/_take_markers', function(data) {
+          $.getJSON($SCRIPT_ROOT + '/secure/_take_markers', function(data) {
               features = data.result.map(function(object) {return  {
                 id: object.id,
                 position: new google.maps.LatLng(object.lat, object.lon),
@@ -416,7 +444,7 @@
                       var latlng = new google.maps.LatLng({lat: map.getCenter().lat()-(cen-LatLng.lat()), lng:LatLng.lng()});
                       map.setCenter(latlng);
                     }
-                    google.maps.event.addListener(map, 'zoom_changed', function() {resetCenter();});
+                    //google.maps.event.addListener(map, 'zoom_changed', function() {resetCenter();});
 
                     if(marker.title == 'camera'){
                           
@@ -504,7 +532,7 @@
                       //var marker_id = $(this).val();
                       var marker_id = $(this).val();
                       var new_info = prompt("Enter new information:");
-                      $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
+                      $.getJSON($SCRIPT_ROOT + '/secure/_modify_markers',{
                           id: marker_id,
                           content: new_info
                         }, function(data) {
@@ -524,7 +552,7 @@
                       //var marker_id = $(this).val();
                       var marker_id = $(this).val();
                       var new_info = prompt("Enter new information:");
-                      $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
+                      $.getJSON($SCRIPT_ROOT + '/secure/_modify_markers',{
                           id: marker_id,
                           content: new_info
                         }, function(data) {
@@ -546,7 +574,7 @@
 
                       var marker_id = $(this).val();
                       console.log(marker_id);
-                      $.getJSON($SCRIPT_ROOT + '/_del_markers',{
+                      $.getJSON($SCRIPT_ROOT + '/secure/_del_markers',{
                           id: marker_id
                         }, function(data) {
                         //console.log(data.result);
@@ -571,7 +599,7 @@
 
                       var marker_id = $(this).val();
                       console.log(marker_id);
-                      $.getJSON($SCRIPT_ROOT + '/_del_markers',{
+                      $.getJSON($SCRIPT_ROOT + '/secure/_del_markers',{
                           id: marker_id
                         }, function(data) {
                         //console.log(data.result);
@@ -717,7 +745,7 @@
           
           if (flag_history == 0)
           {
-            $.getJSON($SCRIPT_ROOT + '/history',{
+            $.getJSON($SCRIPT_ROOT + '/secure/history',{
                 dog_id: 0
               }, function(data) {
                 //console.log(data.result);
@@ -819,19 +847,29 @@
 
         });
 
+        var directionsDisplay;
+        var directionsService;
+        var haight;//origin: (24.7882499,121.01580720000001)(24.782146, 120.997231)(24.7872622,120.9979454)
+        var oceanBeach; //= new google.maps.LatLng(24.7852481, 120.9979445);
+        var listener_routing;
+
         var flag_route = 0;
+        var flightPath_routing;
+        var marker_routing;
+        var marker_routing_now;
         var placeSearch, autocomplete;
         $(document).on('click', '#button_route', function(){
           if (flag_route == 0){
             flag_route = 1;
+            flag_routing = 0;
             $('#input_destination').show();
+            $('#autocomplete').val('');
             // document.getElementById("button_route").innerHTML="結束規劃";
             
             $("#text").html('結束規劃');
             $('#button_route').addClass('active');
-            geolocate();
             initAutocomplete();
-
+            geolocate();
             
             var componentForm = {
               street_number: 'short_name',
@@ -842,6 +880,7 @@
               postal_code: 'short_name'
             };
             function initAutocomplete() {
+
               // Create the autocomplete object, restricting the search to geographical
               // location types.
               autocomplete = new google.maps.places.Autocomplete(
@@ -857,23 +896,35 @@
             // Bias the autocomplete object to the user's geographical location,
             // as supplied by the browser's 'navigator.geolocation' object.
             function geolocate() {
-              if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                  var geolocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                  };
+              // if (navigator.geolocation) {
+
+              //   navigator.geolocation.getCurrentPosition(function(position) {
+              //     var geolocation = {
+              //       lat: position.coords.latitude,
+              //       lng: position.coords.longitude
+              //     };
+              //     console.log("有進來");
+              //     console.log(geolocation);
                   var circle = new google.maps.Circle({
-                    center: geolocation,
-                    radius: position.coords.accuracy
+                    center: geolocation_init,
+                    radius: 500
                   });
                   autocomplete.setBounds(circle.getBounds());
-                });
-              }
+              //   });
+              // }
             }
           }
           else{
             flag_route = 0;
+            flag_routing = 1;
+            if(flightPath_routing != null) 
+            {
+              flightPath_routing.setMap(null);
+              flightPath_routing = null;
+            }
+            console.log(flightPath_routing);
+            if(marker_routing != null) marker_routing.setMap(null);
+            if(marker_routing_now != null) marker_routing_now.setMap(null);
             $('#input_destination').hide();
             // str1 = '<li role="presentation" id="button_route" style="cursor:pointer"><a>路徑規劃</a></li>';
             // $("#button_route").html(str1);
@@ -892,7 +943,7 @@
 
           if (flag_routing == 0)
           {
-
+              flag_routing = 1;
               getLocation();
 
               function getLocation() {
@@ -909,14 +960,14 @@
                   //setMapOnAll(map);
 
                   function addMarker_routing(location) {
-                    var marker = new google.maps.Marker({
+                    if(marker_routing_now != null) marker_routing_now.setMap(null);
+                    marker_routing_now = new google.maps.Marker({
                       position: location,
                       label: "現在位置",
                       map: map,
                       //icon: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi.png'
                     });
                     //markers.push(marker);
-                    console.log(marker);
 
                   }
                   /*
@@ -928,14 +979,15 @@
                   //markers.push(marker);
 
                   //marker.setMap(map);
-                  var directionsDisplay;
-                  var directionsService = new google.maps.DirectionsService();
-                  var haight = new google.maps.LatLng(lat,lng);//origin: (24.7882499,121.01580720000001)(24.782146, 120.997231)(24.7872622,120.9979454)
-                  var oceanBeach //= new google.maps.LatLng(24.7852481, 120.9979445);
-                  var marker_routing;
+                  //var directionsDisplay;
+                  directionsService = new google.maps.DirectionsService();
+                  haight = new google.maps.LatLng(lat,lng);//origin: (24.7882499,121.01580720000001)(24.782146, 120.997231)(24.7872622,120.9979454)
+                  // oceanBeach //= new google.maps.LatLng(24.7852481, 120.9979445);
+                  
                   var listener_routing = google.maps.event.addListener(map, 'click', function(event) {
                       oceanBeach = event.latLng;
                       //console.log(oceanBeach);
+                      if(marker_routing != null) marker_routing.setMap(null);
                       marker_routing = new google.maps.Marker({
                       position:oceanBeach,
                       map: map
@@ -988,15 +1040,16 @@
                     directionsService.route(
                         DirectionsRequest,
                         function (response, status) {
-                            var line_color = ['#0044BB','#FF0000', '#db8555', '#806b63'];
+                            var line_color = '#0044BB';//[,'#FF0000', '#db8555', '#806b63'];
                             var ob_flag = 0;
                             var ob_array = [];
                             if (status == google.maps.DirectionsStatus.OK) {
-                                $.getJSON($SCRIPT_ROOT + '/_take_obstacles', function(data) {
+                                $.getJSON($SCRIPT_ROOT + '/secure/_take_obstacles', function(data) {
                                         //console.log(data.result);
                                         ob_array = data.result.map(function(obj) {return  {lat:obj.lat, lng:obj.lon}; })
                                         //$("#result").text(courseStr);
                                         // console.log(JSON.stringify(ob_array));
+
                                         for (var i = 0, len = response.routes.length; i < len; i++) {
                                           /*new google.maps.DirectionsRenderer({
                                               map: map,
@@ -1062,20 +1115,26 @@
                                               }
                                           }
                                           
+                                          if(flightPath_routing != null) 
+                                          {
+                                            flightPath_routing.setMap(null);
+                                            flightPath_routing = null;
+                                          }
+
                                           if(ob_flag == 0)
                                           {
-
+                                            console.log("有進來");
                                             //var path = response.routes[i].overview_path;
-                                            var flightPath = new google.maps.Polyline({
+                                            flightPath_routing = new google.maps.Polyline({
                                             path: path,
                                             geodesic: true,
-                                            strokeColor: line_color[i],
+                                            strokeColor: line_color,
                                             strokeOpacity: 1.0,
                                             strokeWeight: 2,
                                             //map: map
                                             });
 
-                                            flightPath.setMap(map);
+                                            flightPath_routing.setMap(map);
                                             google.maps.event.removeListener(listener_routing);
                                             break;
                                             // console.log(path);
@@ -1134,8 +1193,9 @@
                                             if(i == (response.routes.length-1))
                                             {
 
-                                              // toast("There is no road to destination.");
-
+                                              toast("There is no road to destination.");
+                                              console.log(flightPath_routing);
+                                              $('#input_destination').show();
                                               marker_routing.setMap(null);
                                             }
                                             ob_flag = 0;
@@ -1167,6 +1227,7 @@
                   initialize();
                   $(document).on('click', '#button_s5', function(){
                   calcRoute();
+                  $('#input_destination').hide();
                 });
                   console.log(lat+","+lng);
 
@@ -1314,7 +1375,7 @@
                     var t = 1;
                     flag_marker[active_id] = 1;
                     flag_his[active_id] = 1;
-                    $.getJSON($SCRIPT_ROOT + '/history',{
+                    $.getJSON($SCRIPT_ROOT + '/secure/history',{
                       dog_id: online_list[active_id],
                       time: t
                     }, function(data) {
@@ -1399,7 +1460,7 @@
                     var t = 2;
                     flag_marker[active_id] = 1;
                     flag_his[active_id] = 1;
-                    $.getJSON($SCRIPT_ROOT + '/history',{
+                    $.getJSON($SCRIPT_ROOT + '/secure/history',{
                       dog_id: online_list[active_id],
                       time: t
                     }, function(data) {
@@ -1616,7 +1677,7 @@
 
 
                //addMarker(Latitude, Longitude, val);
-               $.getJSON($SCRIPT_ROOT + '/_add_numbers',{
+               $.getJSON($SCRIPT_ROOT + '/secure/_add_numbers',{
                 lat: Latitude,
                 lon: Longitude,
                 dog_id: val,
@@ -1919,7 +1980,7 @@
 
 
 
-            $.getJSON($SCRIPT_ROOT + '/_add_markers',{
+            $.getJSON($SCRIPT_ROOT + '/secure/_add_markers',{
                 lat: lat,
                 lon: lng,
                 type:title,
@@ -2039,7 +2100,7 @@
             'iot_app': iot_app,
         }; // How iot device receive data (format)
         dai(profile,ida);     
-
+ }
 });
 
 

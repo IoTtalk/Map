@@ -63,7 +63,7 @@ db.create_all()
 # 创建DBSession类型:
 #DBSession = sessionmaker(bind=engine)
 
-@app.route('/_take_markers')
+@app.route('/secure/_take_markers')
 def take_markers():
     c = db.session.query(fixed_Marker).all()
     recent_histories = []
@@ -78,7 +78,7 @@ def take_markers():
         })
     return jsonify(result = recent_histories)
 
-@app.route('/_take_obstacles')
+@app.route('/secure/_take_obstacles')
 def take_obstacles():
     c = db.session.query(fixed_Marker).filter_by(type = 'obstacle').all()
     recent_histories = []
@@ -93,7 +93,7 @@ def take_obstacles():
         })
     return jsonify(result = recent_histories)
 
-@app.route('/_add_numbers')
+@app.route('/secure/_add_numbers')
 def add_numbers():
     lat = request.args.get('lat', 0, type=float)
     lon = request.args.get('lon', 0, type=float)
@@ -114,7 +114,7 @@ def add_numbers():
     
     return jsonify(result = True)
 
-@app.route('/_add_markers')
+@app.route('/secure/_add_markers')
 def add_markers():
     lat = request.args.get('lat', 0, type=float)
     lon = request.args.get('lon', 0, type=float)
@@ -134,7 +134,7 @@ def add_markers():
     marker_id = c.id
     return jsonify(result = marker_id)
 
-@app.route('/_modify_markers')
+@app.route('/secure/_modify_markers')
 def modify_markers():
     id = request.args.get('id', type=float)
     content = request.args.get('content', type=str)
@@ -149,7 +149,7 @@ def modify_markers():
     # marker_id = c.id
     return jsonify(result = content)
 
-# @app.route('/_take_active_markers')
+# @app.route('/secure/_take_active_markers')
 # def _take_active_markers():
 #     dog_id = request.args.get('dog_id', type=int)
 #     c = db.session.query(Dog).filter(Dog.dog_id == dog_id).order_by(Dog.id.desc()).first()
@@ -162,7 +162,7 @@ def modify_markers():
 #     return jsonify(result = recent_histories)
 
 
-@app.route('/_del_markers')
+@app.route('/secure/_del_markers')
 def del_markers():
     id = request.args.get('id', 0, type=int)
     # 创建session对象:
@@ -176,7 +176,7 @@ def del_markers():
     
     return jsonify(result = True)
 
-@app.route('/history')
+@app.route('/secure/history')
 def history():
     dog_id = request.args.get('dog_id', 0, type=int)
     val = request.args.get('time', 0, type=int)
@@ -201,10 +201,10 @@ def history():
         })
     return jsonify(result = recent_histories)
 
-@app.route('/index')
+@app.route('/secure/index')
 def index():
     return render_template('index.html')
-@app.route('/admin')
+@app.route('/secure/admin')
 def admin():
     return render_template('admin.html')
 
