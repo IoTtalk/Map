@@ -1624,7 +1624,8 @@
               
               $('#dog_dropdown').attr("data-toggle", "dropdown");
               document.getElementById("dog_dropdown").style.cursor = "pointer";
-              $("#dog_dropdown").html(meta.type + '<span class="caret"></span>');
+              if(meta.type != undefined)
+                $("#dog_dropdown").html(meta.type + '<span class="caret"></span>');
               status[4] = 1;              
            }
            if( Number.isInteger(val) && !isNaN(Latitude) && !isNaN(Longitude) && (Latitude>=-90) && (Latitude<=90) && (Longitude>=-180) && (Longitude<=180))//status[4]==1 &&
@@ -1642,7 +1643,7 @@
                 if(meta.nickname)
                   str = '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+meta.nickname+'</button></li>';
                 else
-                  str = '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+val+'</button></li>';
+                  str = '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>Mark'+val+'</button></li>';
                 // console.log(str);
                 online_list.push(val);
                 flag_active.push(0);
