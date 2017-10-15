@@ -364,16 +364,16 @@
         }
         
 
-        // function toast(y) {
-        // // Get the snackbar DIV
-        // var x = document.getElementById("snackbar");
+        function toast(y) {
+        // Get the snackbar DIV
+        var x = document.getElementById("snackbar");
 
-        // // Add the "show" class to DIV
-        // x.className = "show";
-        // x.innerHTML = y;
-        // // After 3 seconds, remove the show class from DIV
-        // setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-        // }
+        // Add the "show" class to DIV
+        x.className = "show";
+        x.innerHTML = y;
+        // After 3 seconds, remove the show class from DIV
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
 
         function close_form()
         {
@@ -381,16 +381,28 @@
           $('#add-camera').hide();
           $('#delete-obstacle').hide();
           $('#delete-camera').hide();
+          $('#Video-Display').attr('src', '');
+          $('#Video-Display').hide();
+          $('#fuck_off').hide();
           $("#ob_add").removeClass('active');
           $("#cam_add").removeClass('active');
           if(marker_now != null)marker_now.setMap(null);
         }
-
+        var marker_listener = [];
         load_markers();
         
         function load_markers()
-        {
-          $.getJSON($SCRIPT_ROOT + '/_take_markers', function(data) {
+        { console.log(marker_listener);
+          if(marker_listener.length > 0)
+          {
+            
+            for(var i=0; i<markers.length; i++)
+            {
+              google.maps.event.removeListener(marker_listener[i]);
+            }
+            marker_listener = [];
+          }
+          $.getJSON($SCRIPT_ROOT + '/secure/_take_markers', function(data) {
               features = data.result.map(function(object) {return  {
                 id: object.id,
                 position: new google.maps.LatLng(object.lat, object.lon),
@@ -411,7 +423,7 @@
                 });
                 markers.push(marker);
 
-                marker.addListener('click', function() {
+                var marker_listen = marker.addListener('click', function() {
                   resetCenter();
                   function resetCenter(){
                       //console.log($("#Location-map").height());
@@ -426,7 +438,7 @@
                       var latlng = new google.maps.LatLng({lat: map.getCenter().lat()-(cen-LatLng.lat()), lng:LatLng.lng()});
                       map.setCenter(latlng);
                     }
-                    google.maps.event.addListener(map, 'zoom_changed', function() {resetCenter();});
+                    // google.maps.event.addListener(map, 'zoom_changed', function() {resetCenter();});
 
                     if(marker.title == 'camera'){
                           $('#new_url').val("");
@@ -515,10 +527,11 @@
 
                       } 
                 });
-            
+                marker_listener.push(marker_listen);
             
             });
           markers.forEach(function(marker) { marker.setMap(map); });
+          console.log(markers.length);
         });  
         }
 
@@ -526,7 +539,7 @@
                       //var marker_id = $(this).val();
                       var marker_id = $(this).val();
                       var new_info = $('#new_info').val();
-                      $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
+                      $.getJSON($SCRIPT_ROOT + '/secure/_modify_markers',{
                           id: marker_id,
                           content: new_info
                         }, function(data) {
@@ -547,11 +560,23 @@
                       //var marker_id = $(this).val();
                       var marker_id = $(this).val();
                       var new_info = $('#new_url').val();
-                      $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
+                      $.getJSON($SCRIPT_ROOT + '/secure/_modify_markers',{
                           id: marker_id,
                           content: new_info
                         }, function(data) {
                         $("#delete-camera").hide();
+                        $('#Video-Display').attr('src', '');
+                        $('#Video-Display').hide();
+                        $('#fuck_off').hide();
+                        $('#Video-Display').attr('src', new_info);
+                        $('#Video-Display').show();
+                        $('#fuck_off').show();
+                        for (var i = 0; i < markers.length; i++) {
+                          markers[i].setMap(null);
+                        }
+
+                        markers = [];
+                        load_markers();
                         // for (var i = 0; i < markers.length; i++) {
                         //     if (markers[i].id == marker_id) {
                         //         infowindow.setContent('<button type="submit" id="obstacle_info" value='+marker_id+'>修改</button><button type="submit" id="obstacle_del" value='+marker_id+'>刪除</button>');
@@ -569,21 +594,26 @@
 
                       var marker_id = $(this).val();
                       console.log(marker_id);
-                      $.getJSON($SCRIPT_ROOT + '/_del_markers',{
+                      $.getJSON($SCRIPT_ROOT + '/secure/_del_markers',{
                           id: marker_id
                         }, function(data) {
                         //console.log(data.result);
                         //Find and remove the marker from the Array
+                        // for (var i = 0; i <= markers.length; i++) {
+                        //     if (markers[i].id == marker_id) {
+                        //         //Remove the marker from Map  
+                        //         //console.log(markers[i].id);                
+                        //         markers[i].setMap(null);console.log(markers[i].id);
+                        //         //Remove the marker from array.
+                        //         markers.splice(i, 1);
+                                
+                        //     }
+                        // }
                         for (var i = 0; i < markers.length; i++) {
-                            if (markers[i].id == marker_id) {
-                                //Remove the marker from Map  
-                                //console.log(markers[i].id);                
-                                markers[i].setMap(null);console.log(markers[i].id);
-                                //Remove the marker from array.
-                                markers.splice(i, 1);
-                                $("#delete-obstacle").hide();
-                            }
+                          markers[i].setMap(null);
                         }
+                        markers = [];
+                        $("#delete-obstacle").hide();
                         load_markers();
 
                       });
@@ -596,7 +626,7 @@
 
                       var marker_id = $(this).val();
                       console.log(marker_id);
-                      $.getJSON($SCRIPT_ROOT + '/_del_markers',{
+                      $.getJSON($SCRIPT_ROOT + '/secure/_del_markers',{
                           id: marker_id
                         }, function(data) {
                         //console.log(data.result);
@@ -743,7 +773,7 @@
           
           if (flag_history == 0)
           {
-            $.getJSON($SCRIPT_ROOT + '/history',{
+            $.getJSON($SCRIPT_ROOT + '/secure/history',{
                 dog_id: 0
               }, function(data) {
                 //console.log(data.result);
@@ -955,7 +985,7 @@
                             var ob_flag = 0;
                             var ob_array = [];
                             if (status == google.maps.DirectionsStatus.OK) {
-                                $.getJSON($SCRIPT_ROOT + '/_take_obstacles', function(data) {
+                                $.getJSON($SCRIPT_ROOT + '/secure/_take_obstacles', function(data) {
                                         //console.log(data.result);
                                         ob_array = data.result.map(function(obj) {return  {lat:obj.lat, lng:obj.lon}; })
                                         //$("#result").text(courseStr);
@@ -1273,7 +1303,7 @@
                     var t = 1;
                     flag_marker[active_id] = 1;
                     flag_his[active_id] = 1;
-                    $.getJSON($SCRIPT_ROOT + '/history',{
+                    $.getJSON($SCRIPT_ROOT + '/secure/history',{
                       dog_id: online_list[active_id],
                       time: t
                     }, function(data) {
@@ -1358,7 +1388,7 @@
                     var t = 2;
                     flag_marker[active_id] = 1;
                     flag_his[active_id] = 1;
-                    $.getJSON($SCRIPT_ROOT + '/history',{
+                    $.getJSON($SCRIPT_ROOT + '/secure/history',{
                       dog_id: online_list[active_id],
                       time: t
                     }, function(data) {
@@ -1567,7 +1597,7 @@
 
 
                //addMarker(Latitude, Longitude, val);
-               $.getJSON($SCRIPT_ROOT + '/_add_numbers',{
+               $.getJSON($SCRIPT_ROOT + '/secure/_add_numbers',{
                 lat: Latitude,
                 lon: Longitude,
                 dog_id: val,
@@ -1764,7 +1794,10 @@
                   $.getJSON( RoadAPI, {
                   })
                     .done(function(data) {
-                      if(jQuery.isEmptyObject(data)){return;}
+                      if(jQuery.isEmptyObject(data)){
+                        toast("Please click on the road");
+                        return;
+                      }
 
                       lat_ob_add = data.snappedPoints[0].location.latitude;
                       lng_ob_add = data.snappedPoints[0].location.longitude;
@@ -1795,7 +1828,7 @@
             console.log(lat_ob_add);
             if(!infofo || !lat_ob_add || !lng_ob_add || !title_ob_add) return 0;
 
-            $.getJSON($SCRIPT_ROOT + '/_add_markers',{
+            $.getJSON($SCRIPT_ROOT + '/secure/_add_markers',{
                 lat: lat_ob_add,
                 lon: lng_ob_add,
                 type:title_ob_add,
@@ -1814,15 +1847,20 @@
           });
 
           $(document).on('click', '#ob_cancel', function(){
-            marker_now.setMap(null);
-            $("#ob_add").removeClass('active');
             $('#add-obstacle').hide();
-            flag_ob_add = false;
+            $("#ob_add").removeClass('active');
             $('#add_url').val("");
+            console.log("HBD")
+            
+            
+            
+            flag_ob_add = false;
+            
             marker_ob_add.setMap(null);
             marker_ob_add = null;
             lat_ob_add = null;
             lng_ob_add = null;
+            marker_now.setMap(null);
           });           
           
         });
@@ -1854,7 +1892,10 @@
                   $.getJSON( RoadAPI, {
                   })
                     .done(function(data) {
-                      if(jQuery.isEmptyObject(data)){return;}
+                      if(jQuery.isEmptyObject(data)){
+                        toast("Please click on the road");
+                        return;
+                      }
 
                       lat_cam_add = data.snappedPoints[0].location.latitude;
                       lng_cam_add = data.snappedPoints[0].location.longitude;
@@ -1885,7 +1926,7 @@
             console.log(lat_cam_add);
             if(!infofo || !lat_cam_add || !lng_cam_add || !title_cam_add) return 0;
 
-            $.getJSON($SCRIPT_ROOT + '/_add_markers',{
+            $.getJSON($SCRIPT_ROOT + '/secure/_add_markers',{
                 lat: lat_cam_add,
                 lon: lng_cam_add,
                 type:title_cam_add,
@@ -1904,15 +1945,17 @@
           });     
 
           $(document).on('click', '#cam_cancel', function(){
-            marker_now.setMap(null);
             $("#cam_add").removeClass('active');
             $('#add-camera').hide();
+            
+            console.log('happy birthday')
             flag_cam_add = false;
             $('#add_url').val("");
             marker_cam_add.setMap(null);
             marker_cam_add = null;
             lat_cam_add = null;
             lng_cam_add = null;
+            marker_now.setMap(null);
           });     
           
         });
@@ -2059,7 +2102,7 @@
 
 
 
-            $.getJSON($SCRIPT_ROOT + '/_add_markers',{
+            $.getJSON($SCRIPT_ROOT + '/secure/_add_markers',{
                 lat: lat,
                 lon: lng,
                 type:title,
