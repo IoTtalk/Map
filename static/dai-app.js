@@ -1,5 +1,5 @@
  $(function(){
-
+            $('#dog').hide();
             var startPos;
             var geoOptions = {
                timeout: 10 * 1000
@@ -1617,9 +1617,14 @@
            if(Latitude != -1 && Longitude != -1 && flag == 0) // check is the data come in for the first time
            {
               flag = 1;
-              $('#dog').removeClass('disabled'); 
+              $('#dog').show();
+              // $('#dog').removeClass('disabled'); 
+              meta = JSON.parse(meta);
+              console.log(meta.type);
+              
               $('#dog_dropdown').attr("data-toggle", "dropdown");
               document.getElementById("dog_dropdown").style.cursor = "pointer";
+              $("#dog_dropdown").html(meta.type + '<span class="caret"></span>');
               status[4] = 1;              
            }
            if( Number.isInteger(val) && !isNaN(Latitude) && !isNaN(Longitude) && (Latitude>=-90) && (Latitude<=90) && (Longitude>=-180) && (Longitude<=180))//status[4]==1 &&
@@ -1634,7 +1639,10 @@
                }
 
                if (new_online == 1){
-                str = '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+val+'</button></li>';
+                if(meta.nickname)
+                  str = '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+meta.nickname+'</button></li>';
+                else
+                  str = '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+val+'</button></li>';
                 // console.log(str);
                 online_list.push(val);
                 flag_active.push(0);
