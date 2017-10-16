@@ -1,5 +1,5 @@
 var csmapi = (function () {
-    var ENDPOINT = 'http://140.113.199.199:9999';
+    var ENDPOINT = window.location.origin;//'http://140.113.199.199:9999';
 
     function set_endpoint (endpoint) {
         ENDPOINT = endpoint;

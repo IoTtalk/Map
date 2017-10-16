@@ -201,10 +201,10 @@ def history():
         })
     return jsonify(result = recent_histories)
 
-@app.route('/secure/index')
+@app.route('/')
 def index():
     return render_template('index.html')
-@app.route('/secure/admin')
+@app.route('/admin')
 def admin():
     return render_template('admin.html')
 

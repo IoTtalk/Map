@@ -1612,16 +1612,13 @@
            var Longitude = parseFloat(data[1][1]);
            var val = data[1][2];
            var meta = JSON.stringify(data[1][3]);
-
+           meta = JSON.parse(meta);
            
            if(Latitude != -1 && Longitude != -1 && flag == 0) // check is the data come in for the first time
            {
               flag = 1;
               $('#dog').show();
-              // $('#dog').removeClass('disabled'); 
-              meta = JSON.parse(meta);
-              console.log(meta.type);
-              
+              // $('#dog').removeClass('disabled');              
               $('#dog_dropdown').attr("data-toggle", "dropdown");
               document.getElementById("dog_dropdown").style.cursor = "pointer";
               if(meta.type != undefined)
@@ -1640,8 +1637,9 @@
                }
 
                if (new_online == 1){
-                if(meta.nickname)
-                  str = '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+meta.nickname+'</button></li>';
+                
+                if(meta.name != undefined)
+                  str = '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+meta.name+'</button></li>';
                 else
                   str = '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>Mark'+val+'</button></li>';
                 // console.log(str);
@@ -2128,5 +2126,12 @@
  }
 });
 
-
+ function detach() {
+            window.d_name = null;
+            IoTtalk.detach(mac);
+        }
+        window.onunload = detach;
+        window.onbeforeunload = detach;
+        window.onclose = detach;
+        window.onpagehide = detach;
 

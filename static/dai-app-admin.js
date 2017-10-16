@@ -441,7 +441,7 @@
                     // google.maps.event.addListener(map, 'zoom_changed', function() {resetCenter();});
 
                     if(marker.title == 'camera'){
-                          $('#new_url').val("");
+                          $('#new_url').val(marker.content);
                           close_form();
                           $("#delete-camera").show();
                           $("#cam_info").val(marker.id);
@@ -512,7 +512,7 @@
 
                       if(marker.title == 'obstacle'){
                         //google.maps.event.clearInstanceListeners(marker);
-                         $('#new_info').val("");
+                         $('#new_info').val(marker.content);
                          if(infowindow != null) {infowindow.close();}
                           infowindow = new google.maps.InfoWindow({
                             content: marker.content //+'</br><button type="submit" id="obstacle_info" value='+marker.id+'>修改</button><button type="submit" id="obstacle_del" value='+marker.id+'>刪除</button>'
@@ -1818,7 +1818,7 @@
             });
 
             $(document).on('click', '#ob_in', function(){
-            marker_now.setMap(null);
+            if(marker_now != null)marker_now.setMap(null);
             $("#ob_add").removeClass('active');
             $('#add-obstacle').hide();
             flag_ob_add = false;
@@ -1847,7 +1847,7 @@
           });
 
           $(document).on('click', '#ob_cancel', function(){
-            marker_now.setMap(null);
+            if(marker_now != null)marker_now.setMap(null);
             $("#ob_add").removeClass('active');
             $('#add-obstacle').hide();
             flag_ob_add = false;
@@ -1911,7 +1911,7 @@
             });
 
             $(document).on('click', '#cam_in', function(){
-            marker_now.setMap(null);
+            if(marker_now != null)marker_now.setMap(null);
             $("#cam_add").removeClass('active');
             $('#add-camera').hide();
             flag_cam_add = false;
@@ -1940,7 +1940,7 @@
           });     
 
           $(document).on('click', '#cam_cancel', function(){
-            marker_now.setMap(null);
+            if(marker_now != null)marker_now.setMap(null);
             $("#cam_add").removeClass('active');
             $('#add-camera').hide();
             flag_cam_add = false;
