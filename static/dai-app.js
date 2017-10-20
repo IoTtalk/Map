@@ -13,7 +13,10 @@
               map_init(geolocation_init);
             };
             var geoError = function(error) {
+              var geolocation_init = { lat:24.7895711, lng:120.9967021};
+              map_init(geolocation_init);
               console.log('Error occurred. Error code: ' + error.code);
+              
               // error.code can be:
               //   0: unknown error
               //   1: permission denied
