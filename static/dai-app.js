@@ -14,9 +14,8 @@
             };
             var geoError = function(error) {
               var geolocation_init = { lat:24.7895711, lng:120.9967021};
-              map_init(geolocation_init);
               console.log('Error occurred. Error code: ' + error.code);
-              
+              map_init(geolocation_init);
               // error.code can be:
               //   0: unknown error
               //   1: permission denied
@@ -1048,7 +1047,7 @@
                     directionsService.route(
                         DirectionsRequest,
                         function (response, status) {
-                            var line_color = '#0044BB';//[,'#FF0000', '#db8555', '#806b63'];
+                            var line_color = ['#0044BB','#FF0000', '#db8555', '#806b63'];//;
                             var ob_flag = 0;
                             var ob_array = [];
                             if (status == google.maps.DirectionsStatus.OK) {
@@ -1057,7 +1056,7 @@
                                         ob_array = data.result.map(function(obj) {return  {lat:obj.lat, lng:obj.lon}; })
                                         //$("#result").text(courseStr);
                                         // console.log(JSON.stringify(ob_array));
-
+                                        console.log("response.routes.length " + response.routes.length);
                                         for (var i = 0, len = response.routes.length; i < len; i++) {
                                           /*new google.maps.DirectionsRenderer({
                                               map: map,
@@ -1074,7 +1073,13 @@
                                           var path = response.routes[i].overview_path;
                                           path = JSON.stringify(path);
                                           path = JSON.parse(path);
-                                          // console.log(path);
+                                          // path_order = path;
+                                          // path_order = JSON.stringify(path_order);
+                                          // path_order = JSON.parse(path_order);
+                                          // path_order = path_order.sort(function (a, b) {
+                                          //  return a.lat > b.lat ? 1 : -1;   //order by lat
+                                          // });
+                                          // console.log(JSON.stringify(path_order));
 
                                           var ob_array_in_area = [];
                                           for(var m = 0; m < ob_array.length; m++){
@@ -1084,27 +1089,73 @@
                                           }
 
                                           console.log(JSON.stringify(ob_array_in_area));
-                                          for (var j = 0; j < path.length-1; j++){
+
+                                          var path_array_in_order = [];
+                                          for(var m = 0; m < path.length-1; m++){
+                                            if(path[m].lat < path[m+1].lat)
+                                              path_array_in_order.push([path[m], path[m+1]]);
+                                            else
+                                              path_array_in_order.push([path[m+1], path[m]]);
+                                          }
+                                          // console.log(path_array_in_order[0][0].lat);
+
+
+                                          for (var j = 0; j < path_array_in_order.length; j++){
                                               
                                               for(var k = 0; k < ob_array_in_area.length; k++){
-                                                var dis = 0;
 
-                                                if(path[j+1].lat == path[j].lat)
-                                                {　
-                                                  dis = Math.abs(path[j].lat-ob_array_in_area[k].lat);
-                                                }
-                                                else
+                                                if(ob_array_in_area[k].lat>(path_array_in_order[j][0].lat-0.0000086) && ob_array_in_area[k].lat<(path_array_in_order[j][1].lat+0.0000086))
                                                 {
-                                                  var a = (path[j+1].lng-path[j].lng)/(path[j+1].lat-path[j].lat);
-                                                  var b = path[j].lng - a*path[j].lat;
-                                                  dis = Math.abs(a*ob_array_in_area[k].lat-ob_array_in_area[k].lng+b)/Math.sqrt(a*a+1);
-                                                }
-                                                //console.log(dis);
+                                                  if(ob_array_in_area[k].lng>(path_array_in_order[j][0].lng-0.0000086) && ob_array_in_area[k].lng<(path_array_in_order[j][1].lng+0.0000086))
+                                                  {
+                                                    v = [(path_array_in_order[j][1].lat-path_array_in_order[j][0].lat), (path_array_in_order[j][1].lng-path_array_in_order[j][0].lng)];
+                                                    v1 = [(ob_array_in_area[k].lat -path_array_in_order[j][0].lat),(ob_array_in_area[k].lng -path_array_in_order[j][0].lng)];
+                                                    v2 = [(ob_array_in_area[k].lat -path_array_in_order[j][1].lat),(ob_array_in_area[k].lng -path_array_in_order[j][1].lng)];
+                                                    // if (dot(v, v1) <= 0) return length(v1);  if (dot(v, v2) >= 0) return length(v2);
+                                                    var dis = 0;
+                                                    if((v[0]*v1[0]+v[1]*v1[1]) <= 0){
+                                                      dis = Math.sqrt(v1[0]*v1[0] + v1[1]*v1[1]);
+                                                      console.log("(v[0]*v1[0]+v[1]*v1[1]) <= 0");
+                                                    }   
+                                                    else if((v[0]*v2[0]+v[1]*v2[1]) >= 0){
+                                                      dis = Math.sqrt(v2[0]*v2[0] + v2[1]*v2[1]);
+                                                      console.log("(v[0]*v2[0]+v[1]*v2[1]) >= 0");
+                                                    }   
+                                                    else{
+                                                      if(path_array_in_order[j][1].lat == path_array_in_order[j][0].lat)
+                                                      {　
+                                                        dis = Math.abs(path_array_in_order[j][0].lat-ob_array_in_area[k].lat);
+                                                      }
+                                                      else
+                                                      {
+                                                        var a = (path_array_in_order[j][1].lng-path_array_in_order[j][0].lng)/(path_array_in_order[j][1].lat-path_array_in_order[j][0].lat);
+                                                        var b = path_array_in_order[j][0].lng - a*path_array_in_order[j][0].lat;
+                                                        dis = Math.abs(a*ob_array_in_area[k].lat-ob_array_in_area[k].lng+b)/Math.sqrt(a*a+1);
+                                                      }
+                                                      
+                                                    }
 
-                                                if(dis < 0.0000086)   //0.0000086
+
+                                                    console.log("ob_array_in_area:"+JSON.stringify(ob_array_in_area[k])+" dis: "+dis);
+                                                  }
+                                                }
+
+                                                if(dis < 0.0000035)   //0.0000086, 0.0000016
                                                   {
                                                     console.log("in" + dis);
+                                                    // path_err = [{lat:(path[j].lat+path[j+1].lat)/2, lng:(path[j].lng+path[j+1].lng)/2}, {lat:ob_array_in_area[k].lat, lng:ob_array_in_area[k].lng}];
+                                                    // flightPath_routing = new google.maps.Polyline({
+                                                    // path: path_err,
+                                                    // geodesic: true,
+                                                    // strokeColor: '#FF44AA',
+                                                    // strokeOpacity: 1.0,
+                                                    // strokeWeight: 2,
+                                                    // //map: map
+                                                    // });
+
+                                                    // flightPath_routing.setMap(map);
                                                     //console.log(path_obj.lat);
+
                                                     ob_flag = 1;
                                                     break;
                                                   }
@@ -1136,7 +1187,7 @@
                                             flightPath_routing = new google.maps.Polyline({
                                             path: path,
                                             geodesic: true,
-                                            strokeColor: line_color,
+                                            strokeColor: line_color[i],
                                             strokeOpacity: 1.0,
                                             strokeWeight: 2,
                                             //map: map
@@ -1193,7 +1244,7 @@
                                               directions: response,
                                               routeIndex: i
                                           });*/
-                                            //break;
+                                            // break;
                                           
                                           }
                                           else
@@ -1216,9 +1267,9 @@
 
                                       //         infowindow.open(map, marker);
 
-                                      //       $(document).on('click', '#routing_cancel', function(){            
-                                      //         flightPath.setMap(null);
-                                      //       });
+                                            // $(document).on('click', '#routing_cancel', function(){            
+                                            //   flightPath.setMap(null);
+                                            // });
                             
                                       //       });
 
