@@ -1068,8 +1068,9 @@
                                           console.log("response.routes " + i);
                                           var path_bounds = response.routes[i].bounds;
                                           path_bounds = JSON.stringify(path_bounds);
+                                          console.log(path_bounds);
                                           path_bounds = JSON.parse(path_bounds);        //path_bounds.south
-                                          console.log(path_bounds.south);
+                                          // console.log(path_bounds.south);
                                           var path = response.routes[i].overview_path;
                                           path = JSON.stringify(path);
                                           path = JSON.parse(path);
@@ -1103,44 +1104,65 @@
                                           for (var j = 0; j < path_array_in_order.length; j++){
                                               
                                               for(var k = 0; k < ob_array_in_area.length; k++){
-
+                
                                                 if(ob_array_in_area[k].lat>(path_array_in_order[j][0].lat-0.0000086) && ob_array_in_area[k].lat<(path_array_in_order[j][1].lat+0.0000086))
                                                 {
-                                                  if(ob_array_in_area[k].lng>(path_array_in_order[j][0].lng-0.0000086) && ob_array_in_area[k].lng<(path_array_in_order[j][1].lng+0.0000086))
-                                                  {
-                                                    v = [(path_array_in_order[j][1].lat-path_array_in_order[j][0].lat), (path_array_in_order[j][1].lng-path_array_in_order[j][0].lng)];
-                                                    v1 = [(ob_array_in_area[k].lat -path_array_in_order[j][0].lat),(ob_array_in_area[k].lng -path_array_in_order[j][0].lng)];
-                                                    v2 = [(ob_array_in_area[k].lat -path_array_in_order[j][1].lat),(ob_array_in_area[k].lng -path_array_in_order[j][1].lng)];
-                                                    // if (dot(v, v1) <= 0) return length(v1);  if (dot(v, v2) >= 0) return length(v2);
-                                                    var dis = 0;
-                                                    if((v[0]*v1[0]+v[1]*v1[1]) <= 0){
-                                                      dis = Math.sqrt(v1[0]*v1[0] + v1[1]*v1[1]);
-                                                      console.log("(v[0]*v1[0]+v[1]*v1[1]) <= 0");
-                                                    }   
-                                                    else if((v[0]*v2[0]+v[1]*v2[1]) >= 0){
-                                                      dis = Math.sqrt(v2[0]*v2[0] + v2[1]*v2[1]);
-                                                      console.log("(v[0]*v2[0]+v[1]*v2[1]) >= 0");
-                                                    }   
-                                                    else{
-                                                      if(path_array_in_order[j][1].lat == path_array_in_order[j][0].lat)
-                                                      {　
-                                                        dis = Math.abs(path_array_in_order[j][0].lat-ob_array_in_area[k].lat);
-                                                      }
-                                                      else
+                                                  // if(ob_array_in_area[k].lng>(path_array_in_order[j][0].lng-0.0000086) && ob_array_in_area[k].lng<(path_array_in_order[j][1].lng+0.0000086))
+                                                  // {
+                                                    var dis_flag = 0;
+                                                    if(path_array_in_order[j][0].lng < path_array_in_order[j][1].lng)
+                                                    {
+                                                      if(ob_array_in_area[k].lng>(path_array_in_order[j][0].lng-0.0000086) && ob_array_in_area[k].lng<(path_array_in_order[j][1].lng+0.0000086))
                                                       {
-                                                        var a = (path_array_in_order[j][1].lng-path_array_in_order[j][0].lng)/(path_array_in_order[j][1].lat-path_array_in_order[j][0].lat);
-                                                        var b = path_array_in_order[j][0].lng - a*path_array_in_order[j][0].lat;
-                                                        dis = Math.abs(a*ob_array_in_area[k].lat-ob_array_in_area[k].lng+b)/Math.sqrt(a*a+1);
+                                                        dis_flag = 1;
                                                       }
-                                                      
+                                                    }
+                                                    else
+                                                    {
+                                                      if(ob_array_in_area[k].lng<(path_array_in_order[j][0].lng+0.0000086) && ob_array_in_area[k].lng>(path_array_in_order[j][1].lng-0.0000086))
+                                                      {
+                                                        dis_flag = 1;
+                                                      }
                                                     }
 
+                                                    if(dis_flag == 1)
+                                                    {
+                                                      // console.log('1111');
+                                                      v = [(path_array_in_order[j][1].lat-path_array_in_order[j][0].lat), (path_array_in_order[j][1].lng-path_array_in_order[j][0].lng)];
+                                                      v1 = [(ob_array_in_area[k].lat -path_array_in_order[j][0].lat),(ob_array_in_area[k].lng -path_array_in_order[j][0].lng)];
+                                                      v2 = [(ob_array_in_area[k].lat -path_array_in_order[j][1].lat),(ob_array_in_area[k].lng -path_array_in_order[j][1].lng)];
+                                                      // if (dot(v, v1) <= 0) return length(v1);  if (dot(v, v2) >= 0) return length(v2);
+                                                      var dis = 0;
+                                                      if((v[0]*v1[0]+v[1]*v1[1]) <= 0){
+                                                        dis = Math.sqrt(v1[0]*v1[0] + v1[1]*v1[1]);
+                                                        console.log("(v[0]*v1[0]+v[1]*v1[1]) <= 0");
+                                                      }   
+                                                      else if((v[0]*v2[0]+v[1]*v2[1]) >= 0){
+                                                        dis = Math.sqrt(v2[0]*v2[0] + v2[1]*v2[1]);
+                                                        console.log("(v[0]*v2[0]+v[1]*v2[1]) >= 0");
+                                                      }   
+                                                      else{
+                                                        if(path_array_in_order[j][1].lat == path_array_in_order[j][0].lat)
+                                                        {　
+                                                          dis = Math.abs(path_array_in_order[j][0].lat-ob_array_in_area[k].lat);
+                                                        }
+                                                        else
+                                                        {
+                                                          var a = (path_array_in_order[j][1].lng-path_array_in_order[j][0].lng)/(path_array_in_order[j][1].lat-path_array_in_order[j][0].lat);
+                                                          var b = path_array_in_order[j][0].lng - a*path_array_in_order[j][0].lat;
+                                                          dis = Math.abs(a*ob_array_in_area[k].lat-ob_array_in_area[k].lng+b)/Math.sqrt(a*a+1);
+                                                          console.log("線段內");
+                                                        }
+                                                        
+                                                      }
 
-                                                    console.log("ob_array_in_area:"+JSON.stringify(ob_array_in_area[k])+" dis: "+dis);
-                                                  }
+
+                                                      console.log("ob_array_in_area:"+JSON.stringify(ob_array_in_area[k])+" dis: "+dis);
+                                                    }
+                                                  // }
                                                 }
 
-                                                if(dis < 0.0000035)   //0.0000086, 0.0000016
+                                                if(dis < 0.0000138)   //0.0000086, 0.0000016
                                                   {
                                                     console.log("in" + dis);
                                                     // path_err = [{lat:(path[j].lat+path[j+1].lat)/2, lng:(path[j].lng+path[j+1].lng)/2}, {lat:ob_array_in_area[k].lat, lng:ob_array_in_area[k].lng}];
@@ -1182,7 +1204,7 @@
 
                                           if(ob_flag == 0)
                                           {
-                                            console.log("有進來");
+                                            // console.log("有進來");
                                             //var path = response.routes[i].overview_path;
                                             flightPath_routing = new google.maps.Polyline({
                                             path: path,
