@@ -1035,20 +1035,21 @@
                     var DirectionsRequest = {
                         origin: haight,
                         destination: oceanBeach,
-                        //optimizeWaypoints: true,
+                        optimizeWaypoints: true,
                         provideRouteAlternatives: true,
+                        travelMode: 'DRIVING'
                         //waypoints: optimize:true,
                         // Note that Javascript allows us to access the constant
                         // using square brackets and a string value as its
                         // "property."
-                        travelMode: google.maps.TravelMode[selectedMode]
+                        // travelMode: google.maps.TravelMode[selectedMode]
                     };
 
                     directionsService.route(
                         DirectionsRequest,
                         function (response, status) {
                             var line_color = ['#0044BB','#FF0000', '#db8555', '#806b63'];//;
-                            var ob_flag = 0;
+                            
                             var ob_array = [];
                             if (status == google.maps.DirectionsStatus.OK) {
                                 $.getJSON($SCRIPT_ROOT + '/secure/_take_obstacles', function(data) {
@@ -1104,7 +1105,7 @@
                                           for (var j = 0; j < path_array_in_order.length; j++){
                                               
                                               for(var k = 0; k < ob_array_in_area.length; k++){
-                
+                                                var dis = 10000000;
                                                 if(ob_array_in_area[k].lat>(path_array_in_order[j][0].lat-0.0000086) && ob_array_in_area[k].lat<(path_array_in_order[j][1].lat+0.0000086))
                                                 {
                                                   // if(ob_array_in_area[k].lng>(path_array_in_order[j][0].lng-0.0000086) && ob_array_in_area[k].lng<(path_array_in_order[j][1].lng+0.0000086))
@@ -1132,7 +1133,7 @@
                                                       v1 = [(ob_array_in_area[k].lat -path_array_in_order[j][0].lat),(ob_array_in_area[k].lng -path_array_in_order[j][0].lng)];
                                                       v2 = [(ob_array_in_area[k].lat -path_array_in_order[j][1].lat),(ob_array_in_area[k].lng -path_array_in_order[j][1].lng)];
                                                       // if (dot(v, v1) <= 0) return length(v1);  if (dot(v, v2) >= 0) return length(v2);
-                                                      var dis = 0;
+                                                      
                                                       if((v[0]*v1[0]+v[1]*v1[1]) <= 0){
                                                         dis = Math.sqrt(v1[0]*v1[0] + v1[1]*v1[1]);
                                                         console.log("(v[0]*v1[0]+v[1]*v1[1]) <= 0");
@@ -1161,7 +1162,7 @@
                                                     }
                                                   // }
                                                 }
-
+                                                var ob_flag = 0;
                                                 if(dis < 0.0000138)   //0.0000086, 0.0000016
                                                   {
                                                     console.log("in" + dis);
