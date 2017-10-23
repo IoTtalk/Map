@@ -1210,7 +1210,7 @@
                                             flightPath_routing = new google.maps.Polyline({
                                             path: path,
                                             geodesic: true,
-                                            strokeColor: line_color[i],
+                                            strokeColor: line_color[0],
                                             strokeOpacity: 1.0,
                                             strokeWeight: 2,
                                             //map: map
