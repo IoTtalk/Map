@@ -1,4 +1,30 @@
  $(function(){
+            $('#dog').hide();
+            var startPos;
+            var geoOptions = {
+               timeout: 10 * 1000
+            }
+
+            var geoSuccess = function(position) {
+              var geolocation_init = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              };
+              map_init(geolocation_init);
+            };
+            var geoError = function(error) {
+              var geolocation_init = { lat:24.7895711, lng:120.9967021};
+              console.log('Error occurred. Error code: ' + error.code);
+              map_init(geolocation_init);
+              // error.code can be:
+              //   0: unknown error
+              //   1: permission denied
+              //   2: position unavailable (error response from location provider)
+              //   3: timed out
+            };
+
+            navigator.geolocation.getCurrentPosition(geoSuccess, geoError, geoOptions);
+
 
         // $('#function_list').hide();
         // $('#Video-Display').hide();
@@ -20,6 +46,8 @@
 
         //   }            
         // }
+      function map_init(geolocation_init)
+      {
         var map;        
         function initialize() {
           // Create an array of styles.
@@ -209,6 +237,8 @@
                   ]
               }
           ];
+          
+
           // Create a new StyledMapType object, passing it the array of styles,
           // as well as the name to be displayed on the map type control.
           var styledMap = new google.maps.StyledMapType(styles,
@@ -221,7 +251,7 @@
             zoomControl: true,
             scaleControl: true,
             scrollwheel: true,
-            center: new google.maps.LatLng(24.7895711, 120.9967021),
+            center: geolocation_init,//new google.maps.LatLng(24.7895711, 120.9967021),
             gestureHandling: 'greedy',
             mapTypeControlOptions: {
               mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'map_style']
@@ -364,23 +394,23 @@
         }
         
 
-        // function toast(y) {
-        // // Get the snackbar DIV
-        // var x = document.getElementById("snackbar");
+        function toast(y) {
+        // Get the snackbar DIV
+        var x = document.getElementById("snackbar");
 
-        // // Add the "show" class to DIV
-        // x.className = "show";
-        // x.innerHTML = y;
-        // // After 3 seconds, remove the show class from DIV
-        // setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-        // }
+        // Add the "show" class to DIV
+        x.className = "show";
+        x.innerHTML = y;
+        // After 3 seconds, remove the show class from DIV
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
 
 
         load_markers();
         
         function load_markers()
         {
-          $.getJSON($SCRIPT_ROOT + '/_take_markers', function(data) {
+          $.getJSON($SCRIPT_ROOT + '/secure/_take_markers', function(data) {
               features = data.result.map(function(object) {return  {
                 id: object.id,
                 position: new google.maps.LatLng(object.lat, object.lon),
@@ -416,7 +446,7 @@
                       var latlng = new google.maps.LatLng({lat: map.getCenter().lat()-(cen-LatLng.lat()), lng:LatLng.lng()});
                       map.setCenter(latlng);
                     }
-                    google.maps.event.addListener(map, 'zoom_changed', function() {resetCenter();});
+                    //google.maps.event.addListener(map, 'zoom_changed', function() {resetCenter();});
 
                     if(marker.title == 'camera'){
                           
@@ -504,7 +534,7 @@
                       //var marker_id = $(this).val();
                       var marker_id = $(this).val();
                       var new_info = prompt("Enter new information:");
-                      $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
+                      $.getJSON($SCRIPT_ROOT + '/secure/_modify_markers',{
                           id: marker_id,
                           content: new_info
                         }, function(data) {
@@ -524,7 +554,7 @@
                       //var marker_id = $(this).val();
                       var marker_id = $(this).val();
                       var new_info = prompt("Enter new information:");
-                      $.getJSON($SCRIPT_ROOT + '/_modify_markers',{
+                      $.getJSON($SCRIPT_ROOT + '/secure/_modify_markers',{
                           id: marker_id,
                           content: new_info
                         }, function(data) {
@@ -546,7 +576,7 @@
 
                       var marker_id = $(this).val();
                       console.log(marker_id);
-                      $.getJSON($SCRIPT_ROOT + '/_del_markers',{
+                      $.getJSON($SCRIPT_ROOT + '/secure/_del_markers',{
                           id: marker_id
                         }, function(data) {
                         //console.log(data.result);
@@ -571,7 +601,7 @@
 
                       var marker_id = $(this).val();
                       console.log(marker_id);
-                      $.getJSON($SCRIPT_ROOT + '/_del_markers',{
+                      $.getJSON($SCRIPT_ROOT + '/secure/_del_markers',{
                           id: marker_id
                         }, function(data) {
                         //console.log(data.result);
@@ -717,7 +747,7 @@
           
           if (flag_history == 0)
           {
-            $.getJSON($SCRIPT_ROOT + '/history',{
+            $.getJSON($SCRIPT_ROOT + '/secure/history',{
                 dog_id: 0
               }, function(data) {
                 //console.log(data.result);
@@ -819,19 +849,88 @@
 
         });
 
-        var flag_route = 0;
+        var directionsDisplay;
+        var directionsService;
+        var haight;//origin: (24.7882499,121.01580720000001)(24.782146, 120.997231)(24.7872622,120.9979454)
+        var oceanBeach; //= new google.maps.LatLng(24.7852481, 120.9979445);
+        var listener_routing;
 
+        var flag_route = 0;
+        var flightPath_routing;
+        var marker_routing;
+        var marker_routing_now;
+        var placeSearch, autocomplete;
         $(document).on('click', '#button_route', function(){
           if (flag_route == 0){
             flag_route = 1;
+            flag_routing = 0;
             $('#input_destination').show();
+            $('#autocomplete').val('');
             // document.getElementById("button_route").innerHTML="結束規劃";
             
             $("#text").html('結束規劃');
             $('#button_route').addClass('active');
+            initAutocomplete();
+            geolocate();
+            
+            var componentForm = {
+              street_number: 'short_name',
+              route: 'long_name',
+              locality: 'long_name',
+              administrative_area_level_1: 'short_name',
+              country: 'long_name',
+              postal_code: 'short_name'
+            };
+            function initAutocomplete() {
+
+              // Create the autocomplete object, restricting the search to geographical
+              // location types.
+              autocomplete = new google.maps.places.Autocomplete(
+                  /** @type {!HTMLInputElement} */(document.getElementById('autocomplete')),
+                  {types: []});
+              // When the user selects an address from the dropdown, populate the address
+              // fields in the form.
+              autocomplete.addListener('place_changed', function(){
+                placeSearch = autocomplete.getPlace();
+              });
+            }
+  
+            // Bias the autocomplete object to the user's geographical location,
+            // as supplied by the browser's 'navigator.geolocation' object.
+            function geolocate() {
+              // if (navigator.geolocation) {
+
+              //   navigator.geolocation.getCurrentPosition(function(position) {
+              //     var geolocation = {
+              //       lat: position.coords.latitude,
+              //       lng: position.coords.longitude
+              //     };
+              //     console.log("有進來");
+              //     console.log(geolocation);
+                  var circle = new google.maps.Circle({
+                    center: geolocation_init,
+                    radius: 500
+                  });
+                  autocomplete.setBounds(circle.getBounds());
+              //   });
+              // }
+            }
           }
           else{
             flag_route = 0;
+            flag_routing = 1;
+            if(flightPath_routing != null) 
+            {
+              flightPath_routing.setMap(null);
+              flightPath_routing = null;
+            }
+            console.log(flightPath_routing);
+            if(marker_routing != null){
+              marker_routing.setMap(null);
+              marker_routing = null;
+            }
+
+            if(marker_routing_now != null) marker_routing_now.setMap(null);
             $('#input_destination').hide();
             // str1 = '<li role="presentation" id="button_route" style="cursor:pointer"><a>路徑規劃</a></li>';
             // $("#button_route").html(str1);
@@ -846,11 +945,11 @@
         
 
 
-        $(document).on('click', '#button_s5', function(){
+        $(document).on('click', '#button_route', function(){
 
           if (flag_routing == 0)
           {
-
+              flag_routing = 1;
               getLocation();
 
               function getLocation() {
@@ -867,14 +966,14 @@
                   //setMapOnAll(map);
 
                   function addMarker_routing(location) {
-                    var marker = new google.maps.Marker({
+                    if(marker_routing_now != null) marker_routing_now.setMap(null);
+                    marker_routing_now = new google.maps.Marker({
                       position: location,
                       label: "現在位置",
                       map: map,
                       //icon: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi.png'
                     });
                     //markers.push(marker);
-                    console.log(marker);
 
                   }
                   /*
@@ -886,54 +985,79 @@
                   //markers.push(marker);
 
                   //marker.setMap(map);
-                  var directionsDisplay;
-                  var directionsService = new google.maps.DirectionsService();
-                  var haight = new google.maps.LatLng(lat,lng);//origin: (24.7882499,121.01580720000001)(24.782146, 120.997231)(24.7872622,120.9979454)
-                  var oceanBeach //= new google.maps.LatLng(24.7852481, 120.9979445);
-
+                  //var directionsDisplay;
+                  directionsService = new google.maps.DirectionsService();
+                  haight = new google.maps.LatLng(lat,lng);//origin: (24.7882499,121.01580720000001)(24.782146, 120.997231)(24.7872622,120.9979454)
+                  // oceanBeach //= new google.maps.LatLng(24.7852481, 120.9979445);
                   
+                  var listener_routing = google.maps.event.addListener(map, 'click', function(event) {
+                      oceanBeach = event.latLng;
+                      //console.log(oceanBeach);
+                      if(marker_routing != null) marker_routing.setMap(null);
+                      marker_routing = new google.maps.Marker({
+                      position:oceanBeach,
+                      map: map
+                    });
+                    // var service = new google.maps.places.PlacesService(map);
+                    // service.nearbySearch({
+                    //   location: oceanBeach,
+                    //   radius: 50,
+                    //   type: []
+                    // }, callback);
+                    // function callback(results, status) {
+                    //   if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    //     for (var i = 0; i < results.length; i++) {
+                    //       console.log(results[i].name);
+                    //     }
+                    //   }
+                    // }
+                    $('#autocomplete').val(oceanBeach);
+                  });
 
                   function initialize() {
                     directionsDisplay = new google.maps.DirectionsRenderer();
                     directionsDisplay.setMap(map);
                   }
 
+                  
+
                   function calcRoute() {
-
-                    // toast("Please click your destination on the map.");
-
-                    var listener_routing = google.maps.event.addListener(map, 'click', function(event) {
-                      oceanBeach = event.latLng;
-                      //console.log(oceanBeach);
-                      var marker_routing = new google.maps.Marker({
-                      position:oceanBeach,
+                    if(marker_routing == undefined)
+                    {
+                      oceanBeach = $('#autocomplete').val();
+                      console.log(oceanBeach);
+                      marker_routing = new google.maps.Marker({
+                      position:placeSearch.geometry.location,
                       map: map
                     });
+                    }
                     var selectedMode = "DRIVING";
                     var DirectionsRequest = {
                         origin: haight,
                         destination: oceanBeach,
-                        //optimizeWaypoints: true,
+                        optimizeWaypoints: true,
                         provideRouteAlternatives: true,
+                        travelMode: 'DRIVING'
                         //waypoints: optimize:true,
                         // Note that Javascript allows us to access the constant
                         // using square brackets and a string value as its
                         // "property."
-                        travelMode: google.maps.TravelMode[selectedMode]
+                        // travelMode: google.maps.TravelMode[selectedMode]
                     };
 
                     directionsService.route(
                         DirectionsRequest,
                         function (response, status) {
-                            var line_color = ['#0044BB','#FF0000', '#db8555', '#806b63'];
-                            var ob_flag = 0;
+                            var line_color = ['#0044BB','#FF0000', '#db8555', '#806b63'];//;
+                            
                             var ob_array = [];
                             if (status == google.maps.DirectionsStatus.OK) {
-                                $.getJSON($SCRIPT_ROOT + '/_take_obstacles', function(data) {
+                                $.getJSON($SCRIPT_ROOT + '/secure/_take_obstacles', function(data) {
                                         //console.log(data.result);
                                         ob_array = data.result.map(function(obj) {return  {lat:obj.lat, lng:obj.lon}; })
                                         //$("#result").text(courseStr);
                                         // console.log(JSON.stringify(ob_array));
+                                        console.log("response.routes.length " + response.routes.length);
                                         for (var i = 0, len = response.routes.length; i < len; i++) {
                                           /*new google.maps.DirectionsRenderer({
                                               map: map,
@@ -945,12 +1069,19 @@
                                           console.log("response.routes " + i);
                                           var path_bounds = response.routes[i].bounds;
                                           path_bounds = JSON.stringify(path_bounds);
+                                          console.log(path_bounds);
                                           path_bounds = JSON.parse(path_bounds);        //path_bounds.south
-                                          console.log(path_bounds.south);
+                                          // console.log(path_bounds.south);
                                           var path = response.routes[i].overview_path;
                                           path = JSON.stringify(path);
                                           path = JSON.parse(path);
-                                          // console.log(path);
+                                          // path_order = path;
+                                          // path_order = JSON.stringify(path_order);
+                                          // path_order = JSON.parse(path_order);
+                                          // path_order = path_order.sort(function (a, b) {
+                                          //  return a.lat > b.lat ? 1 : -1;   //order by lat
+                                          // });
+                                          // console.log(JSON.stringify(path_order));
 
                                           var ob_array_in_area = [];
                                           for(var m = 0; m < ob_array.length; m++){
@@ -960,27 +1091,94 @@
                                           }
 
                                           console.log(JSON.stringify(ob_array_in_area));
-                                          for (var j = 0; j < path.length-1; j++){
+
+                                          var path_array_in_order = [];
+                                          for(var m = 0; m < path.length-1; m++){
+                                            if(path[m].lat < path[m+1].lat)
+                                              path_array_in_order.push([path[m], path[m+1]]);
+                                            else
+                                              path_array_in_order.push([path[m+1], path[m]]);
+                                          }
+                                          // console.log(path_array_in_order[0][0].lat);
+
+
+                                          for (var j = 0; j < path_array_in_order.length; j++){
                                               
                                               for(var k = 0; k < ob_array_in_area.length; k++){
-                                                var dis = 0;
-
-                                                if(path[j+1].lat == path[j].lat)
-                                                {　
-                                                  dis = Math.abs(path[j].lat-ob_array_in_area[k].lat);
-                                                }
-                                                else
+                                                var dis = 10000000;
+                                                if(ob_array_in_area[k].lat>(path_array_in_order[j][0].lat-0.0000086) && ob_array_in_area[k].lat<(path_array_in_order[j][1].lat+0.0000086))
                                                 {
-                                                  var a = (path[j+1].lng-path[j].lng)/(path[j+1].lat-path[j].lat);
-                                                  var b = path[j].lng - a*path[j].lat;
-                                                  dis = Math.abs(a*ob_array_in_area[k].lat-ob_array_in_area[k].lng+b)/Math.sqrt(a*a+1);
-                                                }
-                                                //console.log(dis);
+                                                  // if(ob_array_in_area[k].lng>(path_array_in_order[j][0].lng-0.0000086) && ob_array_in_area[k].lng<(path_array_in_order[j][1].lng+0.0000086))
+                                                  // {
+                                                    var dis_flag = 0;
+                                                    if(path_array_in_order[j][0].lng < path_array_in_order[j][1].lng)
+                                                    {
+                                                      if(ob_array_in_area[k].lng>(path_array_in_order[j][0].lng-0.0000086) && ob_array_in_area[k].lng<(path_array_in_order[j][1].lng+0.0000086))
+                                                      {
+                                                        dis_flag = 1;
+                                                      }
+                                                    }
+                                                    else
+                                                    {
+                                                      if(ob_array_in_area[k].lng<(path_array_in_order[j][0].lng+0.0000086) && ob_array_in_area[k].lng>(path_array_in_order[j][1].lng-0.0000086))
+                                                      {
+                                                        dis_flag = 1;
+                                                      }
+                                                    }
 
-                                                if(dis < 0.0000086)   //0.0000086
+                                                    if(dis_flag == 1)
+                                                    {
+                                                      // console.log('1111');
+                                                      v = [(path_array_in_order[j][1].lat-path_array_in_order[j][0].lat), (path_array_in_order[j][1].lng-path_array_in_order[j][0].lng)];
+                                                      v1 = [(ob_array_in_area[k].lat -path_array_in_order[j][0].lat),(ob_array_in_area[k].lng -path_array_in_order[j][0].lng)];
+                                                      v2 = [(ob_array_in_area[k].lat -path_array_in_order[j][1].lat),(ob_array_in_area[k].lng -path_array_in_order[j][1].lng)];
+                                                      // if (dot(v, v1) <= 0) return length(v1);  if (dot(v, v2) >= 0) return length(v2);
+                                                      
+                                                      if((v[0]*v1[0]+v[1]*v1[1]) <= 0){
+                                                        dis = Math.sqrt(v1[0]*v1[0] + v1[1]*v1[1]);
+                                                        console.log("(v[0]*v1[0]+v[1]*v1[1]) <= 0");
+                                                      }   
+                                                      else if((v[0]*v2[0]+v[1]*v2[1]) >= 0){
+                                                        dis = Math.sqrt(v2[0]*v2[0] + v2[1]*v2[1]);
+                                                        console.log("(v[0]*v2[0]+v[1]*v2[1]) >= 0");
+                                                      }   
+                                                      else{
+                                                        if(path_array_in_order[j][1].lat == path_array_in_order[j][0].lat)
+                                                        {　
+                                                          dis = Math.abs(path_array_in_order[j][0].lat-ob_array_in_area[k].lat);
+                                                        }
+                                                        else
+                                                        {
+                                                          var a = (path_array_in_order[j][1].lng-path_array_in_order[j][0].lng)/(path_array_in_order[j][1].lat-path_array_in_order[j][0].lat);
+                                                          var b = path_array_in_order[j][0].lng - a*path_array_in_order[j][0].lat;
+                                                          dis = Math.abs(a*ob_array_in_area[k].lat-ob_array_in_area[k].lng+b)/Math.sqrt(a*a+1);
+                                                          console.log("線段內");
+                                                        }
+                                                        
+                                                      }
+
+
+                                                      console.log("ob_array_in_area:"+JSON.stringify(ob_array_in_area[k])+" dis: "+dis);
+                                                    }
+                                                  // }
+                                                }
+                                                var ob_flag = 0;
+                                                if(dis < 0.0000138)   //0.0000086, 0.0000016
                                                   {
                                                     console.log("in" + dis);
+                                                    // path_err = [{lat:(path[j].lat+path[j+1].lat)/2, lng:(path[j].lng+path[j+1].lng)/2}, {lat:ob_array_in_area[k].lat, lng:ob_array_in_area[k].lng}];
+                                                    // flightPath_routing = new google.maps.Polyline({
+                                                    // path: path_err,
+                                                    // geodesic: true,
+                                                    // strokeColor: '#FF44AA',
+                                                    // strokeOpacity: 1.0,
+                                                    // strokeWeight: 2,
+                                                    // //map: map
+                                                    // });
+
+                                                    // flightPath_routing.setMap(map);
                                                     //console.log(path_obj.lat);
+
                                                     ob_flag = 1;
                                                     break;
                                                   }
@@ -999,20 +1197,26 @@
                                               }
                                           }
                                           
+                                          if(flightPath_routing != null) 
+                                          {
+                                            flightPath_routing.setMap(null);
+                                            flightPath_routing = null;
+                                          }
+
                                           if(ob_flag == 0)
                                           {
-
+                                            // console.log("有進來");
                                             //var path = response.routes[i].overview_path;
-                                            var flightPath = new google.maps.Polyline({
+                                            flightPath_routing = new google.maps.Polyline({
                                             path: path,
                                             geodesic: true,
-                                            strokeColor: line_color[i],
+                                            strokeColor: line_color[0],
                                             strokeOpacity: 1.0,
                                             strokeWeight: 2,
                                             //map: map
                                             });
 
-                                            flightPath.setMap(map);
+                                            flightPath_routing.setMap(map);
                                             google.maps.event.removeListener(listener_routing);
                                             break;
                                             // console.log(path);
@@ -1063,7 +1267,7 @@
                                               directions: response,
                                               routeIndex: i
                                           });*/
-                                            //break;
+                                            // break;
                                           
                                           }
                                           else
@@ -1071,8 +1275,9 @@
                                             if(i == (response.routes.length-1))
                                             {
 
-                                              // toast("There is no road to destination.");
-
+                                              toast("There is no road to destination.");
+                                              console.log(flightPath_routing);
+                                              $('#input_destination').show();
                                               marker_routing.setMap(null);
                                             }
                                             ob_flag = 0;
@@ -1085,9 +1290,9 @@
 
                                       //         infowindow.open(map, marker);
 
-                                      //       $(document).on('click', '#routing_cancel', function(){            
-                                      //         flightPath.setMap(null);
-                                      //       });
+                                            // $(document).on('click', '#routing_cancel', function(){            
+                                            //   flightPath.setMap(null);
+                                            // });
                             
                                       //       });
 
@@ -1098,11 +1303,14 @@
                             }
                         }
                     );
-                    });
+                    
                     
                   }
                   initialize();
+                  $(document).on('click', '#button_s5', function(){
                   calcRoute();
+                  $('#input_destination').hide();
+                });
                   console.log(lat+","+lng);
 
                   //console.log(typeof lat);
@@ -1195,17 +1403,23 @@
 
         
 
+        var t = [];
+        var interval;
         var marker_dog = [];
         var online_list = []; 
         var str = '';
         var flag_marker = [];
         var flag_active = []; 
-        var flag_his = [];
+        var flag_his_hour = [];
+        var flag_his_day = [];
         var arr_latlng = [];
         var active_id;
         var history_hour = [];
         var history_day = [];
-        var color123 = ['SlateGray','SteelBlue','Teal','MediumSeaGreen','Purple'];
+        var color123 = ['#5cb85c','#f0ad4e','#d9534f','#5bc0de','#0275d8'];
+
+
+
         $(document).on('click','.history',function(){
             
             var now = new Date();
@@ -1246,55 +1460,18 @@
                   }
                   if(optradio == "recent_hour")
                   {
-                    var t = 1;
+                     t[active_id] = 1;
                     flag_marker[active_id] = 1;
-                    flag_his[active_id] = 1;
-                    $.getJSON($SCRIPT_ROOT + '/history',{
+                    flag_his_hour[active_id] = 1;
+                    $.getJSON($SCRIPT_ROOT + '/secure/history',{
                       dog_id: online_list[active_id],
-                      time: t
+                      time: t[active_id]
                     }, function(data) {
                       //console.log(data.result);
                       var flightPlanCoordinates = data.result.map(function(dog) {return  {lat:dog.lat, lng:dog.lon}; });
-                      console.log(flightPlanCoordinates);
-                      //$("#result").text(courseStr);
-                      // console.log(flightPlanCoordinates);
-
-                      // var StartPosition = flightPlanCoordinates[0];
-                      // addMarker_Start(StartPosition);
-                        //setMapOnAll(map);
-
-                      // function addMarker_Start(location) {
-                      //   var marker = new google.maps.Marker({
-                      //     position: location,
-                      //     //label: "起點",
-                      //     map: map,
-                      //     icon: "/static/img/history_start_icon.png"
-                      //   });
-                      //   //markers.push(marker);
-                      //   console.log(marker);
-                      //   his_markers.push(marker);
-                      // }
-
-                      // var EndPosition = flightPlanCoordinates[flightPlanCoordinates.length - 1];
-                      // addMarker_End(EndPosition);
-                      //   //setMapOnAll(map);
-
-                      // function addMarker_End(location) {
-                      //   var marker = new google.maps.Marker({
-                      //     position: location,
-                      //     //label: "終點",
-                      //     map: map,
-                      //     icon: '/static/img/history_end_icon.png'
-                      //   });
-                      //   //markers.push(marker);
-                      //   console.log(marker);
-                      //   his_markers.push(marker);
-                      // }
-
                       var lineSymbol = {
                         path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                        scale: 3,
-                        //strokeColor: '#393'
+                        scale: 3
                       };
 
                       flightPath = new google.maps.Polyline({
@@ -1304,82 +1481,33 @@
                         offset: '100%'
                       }],
                       geodesic: true,
-                      strokeColor: '#FF0000',
+                      strokeColor: color123[active_id],
                       strokeOpacity: 1.0,
-                      strokeWeight: 2,
+                      strokeWeight: 2
                       //map: map
                       });
-
-                      animateCircle(flightPath);
 
                       flightPath.setMap(map);
                       history_hour[active_id] = flightPath;
 
-                      function animateCircle(line) {
-                        // console.log("animateCircle comein");
-                        var count = 0;
-                        window.setInterval(function() {
-                          count = (count + 1) % 200;
-
-                          var icons = line.get('icons');
-                          icons[0].offset = (count / 20) + '%';
-                          line.set('icons', icons);
-                      }, 50);
+                    });
                     }
 
-            });
-                  }
                   if(optradio == "recent_day")
                   {
-                    var t = 2;
+                    t[active_id] = 2;
                     flag_marker[active_id] = 1;
-                    flag_his[active_id] = 1;
-                    $.getJSON($SCRIPT_ROOT + '/history',{
+                    flag_his_day[active_id] = 1;
+                    $.getJSON($SCRIPT_ROOT + '/secure/history',{
                       dog_id: online_list[active_id],
-                      time: t
+                      time: t[active_id]
                     }, function(data) {
-                      //console.log(data.result);
                       var flightPlanCoordinates = data.result.map(function(dog) {return  {lat:dog.lat, lng:dog.lon}; });
                       console.log(flightPlanCoordinates);
-                      //$("#result").text(courseStr);
-                      // console.log(flightPlanCoordinates);
-
-                      // var StartPosition = flightPlanCoordinates[0];
-                      // addMarker_Start(StartPosition);
-                        //setMapOnAll(map);
-
-                      // function addMarker_Start(location) {
-                      //   var marker = new google.maps.Marker({
-                      //     position: location,
-                      //     //label: "起點",
-                      //     map: map,
-                      //     icon: "/static/img/history_start_icon.png"
-                      //   });
-                      //   //markers.push(marker);
-                      //   console.log(marker);
-                      //   his_markers.push(marker);
-                      // }
-
-                      // var EndPosition = flightPlanCoordinates[flightPlanCoordinates.length - 1];
-                      // addMarker_End(EndPosition);
-                      //   //setMapOnAll(map);
-
-                      // function addMarker_End(location) {
-                      //   var marker = new google.maps.Marker({
-                      //     position: location,
-                      //     //label: "終點",
-                      //     map: map,
-                      //     icon: '/static/img/history_end_icon.png'
-                      //   });
-                      //   //markers.push(marker);
-                      //   console.log(marker);
-                      //   his_markers.push(marker);
-                      // }
 
                       var lineSymbol = {
                         path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                        scale: 3,
-                        //strokeColor: '#393'
+                        scale: 3
                       };
 
                       flightPath = new google.maps.Polyline({
@@ -1389,31 +1517,117 @@
                         offset: '100%'
                       }],
                       geodesic: true,
-                      strokeColor: '#FF0000',
+                      strokeColor: color123[active_id],
                       strokeOpacity: 1.0,
-                      strokeWeight: 2,
-                      //map: map
+                      strokeWeight: 2
                       });
-
-                      animateCircle(flightPath);
 
                       flightPath.setMap(map);
                       history_day[active_id] = flightPath;
-
-                      function animateCircle(line) {
-                        // console.log("animateCircle comein");
-                        var count = 0;
-                        window.setInterval(function() {
-                          count = (count + 1) % 200;
-
-                          var icons = line.get('icons');
-                          icons[0].offset = (count / 100) + '%';
-                          line.set('icons', icons);
-                      }, 50);
-                    }
-
-            });
+                    });
                   }
+
+                    if(interval != null) window.clearInterval(interval);
+                    interval = setInterval(function(){
+                    var color_line;
+                    var t_his;
+                    for(var i=0; i<online_list.length; i++)
+                    {
+                      if(flag_his_hour[i] == 1)
+                      {   color_line = i;
+                          t_his = t[i];
+                          //console.log(t_his);
+                          if(history_hour[i] != null)
+                          {
+                            history_hour[i].setMap(null);
+                            history_hour[i] = null;
+                          }
+                          
+                          $.ajaxSettings.async = false;
+                          //$.ajaxSettings.traditional = true;  //solve %5B%5D
+                          //$.ajaxSettings.cache = false; //solve pass last value
+                          //var noCache = new Date().getTime();
+                          $.getJSON($SCRIPT_ROOT + '/secure/history',{
+                          dog_id: online_list[i],
+                          time: t_his
+                        }, function(data) {
+                          console.log(data.result);
+                          var flightPlanCoordinates = data.result.map(function(dog) {return  {lat:dog.lat, lng:dog.lon}; });
+                          var lineSymbol = {
+                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                            scale: 3
+                          };
+
+                          flightPath = new google.maps.Polyline({
+                          path: flightPlanCoordinates,
+                          icons: [{
+                            icon: lineSymbol,
+                            offset: '100%'
+                          }],
+                          geodesic: true,
+                          strokeColor: color123[color_line],
+                          strokeOpacity: 1.0,
+                          strokeWeight: 2,
+                          //map: map
+                          });
+                          console.log(color123[color_line]);
+                          flightPath.setMap(map);
+                          history_hour[color_line] = flightPath;
+                          
+                        });
+                          //$.ajaxSettings.async = true;
+                          
+                          //$.ajaxSettings.cache = true;
+                        //sleep(5000);
+                      }
+
+                      if(flag_his_day[i] == 1)
+                      {
+                        color_line = i;
+                        t_his = t[i];
+                        if(history_day[i] != null)
+                        {
+                          history_day[i].setMap(null);
+                          history_day[i] = null;
+                        }
+                        $.ajaxSettings.async = false;
+                        $.getJSON($SCRIPT_ROOT + '/secure/history',{
+                          dog_id: online_list[i],
+                          time: t_his
+                        }, function(data) {
+                          var flightPlanCoordinates = data.result.map(function(dog) {return  {lat:dog.lat, lng:dog.lon}; });
+                          console.log(flightPlanCoordinates);
+
+                          var lineSymbol = {
+                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                            scale: 3
+                          };
+
+                          flightPath = new google.maps.Polyline({
+                          path: flightPlanCoordinates,
+                          icons: [{
+                            icon: lineSymbol,
+                            offset: '100%'
+                          }],
+                          geodesic: true,
+                          strokeColor: color123[color_line],
+                          strokeOpacity: 1.0,
+                          strokeWeight: 2
+                          });
+
+                          flightPath.setMap(map);
+                          history_day[color_line] = flightPath;
+                        });
+                        $.ajaxSettings.async = true;
+                      }
+                     }
+                    },10000);
+                      
+
+                    
+                    
+                  
+                  
                   document.body.removeChild(form);
 
 
@@ -1423,12 +1637,14 @@
             }
             if(flag_marker[active_id] == 1)
             {
-              $("#"+active_id).css("background-color", "white");
-              $("#"+active_id).css("color", "black");
+              $("#"+active_id).css("background-color", "#eee");
+              $("#"+active_id).css("color", "#337ab7");
               //console.log(flag_active.length);
               flag_active[active_id] = 0;
               flag_marker[active_id] = 0;
-              flag_his[active_id] = 0;
+              flag_his_hour[active_id] = 0;
+              flag_his_day[active_id] = 0;
+              t[active_id] = null;
               marker_dog[active_id].setVisible(false);
               if(history_hour[active_id] != null)
               {
@@ -1440,7 +1656,8 @@
                 history_day[active_id].setMap(null);
                 history_day[active_id] = null;
               }
-              
+              //window.clearInterval(interval[active_id]);
+              //interval[active_id] = null;
               //$('#myModal').remove();
               // $('#myModal').modal.close();
 
@@ -1472,14 +1689,17 @@
            var Longitude = parseFloat(data[1][1]);
            var val = data[1][2];
            var meta = JSON.stringify(data[1][3]);
-
+           meta = JSON.parse(meta);
            
            if(Latitude != -1 && Longitude != -1 && flag == 0) // check is the data come in for the first time
            {
               flag = 1;
-              $('#dog').removeClass('disabled'); 
+              $('#dog').show();
+              // $('#dog').removeClass('disabled');              
               $('#dog_dropdown').attr("data-toggle", "dropdown");
               document.getElementById("dog_dropdown").style.cursor = "pointer";
+              if(meta.type != undefined)
+                $("#dog_dropdown").html(meta.type + '<span class="caret"></span>');
               status[4] = 1;              
            }
            if( Number.isInteger(val) && !isNaN(Latitude) && !isNaN(Longitude) && (Latitude>=-90) && (Latitude<=90) && (Longitude>=-180) && (Longitude<=180))//status[4]==1 &&
@@ -1494,18 +1714,24 @@
                }
 
                if (new_online == 1){
-                str = str + '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+val+'</button></li>';
+                
+               if(meta.name != undefined)
+                  str = '<li style="cursor:pointer" ><button  type="button" style="border-color:white ;background-color:  #eee; width:118px; color:#337ab7" class="history btn btn-outline-primary" id='+online_list.length+' value='+online_list.length+'>'+meta.name+'</button></li>';
+                else
+                  str = '<li style="cursor:pointer" ><button  type="button" style="border-color:white ;background-color:  #eee; width:118px; color:#337ab7" class="history btn btn-outline-primary" id='+online_list.length+' value='+online_list.length+'>Mark'+val+'</button></li>';
                 // console.log(str);
                 online_list.push(val);
                 flag_active.push(0);
                 flag_marker.push(0);
-                flag_his.push(0);
+                flag_his_hour.push(0);
+                flag_his_day.push(0);
                 marker_dog.push(null);
                 history_hour.push(null);
                 history_day.push(null);
+                t.push(null);
                 arr_latlng.push({lat:Latitude, lng:Longitude});
                 console.log(marker_dog);
-                $("#dog-list").html(str);
+                $("#dog-list").append(str);
                }
                
 
@@ -1529,8 +1755,13 @@
                     var marker = new google.maps.Marker({
                     position:arr_latlng[i],
                     map: map,
-                    label: online_list[i].toString(),
-                    icon:'http://maps.google.com/mapfiles/kml/paddle/blu-blank.png',
+                    //label: online_list[i].toString(),
+                    icon:{
+                      path: google.maps.SymbolPath.CIRCLE,
+                      scale: 10,
+                      strokeWeight:7,
+                      strokeColor:color123[i]
+                    },
                     visible: false
                     });
                     marker_dog[i] = marker;
@@ -1546,7 +1777,7 @@
 
 
                //addMarker(Latitude, Longitude, val);
-               $.getJSON($SCRIPT_ROOT + '/_add_numbers',{
+               $.getJSON($SCRIPT_ROOT + '/secure/_add_numbers',{
                 lat: Latitude,
                 lon: Longitude,
                 dog_id: val,
@@ -1849,7 +2080,7 @@
 
 
 
-            $.getJSON($SCRIPT_ROOT + '/_add_markers',{
+            $.getJSON($SCRIPT_ROOT + '/secure/_add_markers',{
                 lat: lat,
                 lon: lng,
                 type:title,
@@ -1969,9 +2200,8 @@
             'iot_app': iot_app,
         }; // How iot device receive data (format)
         dai(profile,ida);     
-
+ }
 });
-
 
  function detach() {
             window.d_name = null;
