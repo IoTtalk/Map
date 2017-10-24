@@ -788,9 +788,9 @@
                 }
 
                 var lineSymbol = {
-                  path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                  scale: 3,
-                  //strokeColor: '#393'
+                      path: google.maps.SymbolPath.CIRCLE,
+                      scale: 10,
+                      strokeWeight:7,
                 };
 
                 flightPath = new google.maps.Polyline({
@@ -801,7 +801,7 @@
                 }],
                 geodesic: true,
                 strokeColor: '#FF0000',
-                strokeOpacity: 1.0,
+                strokeOpacity: 0.5,
                 strokeWeight: 2,
                 //map: map
                 });
@@ -959,9 +959,10 @@
                 }
 
                 var geoSuccess = function(position) {
-                  var lat = position.coords.latitude;
-                  var lng = position.coords.longitude;
-                  var CurrentPosition = {lat: lat, lng: lng};
+                  var lat = position.coords.latitude;//24.789189;
+                  var lng = position.coords.longitude;//120.999858;
+                  //var CurrentPosition = {lat: lat, lng: lng};
+                  var CurrentPosition = {lat: lat, lng: lng};  //交大校門24.789189, 120.999858
                   addMarker_routing(CurrentPosition);
                   //setMapOnAll(map);
 
@@ -1416,7 +1417,7 @@
         var active_id;
         var history_hour = [];
         var history_day = [];
-        var color123 = ['#708090','#4682b4','#008080','#3cb371','#800080'];
+        var color123 = ['#5cb85c','#f0ad4e','#d9534f','#5bc0de','#0275d8'];
 
 
 
@@ -1470,8 +1471,9 @@
                       //console.log(data.result);
                       var flightPlanCoordinates = data.result.map(function(dog) {return  {lat:dog.lat, lng:dog.lon}; });
                       var lineSymbol = {
-                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                        scale: 3
+                      path: google.maps.SymbolPath.CIRCLE,
+                      scale: 10,
+                      strokeWeight:7,
                       };
 
                       flightPath = new google.maps.Polyline({
@@ -1482,7 +1484,7 @@
                       }],
                       geodesic: true,
                       strokeColor: color123[active_id],
-                      strokeOpacity: 1.0,
+                      strokeOpacity: 0.5,
                       strokeWeight: 2
                       //map: map
                       });
@@ -1506,8 +1508,9 @@
                       console.log(flightPlanCoordinates);
 
                       var lineSymbol = {
-                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                        scale: 3
+                      path: google.maps.SymbolPath.CIRCLE,
+                      scale: 10,
+                      strokeWeight:7,
                       };
 
                       flightPath = new google.maps.Polyline({
@@ -1518,7 +1521,7 @@
                       }],
                       geodesic: true,
                       strokeColor: color123[active_id],
-                      strokeOpacity: 1.0,
+                      strokeOpacity: 0.5,
                       strokeWeight: 2
                       });
 
@@ -1554,8 +1557,9 @@
                           console.log(data.result);
                           var flightPlanCoordinates = data.result.map(function(dog) {return  {lat:dog.lat, lng:dog.lon}; });
                           var lineSymbol = {
-                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                            scale: 3
+                          path: google.maps.SymbolPath.CIRCLE,
+                          scale: 10,
+                          strokeWeight:7,
                           };
 
                           flightPath = new google.maps.Polyline({
@@ -1566,7 +1570,7 @@
                           }],
                           geodesic: true,
                           strokeColor: color123[color_line],
-                          strokeOpacity: 1.0,
+                          strokeOpacity: 0.5,
                           strokeWeight: 2,
                           //map: map
                           });
@@ -1599,8 +1603,9 @@
                           console.log(flightPlanCoordinates);
 
                           var lineSymbol = {
-                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                            scale: 3
+                                path: google.maps.SymbolPath.CIRCLE,
+                                scale: 10,
+                                strokeWeight:7,
                           };
 
                           flightPath = new google.maps.Polyline({
@@ -1611,7 +1616,7 @@
                           }],
                           geodesic: true,
                           strokeColor: color123[color_line],
-                          strokeOpacity: 1.0,
+                          strokeOpacity: 0.5,
                           strokeWeight: 2
                           });
 
@@ -1637,8 +1642,8 @@
             }
             if(flag_marker[active_id] == 1)
             {
-              $("#"+active_id).css("background-color", "white");
-              $("#"+active_id).css("color", "black");
+              $("#"+active_id).css("background-color", "#eee");
+              $("#"+active_id).css("color", "#337ab7");
               //console.log(flag_active.length);
               flag_active[active_id] = 0;
               flag_marker[active_id] = 0;
@@ -1715,10 +1720,10 @@
 
                if (new_online == 1){
                 
-                if(meta.name != undefined)
-                  str = '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>'+meta.name+'</button></li>';
+               if(meta.name != undefined)
+                  str = '<li style="cursor:pointer" ><button  type="button" style="border-color:white ;background-color:  #eee; width:118px; color:#337ab7" class="history btn btn-outline-primary" id='+online_list.length+' value='+online_list.length+'>'+meta.name+'</button></li>';
                 else
-                  str = '<li style="cursor:pointer" ><button style="width:140px;border-radius: 4px;margin:2px;height:30px;font-size:18px; background-color:white" type="submit" class="history" id='+online_list.length+' value='+online_list.length+'>Mark'+val+'</button></li>';
+                  str = '<li style="cursor:pointer" ><button  type="button" style="border-color:white ;background-color:  #eee; width:118px; color:#337ab7" class="history btn btn-outline-primary" id='+online_list.length+' value='+online_list.length+'>Mark'+val+'</button></li>';
                 // console.log(str);
                 online_list.push(val);
                 flag_active.push(0);
