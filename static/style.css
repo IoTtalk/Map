@@ -4,6 +4,9 @@ html,body{
     
 }
 
+#dog-list{
+  min-width: 120px;
+}
 
 #Video-Display{
     position:absolute;
