@@ -446,7 +446,7 @@
                           $("#delete-camera").show();
                           $("#cam_info").val(marker.id);
                           $("#cam_del").val(marker.id);
-                          
+                          $("#cam_cancel").val(marker.id);
                           // if(infowindow != null) {infowindow.close();}
                           // infowindow = new google.maps.InfoWindow({
                           //   content: '<button type="submit" id="camera_info" value='+marker.id+'>修改</button><button type="submit" id="camera_del" value='+marker.id+'>刪除</button>'
@@ -524,6 +524,7 @@
                           $("#delete-obstacle").show();
                           $("#ob_info").val(marker.id);
                           $("#ob_del").val(marker.id);
+                          $("#ob_cancel").val(marker.id);
 
                       } 
                 });
@@ -651,9 +652,21 @@
             });
 
 
-        
+        $(document).on('click', '#cam_cancel_2', function(){            
+                  $('#delete-camera').hide();
+                  infowindow.close();
+                  $('#Video-Display').attr('src', '');
+                  $('#Video-Display').hide();
+                  $('#fuck_off').hide();
+        });
 
-
+        $(document).on('click', '#ob_cancel_2', function(){            
+                  $('#delete-obstacle').hide();
+                  infowindow.close();
+                  $('#Video-Display').attr('src', '');
+                  $('#Video-Display').hide();
+                  $('#fuck_off').hide();
+        });
         
        
         $('#button_d1').hide();  // we dont show this button initially        
