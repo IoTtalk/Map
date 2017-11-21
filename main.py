@@ -93,6 +93,21 @@ def take_obstacles():
         })
     return jsonify(result = recent_histories)
 
+@app.route('/secure/_take_cameras')
+def take_cameras():
+    c = db.session.query(fixed_Marker).filter_by(type = 'camera').all()
+    recent_histories = []
+    
+    for row in c:
+        recent_histories.append({
+            'id': row.id,
+            'lat': row.lat,
+            'lon': row.lon,
+            'type': row.type,
+            'content': row.content,
+        })
+    return jsonify(result = recent_histories)
+
 @app.route('/secure/_add_numbers')
 def add_numbers():
     lat = request.args.get('lat', 0, type=float)

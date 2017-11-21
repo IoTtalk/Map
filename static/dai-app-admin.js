@@ -396,7 +396,7 @@
           if(marker_listener.length > 0)
           {
             
-            for(var i=0; i<markers.length; i++)
+            for(var i=0; i<marker_listener.length; i++)
             {
               google.maps.event.removeListener(marker_listener[i]);
             }
