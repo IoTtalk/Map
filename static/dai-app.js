@@ -423,7 +423,7 @@
           {
             
             for (var i = 0; i < markers.length; i++) {
-              console.log("markers remove");
+              // console.log("markers remove");
               markers[i].setMap(null);
             }
 
@@ -431,7 +431,7 @@
 
             for(var i=0; i<marker_listener.length; i++)
             {
-              console.log("marker_listener remove");
+              // console.log("marker_listener remove");
               google.maps.event.removeListener(marker_listener[i]);
             }
             marker_listener = [];
@@ -880,19 +880,20 @@
         var directionsService;
         var haight;//origin: (24.7882499,121.01580720000001)(24.782146, 120.997231)(24.7872622,120.9979454)
         var oceanBeach; //= new google.maps.LatLng(24.7852481, 120.9979445);
-        var listener_routing;
+        var listener_routing, listener_routing2;
 
         var flag_route = 0;
         var flightPath_routing;
-        var marker_routing;
+        var marker_routing, marker_routing2;
         var marker_routing_now;
-        var placeSearch, autocomplete;
+        var placeSearch, placeSearch2, autocomplete, autocomplete2;
         $(document).on('click', '#button_route', function(){
           if (flag_route == 0){
             flag_route = 1;
             flag_routing = 0;
             $('#input_destination').show();
             $('#autocomplete').val('');
+            $('#autocomplete2').val('');
             // document.getElementById("button_route").innerHTML="結束規劃";
             load_markers();
             $("#text").html('結束規劃');
@@ -915,10 +916,16 @@
               autocomplete = new google.maps.places.Autocomplete(
                   /** @type {!HTMLInputElement} */(document.getElementById('autocomplete')),
                   {types: []});
+              autocomplete2 = new google.maps.places.Autocomplete(
+                  /** @type {!HTMLInputElement} */(document.getElementById('autocomplete2')),
+                  {types: []});
               // When the user selects an address from the dropdown, populate the address
               // fields in the form.
               autocomplete.addListener('place_changed', function(){
                 placeSearch = autocomplete.getPlace();
+              });
+              autocomplete2.addListener('place_changed', function(){
+                placeSearch2 = autocomplete2.getPlace();
               });
             }
   
@@ -939,6 +946,7 @@
                     radius: 500
                   });
                   autocomplete.setBounds(circle.getBounds());
+                  autocomplete2.setBounds(circle.getBounds());
               //   });
               // }
             }
@@ -956,6 +964,10 @@
               marker_routing.setMap(null);
               marker_routing = null;
             }
+            if(marker_routing2 != null){
+              marker_routing2.setMap(null);
+              marker_routing2 = null;
+            }
 
             if(marker_routing_now != null) marker_routing_now.setMap(null);
             $('#input_destination').hide();
@@ -969,7 +981,71 @@
 
         var flag_routing = 0;
 
-        
+        $("#autocomplete").focus(function(){
+            console.log("autocomplete focus in");
+            if(listener_routing2 != undefined) google.maps.event.removeListener(listener_routing2);
+            listener_routing = google.maps.event.addListener(map, 'click', function(event) {
+              oceanBeach = event.latLng;
+              //console.log(oceanBeach);
+              if(marker_routing != null) marker_routing.setMap(null);
+              marker_routing = new google.maps.Marker({
+              position:oceanBeach,
+              label: "終點",
+              map: map
+            });
+            marker_routing.addListener('click', function() {
+              marker_routing.setMap(null);
+              $('#autocomplete').val('');
+            });
+            // var service = new google.maps.places.PlacesService(map);
+            // service.nearbySearch({
+            //   location: oceanBeach,
+            //   radius: 50,
+            //   type: []
+            // }, callback);
+            // function callback(results, status) {
+            //   if (status === google.maps.places.PlacesServiceStatus.OK) {
+            //     for (var i = 0; i < results.length; i++) {
+            //       console.log(results[i].name);
+            //     }
+            //   }
+            // }
+            $('#autocomplete').val(oceanBeach);
+          });
+        });
+
+        $("#autocomplete2").focus(function(){
+            console.log("autocomplete2 focus in");
+            if(listener_routing != undefined) google.maps.event.removeListener(listener_routing);
+            listener_routing2 = google.maps.event.addListener(map, 'click', function(event) {
+              haight = event.latLng;
+              //console.log(oceanBeach);
+              if(marker_routing2 != null) marker_routing2.setMap(null);
+              marker_routing2 = new google.maps.Marker({
+              position:haight,
+              label: "起點",
+              map: map
+            });
+            marker_routing2.addListener('click', function() {
+              marker_routing2.setMap(null);
+              $('#autocomplete2').val('');
+            });
+            // var service = new google.maps.places.PlacesService(map);
+            // service.nearbySearch({
+            //   location: oceanBeach,
+            //   radius: 50,
+            //   type: []
+            // }, callback);
+            // function callback(results, status) {
+            //   if (status === google.maps.places.PlacesServiceStatus.OK) {
+            //     for (var i = 0; i < results.length; i++) {
+            //       console.log(results[i].name);
+            //     }
+            //   }
+            // }
+            $('#autocomplete2').val(haight);
+          });
+        });
 
 
         $(document).on('click', '#button_route', function(){
@@ -986,8 +1062,8 @@
                 }
 
                 var geoSuccess = function(position) {
-                  var lat = 24.789189;//position.coords.latitude;
-                  var lng = 120.999858;//position.coords.longitude;
+                  var lat = position.coords.latitude;//24.789189;
+                  var lng = position.coords.longitude;//120.999858;
                   //var CurrentPosition = {lat: lat, lng: lng};
                   var CurrentPosition = {lat: lat, lng: lng};  //交大校門24.789189, 120.999858
                   addMarker_routing(CurrentPosition);
@@ -1014,33 +1090,36 @@
 
                   //marker.setMap(map);
                   //var directionsDisplay;
+
+
+
                   directionsService = new google.maps.DirectionsService();
                   haight = new google.maps.LatLng(lat,lng);//origin: (24.7882499,121.01580720000001)(24.782146, 120.997231)(24.7872622,120.9979454)
                   // oceanBeach //= new google.maps.LatLng(24.7852481, 120.9979445);
                   
-                  var listener_routing = google.maps.event.addListener(map, 'click', function(event) {
-                      oceanBeach = event.latLng;
-                      //console.log(oceanBeach);
-                      if(marker_routing != null) marker_routing.setMap(null);
-                      marker_routing = new google.maps.Marker({
-                      position:oceanBeach,
-                      map: map
-                    });
-                    // var service = new google.maps.places.PlacesService(map);
-                    // service.nearbySearch({
-                    //   location: oceanBeach,
-                    //   radius: 50,
-                    //   type: []
-                    // }, callback);
-                    // function callback(results, status) {
-                    //   if (status === google.maps.places.PlacesServiceStatus.OK) {
-                    //     for (var i = 0; i < results.length; i++) {
-                    //       console.log(results[i].name);
-                    //     }
-                    //   }
-                    // }
-                    $('#autocomplete').val(oceanBeach);
-                  });
+                  // var listener_routing = google.maps.event.addListener(map, 'click', function(event) {
+                  //     oceanBeach = event.latLng;
+                  //     //console.log(oceanBeach);
+                  //     if(marker_routing != null) marker_routing.setMap(null);
+                  //     marker_routing = new google.maps.Marker({
+                  //     position:oceanBeach,
+                  //     map: map
+                  //   });
+                  //   // var service = new google.maps.places.PlacesService(map);
+                  //   // service.nearbySearch({
+                  //   //   location: oceanBeach,
+                  //   //   radius: 50,
+                  //   //   type: []
+                  //   // }, callback);
+                  //   // function callback(results, status) {
+                  //   //   if (status === google.maps.places.PlacesServiceStatus.OK) {
+                  //   //     for (var i = 0; i < results.length; i++) {
+                  //   //       console.log(results[i].name);
+                  //   //     }
+                  //   //   }
+                  //   // }
+                  //   $('#autocomplete').val(oceanBeach);
+                  // });
 
                   function initialize() {
                     directionsDisplay = new google.maps.DirectionsRenderer();
@@ -1050,15 +1129,41 @@
                   
 
                   function calcRoute() {
-                    if(marker_routing == undefined)
+                    if($('#autocomplete').val()[0].localeCompare('(') != 0)
                     {
                       oceanBeach = $('#autocomplete').val();
                       console.log(oceanBeach);
+                      if(marker_routing != null) marker_routing.setMap(null);
                       marker_routing = new google.maps.Marker({
                       position:placeSearch.geometry.location,
+                      label: "終點",
                       map: map
                     });
                     }
+
+                    if($('#autocomplete2').val().length == 0 || $('#autocomplete2').val()[0].localeCompare('(') != 0)
+                    {
+                      console.log("autocomplete2 in");
+                      if($('#autocomplete2').val().length == 0)
+                      {
+                        if(marker_routing2 != null) marker_routing2.setMap(null);
+                        haight = new google.maps.LatLng(lat,lng);
+                      }
+                      else
+                      {
+                        haight = $('#autocomplete2').val();
+                        console.log(haight);
+                        if(marker_routing_now != null) marker_routing_now.setMap(null);
+                        if(marker_routing2 != null) marker_routing2.setMap(null);
+                        marker_routing2 = new google.maps.Marker({
+                        position:placeSearch2.geometry.location,
+                        label: "起點",
+                        map: map
+                        });
+                      }
+                      
+                    }
+
                     var selectedMode = "DRIVING";
                     var waypts = []; //{
                     //   location: {lat: 24.784064, lng: 120.997999},
@@ -1251,6 +1356,7 @@
 
                                             flightPath_routing.setMap(map);
                                             google.maps.event.removeListener(listener_routing);
+                                            google.maps.event.removeListener(listener_routing2);
                                             break;
                                             // console.log(path);
                                             // path = JSON.stringify(path);
@@ -1311,7 +1417,8 @@
                                               toast("There is no road to destination.");
                                               console.log(flightPath_routing);
                                               $('#input_destination').show();
-                                              marker_routing.setMap(null);
+                                              // marker_routing.setMap(null);
+                                              // marker_routing2.setMap(null);
                                             }
                                             ob_flag = 0;
                                           }                                      
