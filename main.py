@@ -13,7 +13,7 @@ import json
 app = Flask(__name__)
 # 設定資料庫位置，並建立 app
 #path為3條線///
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Dog.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///map.db'
 #由於SQLALCHEMY_TRACK_MODIFICATIONS預設為None, 因此我們須給True or False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -41,7 +41,7 @@ class Dog(db.Model):
 
     # 表的结构:
     id = Column(Integer, primary_key=True)
-    dog_id = Column(Integer)
+    dog_id = Column(String(100))#Column(Integer)
     lat = Column(Float)
     lon = Column(Float)
     timestamp = Column(DATETIME)
@@ -112,7 +112,7 @@ def take_cameras():
 def add_numbers():
     lat = request.args.get('lat', 0, type=float)
     lon = request.args.get('lon', 0, type=float)
-    dog_id = request.args.get('dog_id', type=int)
+    dog_id = request.args.get('dog_id', type=str)
     data = request.args.get('data', type=str)
     time = request.args.get('time', type=str)
     time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S.%f")
@@ -193,12 +193,12 @@ def del_markers():
 
 @app.route('/secure/history')
 def history():
-    dog_id = request.args.get('dog_id', 0, type=int)
+    dog_id = request.args.get('dog_id', 0, type=str)
     val = request.args.get('time', 0, type=int)
     if(val == 1):
-        val = timedelta(hours=1)
+        val = timedelta(minutes=1)#timedelta(hours=1)
     if(val == 2):
-        val = timedelta(days=1)
+        val = timedelta(hours=1)#timedelta(days=1)
     right_now = datetime.now()#datetime.strptime('2017-08-1 00:12:00.00', "%Y-%m-%d %H:%M:%S.%f")
     start_time = right_now - val#days=2 hours=2
     print(start_time)

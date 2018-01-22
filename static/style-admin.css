@@ -34,19 +34,35 @@ html,body{
   left:530px;
   top:90px;
 }
+@media (max-width: 811px) {
+
+    #Video-Display{
+        max-width:100%;
+        max-height: 100%;
+        top:30%;
+        
+        
+    }
+    #fuck_off{
+      /*margin-left: 5px;*/
+      left:530px;
+      top:30%;  
+    }
+
+}
 @media (max-width: 480px) {
 
     #Video-Display{
         max-width:100%;
         max-height: 40%;
-        top:34%;
+        top:33%;
         
         
     }
     #fuck_off{
       /*margin-left: 5px;*/
       left:90%;
-      top:34%;  
+      top:33%;  
     }
 
 }
@@ -88,7 +104,7 @@ However, delay the fade out process for 2.5 seconds */
     to {bottom: 30px; opacity: 1;}
 
 }
-@media (max-width: 480px) {
+@media (max-width: 811px) {
 
 
 @-webkit-keyframes fadeout {

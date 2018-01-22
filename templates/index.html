@@ -12,6 +12,7 @@
     <script src="{{ url_for('static', filename='dan.js') }}"></script>
     <script src="{{ url_for('static', filename='dai.js') }}"></script>
     <script src="{{ url_for('static', filename='dai-app.js') }}"></script>
+    <script src="{{ url_for('static', filename='img/history_start_icon.png') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='map-icons.js') }}"></script> 
     <script type=text/javascript src="{{ url_for('static', filename='jquery.datetimepicker.full.min.js') }}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -84,7 +85,7 @@
   </body> -->
 
 <header>
-    <ul class="nav nav-pills ">
+    <ul id="list" class="nav nav-pills ">
       <li role="presentation" class="dropdown" class="active">
       <!--   <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
           功能 <span class="caret"></span>
@@ -110,10 +111,10 @@
                 <input type="radio" name="optradio" id="inlineRadio1" value="active_marker" style="height: 18px; width: 18px;" checked > &nbsp;當前位置
               </label><br>
               <label class="radio-inline">
-                <input type="radio" name="optradio" id="inlineRadio2" value="recent_hour" style="height: 18px; width: 18px;"> &nbsp;最近一小時
+                <input type="radio" name="optradio" id="inlineRadio2" value="recent_hour" style="height: 18px; width: 18px;"> &nbsp;最近一分鐘
               </label><br>
               <label class="radio-inline">
-                <input type="radio" name="optradio" id="inlineRadio3" value="recent_day" style="height: 18px; width: 18px;"> &nbsp;最近一天
+                <input type="radio" name="optradio" id="inlineRadio3" value="recent_day" style="height: 18px; width: 18px;"> &nbsp;最近一小時
               </label>
 
             </div>
@@ -129,16 +130,16 @@
       
 
   <!--     <li role="presentation" class="disabled" id="dog" style="cursor:pointer"><a>狗</a></li> -->
-      <li id="dog" role="presentation" class="dropdown" class="active">
+      <!-- <li id="dog" role="presentation" class="dropdown" class="active">
         <a id="dog_dropdown" class="dropdown-toggle"  role="button" aria-haspopup="true" aria-expanded="false" >
-          type <span class="caret"></span>
+          mark <span class="caret"></span>
         </a>
-        <ul class="dropdown-menu" id="dog-list">
+        <ul class="dropdown-menu" id="dog-list"> -->
 <!--           <li id="button_d1" style="cursor:pointer"><a>狗1</a></li>
           <li id="cam_add" style="cursor:pointer"><a>狗2</a></li>
           <li id="ob_add" style="cursor:pointer"><a>狗3</a></li> -->
-        </ul>
-      </li>
+        <!-- </ul>
+      </li> -->
       </li>
     </ul>
   </header>

@@ -8,6 +8,14 @@ html,body{
   min-width: 120px;
 }
 
+#autocomplete2{
+  min-width: 260px;
+}
+
+#autocomplete{
+  min-width: 260px;
+}
+
 #Video-Display{
     position:absolute;
     left:0%;
@@ -30,6 +38,7 @@ html,body{
     margin: 0;
     
 }
+
 
 #fuck_off{
   position: absolute;
@@ -120,3 +129,5 @@ However, delay the fade out process for 2.5 seconds */
       height: 100%;
   }
 }*/
+
+

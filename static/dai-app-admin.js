@@ -393,8 +393,15 @@
         
         function load_markers()
         { console.log(marker_listener);
+          
           if(marker_listener.length > 0)
           {
+            for (var i = 0; i < markers.length; i++) {
+              // console.log("markers remove");
+              markers[i].setMap(null);
+            }
+
+            markers = [];
             
             for(var i=0; i<marker_listener.length; i++)
             {
@@ -407,7 +414,7 @@
                 id: object.id,
                 position: new google.maps.LatLng(object.lat, object.lon),
                 type: object.type,
-                content: object.content
+                content: decodeURIComponent(object.content)
                 }
               })
             // Create markers.
@@ -540,9 +547,10 @@
                       //var marker_id = $(this).val();
                       var marker_id = $(this).val();
                       var new_info = $('#new_info').val();
+                      console.log("新說明：" + new_info);
                       $.getJSON($SCRIPT_ROOT + '/secure/_modify_markers',{
                           id: marker_id,
-                          content: new_info
+                          content: encodeURIComponent(new_info)
                         }, function(data) {
                         
                         for (var i = 0; i < markers.length; i++) {
@@ -595,6 +603,14 @@
 
                       var marker_id = $(this).val();
                       console.log(marker_id);
+                      for(var i=0; i< markers.length; i++)
+                      {
+                        if(markers[i].id == marker_id)
+                        {
+                          markers[i].setMap(null);
+                          infowindow.close();
+                        }
+                      }
                       $.getJSON($SCRIPT_ROOT + '/secure/_del_markers',{
                           id: marker_id
                         }, function(data) {
@@ -610,10 +626,11 @@
                                 
                         //     }
                         // }
-                        for (var i = 0; i < markers.length; i++) {
+                        /*for (var i = 0; i < markers.length; i++) {
                           markers[i].setMap(null);
-                        }
-                        markers = [];
+                          markers[i] = null;
+                        }*/
+                        // markers = [];
                         $("#delete-obstacle").hide();
                         load_markers();
 
@@ -1786,6 +1803,10 @@
         var title_ob_add = 'obstacle';
         var marker_ob_add;
         $(document).on('click', '#ob_add', function(){
+          if(marker_cam_add!=null) marker_cam_add.setMap(null);
+          if(marker_ob_add!=null) marker_ob_add.setMap(null);
+          $('#add_content').val("");
+          if(marker_now != null)marker_now.setMap(null);
           close_form();
           $(this).addClass('active');
           $('#add-obstacle').show();
@@ -1800,6 +1821,7 @@
             
             google.maps.event.addListener(map, 'click', function(event) {
                 if(marker_ob_add!=null) marker_ob_add.setMap(null);
+                if(marker_cam_add!=null) marker_cam_add.setMap(null);
                 if(flag_ob_add == true)
                 {
                   var LatLng = event.latLng;
@@ -1831,6 +1853,7 @@
             });
 
             $(document).on('click', '#ob_in', function(){
+            if(marker_ob_add!=null) marker_ob_add.setMap(null);
             if(marker_now != null)marker_now.setMap(null);
             $("#ob_add").removeClass('active');
             $('#add-obstacle').hide();
@@ -1845,14 +1868,14 @@
                 lat: lat_ob_add,
                 lon: lng_ob_add,
                 type:title_ob_add,
-                content: infofo
+                content: encodeURIComponent(infofo)
               }, function(data) {
                 console.log(data.result);
-                for (var i = 0; i < markers.length; i++) {
+                /*for (var i = 0; i < markers.length; i++) {
                   markers[i].setMap(null);
                 }
 
-                markers = [];
+                markers = [];*/
                 load_markers();
                 
             });
@@ -1879,6 +1902,9 @@
         var title_cam_add = 'camera';
         var marker_cam_add;
         $(document).on('click', '#cam_add', function(){
+          if(marker_cam_add!=null) marker_cam_add.setMap(null);
+          if(marker_ob_add!=null) marker_ob_add.setMap(null);
+          if(marker_now != null)marker_now.setMap(null);
           close_form();
           $(this).addClass('active');
           $('#add-camera').show();
@@ -1886,13 +1912,14 @@
 
           // toast("Please click where you want to add camera.");
           getLocation_admin();
-
+          google.maps.event.clearInstanceListeners(map);
           icon = 'http://i.imgur.com/Eh9U0qI.png';
           // prompt("Add Description: ");
           
 
           google.maps.event.addListener(map, 'click', function(event) {
                 if(marker_cam_add!=null) marker_cam_add.setMap(null);
+                if(marker_ob_add!=null) marker_ob_add.setMap(null);
                 if(flag_cam_add == true)
                 {
                   var LatLng = event.latLng;
@@ -1925,6 +1952,7 @@
 
             $(document).on('click', '#cam_in', function(){
             if(marker_now != null)marker_now.setMap(null);
+            if(marker_cam_add!=null) marker_cam_add.setMap(null);
             $("#cam_add").removeClass('active');
             $('#add-camera').hide();
             flag_cam_add = false;
@@ -2073,6 +2101,7 @@
 
                 // return function(){};
             });
+            google.maps.event.removeListener(listenergg);
       };
         
 
