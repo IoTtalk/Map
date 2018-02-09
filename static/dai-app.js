@@ -304,13 +304,13 @@
                 icon: iconBase + 'parking_lot_maps.png'
             },
             obstacle: {
-                icon: 'http://maps.google.com/mapfiles/kml/pal3/icon33.png'
+                icon: 'https://maps.google.com/mapfiles/kml/pal3/icon33.png'
             },
             info: {
                 icon: iconBase + 'info-i_maps.png'
             },
             camera: {
-                icon: 'http://i.imgur.com/Eh9U0qI.png'
+                icon: 'https://i.imgur.com/Eh9U0qI.png'
             },
             dog1: {
                 icon: 'http://maps.google.com/mapfiles/kml/paddle/blu-circle.png'
@@ -1155,7 +1155,14 @@
           directionsDisplay.setMap(map);
         }
 
-                  
+        function sleep(milliseconds) {
+          var start = new Date().getTime();
+          for (var i = 0; i < 1e7; i++) {
+            if ((new Date().getTime() - start) > milliseconds){
+              break;
+            }
+          }
+        } 
 
         function calcRoute(count) {
           if($('#autocomplete').val()[0].localeCompare('(') != 0)
@@ -1549,6 +1556,8 @@
                                       marker_routing2.setMap(null);
                                     }
                                     count = count + 1;
+                                    // if(count % 5 == 0)
+                                      sleep(200);
                                     calcRoute(count);
                                     
                                   }
@@ -2049,6 +2058,52 @@
         var old_cam, urgent;
 
 
+        function CountGeoData_O(data)
+        {
+          var Latitude = parseFloat(data[1][0]);
+          var Longitude = parseFloat(data[1][1]);
+          var val = parseInt(data[1][2]);
+
+          var ParkingLotMap = [{lat:24.788542, lng:120.999116}];
+          var ParkingLotMarker = [];
+
+          for(var i=0; i<ParkingLotMap.length; i++)
+          {
+            
+            if(getDistance({ lat: Latitude, lng: Longitude }, ParkingLotMap[i]) <30)
+            {
+              if(ParkingLotMarker[i] != null)
+              {
+                ParkingLotMarker[i].setMap(null);
+                ParkingLotMarker[i] = null;
+              }
+
+              var EmptyColor='#5cb85c', FullColor='#FF0000', ParkingColor;
+              if(val>0) ParkingColor = EmptyColor;
+              else ParkingColor = FullColor;
+              val = 'P '+val; 
+              var marker = new google.maps.Marker({
+                position:ParkingLotMap[i],
+                map: map,
+                label: {text: val.toString(), fontSize: "25px"},
+                //label: online_list[i].toString(),
+                icon:{
+                  path: 'M -1,-0.5 1,-0.5 1,0.5 -1,0.5 z',//google.maps.SymbolPath.CIRCLE,
+                  scale: 15,
+                  strokeWeight:7,
+                  fillColor:ParkingColor,
+                  fillOpacity: 1,
+                  strokeColor:ParkingColor
+                },
+              });
+
+              ParkingLotMarker.push(marker);
+              break;
+            }
+          }
+
+        }
+
         function IDGeoData_O(data){
            var time = data[0];
            var Latitude = parseFloat(data[1][0]);
@@ -2058,22 +2113,27 @@
            var meta = JSON.parse(data[1][3]);
            // meta = JSON.parse(meta);
            
-           if(Latitude != -1 && Longitude != -1 && flag == 0) // check is the data come in for the first time
-           {
-              flag = 1;
-              // $('#dog').show();
-              // $('#dog').removeClass('disabled');              
-              // $('#dog_dropdown').attr("data-toggle", "dropdown");
-              // document.getElementById("dog_dropdown").style.cursor = "pointer";
-              // if(meta.type != undefined)
-              //   $("#dog_dropdown").html(meta.type + '<span class="caret"></span>');
-              // status[4] = 1;              
-           }
+           // if(Latitude != -1 && Longitude != -1 && flag == 0) // check is the data come in for the first time
+           // {
+           //    flag = 1;
+           //    // $('#dog').show();
+           //    // $('#dog').removeClass('disabled');              
+           //    // $('#dog_dropdown').attr("data-toggle", "dropdown");
+           //    // document.getElementById("dog_dropdown").style.cursor = "pointer";
+           //    // if(meta.type != undefined)
+           //    //   $("#dog_dropdown").html(meta.type + '<span class="caret"></span>');
+           //    // status[4] = 1;              
+           // }
            if( Number.isInteger(val) && !isNaN(Latitude) && !isNaN(Longitude) && (Latitude>=-90) && (Latitude<=90) && (Longitude>=-180) && (Longitude<=180))//status[4]==1 &&
            {              
                var val = parseInt(val);
-               var new_online = 1, new_type = 1, now_type; // 0:this id is not a new one, 1:this is a new id       
-               for(var i = 0; i < type_list.length; i++){
+               var new_online = 1, new_type = 1, now_type; // 0:this id is not a new one, 1:this is a new id    
+
+               showHistory();
+
+               function showHistory()
+               {
+                  for(var i = 0; i < type_list.length; i++){
                   if(meta.type == undefined) meta.type = 'marker';
                   if(meta.type == type_list[i]){
                     new_type = 0; now_type = i;
@@ -2251,6 +2311,8 @@
               //courseStr = data.result.map(function(dog) {return  dog.lat; })
               //$("#result").text(courseStr);
             });
+            }  
+               
            }
            // else
            //     HideAllMarkers(markers_sensor[val]);
@@ -2377,7 +2439,7 @@
           // toast("Please click where you want to add obstacle.");
 
           google.maps.event.clearInstanceListeners(map);
-          icon = 'http://maps.google.com/mapfiles/kml/pal3/icon33.png';
+          icon = 'https://maps.google.com/mapfiles/kml/pal3/icon33.png';
           // prompt("Add Description: ");
           var title = 'obstacle';
 
@@ -2392,7 +2454,7 @@
           // toast("Please click where you want to add camera.");
 
           google.maps.event.clearInstanceListeners(map);
-          icon = 'http://i.imgur.com/Eh9U0qI.png';
+          icon = 'https://i.imgur.com/Eh9U0qI.png';
           // prompt("Add Description: ");
           var title = 'camera';
 
@@ -2655,7 +2717,7 @@
         var profile = {
             'dm_name': 'Map',          
             'is_sim': false,
-            'df_list':[IDGeoData_O],
+            'df_list':[IDGeoData_O, CountGeoData_O],
         }
 
         var ida = {

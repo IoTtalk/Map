@@ -1,5 +1,5 @@
 var csmapi = (function () {
-    var ENDPOINT = window.location.origin;
+    var ENDPOINT = "https://test.iottalk.tw";
 
     function set_endpoint (endpoint) {
         ENDPOINT = endpoint;
