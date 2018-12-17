@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" style="height:99%">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>NCTU IoTtalk Remote Controller with Live View!</title>
+
+    <meta name="description" content="Source code generated using layoutit.com">
+    <meta name="author" content="LayoutIt!">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+	
+	<link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+	<link rel="icon" href="./favicon.ico" type="image/x-icon">
+	
+  </head>
+  <body style="height:99%" onload="flogin()">
+
+    <div class="container-fluid" style="height:99%">
+	<div class="row" style="height:99%">
+		<div class="col-xs-8 col-sm-8">
+			<h3 class="text-center text-info">
+				
+			</h3>
+			<form id="login" target="retframe" method="post" action="http://140.113.169.231">
+				<input type="hidden" name="username" value="login" />
+				<input type="hidden" name="password" value="pass" />
+            </form>
+			<img alt="IoTtalk Live View" src="http://140.113.169.231/video3.mjpg" width="100%" class="img-rounded" onerror="reloadImage(this)">
+			</br>
+			</br>
+			<div class="row">
+				<div class="col-xs-12 col-sm-12">
+					<div class="row">
+						<div class="col-xs-3 col-sm-3">
+							 
+							<button type="button" class="btn btn-block btn-primary btn-xs" ontouchstart="CamControl('move', 'up')" ontouchend="CamControl('move', 'stop')" onmousedown="CamControl('move', 'up')" onmouseup="CamControl('move', 'stop')">
+								UP
+							</button> 
+							<button type="button" class="btn btn-block btn-primary btn-xs" ontouchstart="CamControl('move', 'down')" ontouchend="CamControl('move', 'stop')" onmousedown="CamControl('move', 'down')" onmouseup="CamControl('move', 'stop')">
+								DOWN
+							</button>
+						</div>
+						<div class="col-xs-6 col-sm-6">
+							<div class="row">
+								<div class="col-xs-6 col-sm-6">
+									 
+									<button type="button" class="btn btn-block btn-warning btn-xs" ontouchstart="CamControl('move', 'left')" ontouchend="CamControl('move', 'stop')" onmousedown="CamControl('move', 'left')" onmouseup="CamControl('move', 'stop')">
+										LEFT
+									</button>
+								</div>
+								<div class="col-xs-6 col-sm-6">
+									 
+									<button type="button" class="btn btn-block btn-warning btn-xs" ontouchstart="CamControl('move', 'right')" ontouchend="CamControl('move', 'stop')" onmousedown="CamControl('move', 'right')" onmouseup="CamControl('move', 'stop')">
+										RIGHT
+									</button>
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-3 col-sm-3">
+							 
+							<button type="button" class="btn btn-block btn-success btn-xs" ontouchstart="CamControl('zoom', 'tele')" ontouchend="CamControl('zoom', 'stop')" onmousedown="CamControl('zoom', 'tele')" onmouseup="CamControl('zoom', 'stop')">
+								ZOOM+
+							</button> 
+							<button type="button" class="btn btn-block btn-success btn-xs" ontouchstart="CamControl('zoom', 'wide')" ontouchend="CamControl('zoom', 'stop')" onmousedown="CamControl('zoom', 'wide')" onmouseup="CamControl('zoom', 'stop')">
+								ZOOM-
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-4 col-sm-4" style="height:99%">
+			<h3 class="text-center text-info">
+				
+			</h3>						
+			<div class="row" style="height:99%">
+				<div class="col-xs-12 col-sm-12" style="height:99%">
+				<iframe src="http://140.113.199.246:9999/da/Remote_control" style="height:99%; width:99%"  frameborder="0"></iframe>	
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+    <iframe id="retframe" name="retframe" frameborder="0" style="display:none;"></iframe>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/scripts.js"></script>
+  </body>
+</html>
