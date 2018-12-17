@@ -1,7 +1,21 @@
 html,body{
-    max-height: 100%;
-    max-width: 100%;
-    
+    height: 100%;
+    width: 100%;
+    position: fixed;
+}
+
+.fix-content{
+  width: -moz-fit-content;
+  width: -webkit-fit-content;
+  width: fit-content;
+}
+
+#app_list{
+  position:absolute;
+  top: 41px;
+  z-index: 1000;
+  overflow-y: scroll;
+  max-height: 94%;
 }
 
 #dog-list{
@@ -27,18 +41,53 @@ html,body{
     padding: 0;
 }
 
+#flot-placeholder{
+    position:absolute;
+    left:0%;
+    z-index: 10;
+    top: 41px;
+    height: 315px;
+    width: 560px;
+    margin: 0;
+    padding: 0;
+}
+
+#highchart{
+    position:absolute;
+    left:0%;
+    z-index: 10;
+    top: 41px;
+    height: 315px;
+    width: 560px;
+    margin: 0;
+    padding: 0;
+}
+
 #Location-map
 {
     position: absolute;
     left: 0%;
     top: 41px;
-    height: 94%;
+    height: 95%;
     width: 100%;
     z-index: -50;
     margin: 0;
     
 }
 
+#color_scale{
+  position: absolute;
+  z-index: 20;
+  right:3%;
+  bottom:2%;
+}
+
+#my_location{
+  position: absolute;
+  z-index: 20;
+  right:8px;
+  bottom:120px;
+}
 
 #fuck_off{
   position: absolute;
@@ -46,19 +95,21 @@ html,body{
   left:530px;
   top:40px;
 }
-@media (max-width: 480px) {
+@media (max-width: 560px) {
 
     #Video-Display{
-        max-width:100%;
-        max-height: 40%;
-        
+        width:100%;
+        height: 40%;
+        /*overflow-y: visible; */
         
     }
     #fuck_off{
       /*margin-left: 5px;*/
-      left:90%;  
+      left:91%;  
     }
-
+    #color_scale{
+      right: 10%;
+    }
 }
 
 /* The snackbar - position it at the bottom and in the middle of the screen */
@@ -131,3 +182,7 @@ However, delay the fade out process for 2.5 seconds */
 }*/
 
 
+.list-group.panel > .list-group-item {
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px
+}
